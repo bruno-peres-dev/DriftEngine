@@ -36,8 +36,8 @@ target_include_directories(glm INTERFACE
 # ------------------------------------------------
 # 2) DirectXTK (core + WIC loader) via subdirectory
 # ------------------------------------------------
-# Disabled on Linux - DirectXTK is Windows-specific
-# add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
+
+add_subdirectory(extern/DirectXTK "extern/DirectXTK-build")
 
 # ------------------------------------------------
 # 3) DriftEngine Libraries
@@ -86,7 +86,7 @@ target_include_directories(DriftRHI_DX11 PUBLIC
 )
 target_link_libraries(DriftRHI_DX11 PUBLIC
   DriftRHI
-  # d3d11 dxgi D3DCompiler DirectXTK - Disabled on Linux
+  d3d11 dxgi D3DCompiler DirectXTK
 )
 
 # 3.5) DriftRenderer (passes)
@@ -103,7 +103,7 @@ target_link_libraries(DriftRenderer PUBLIC
   DriftRHI_DX11
   DriftMath
   glm
-  # d3d11 dxgi D3DCompiler DirectXTK - Disabled on Linux
+  d3d11 dxgi D3DCompiler DirectXTK
 )
 
 # ------------------------------------------------
