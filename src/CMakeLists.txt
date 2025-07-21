@@ -49,6 +49,23 @@ target_include_directories(DriftMath INTERFACE
   "${CMAKE_SOURCE_DIR}/src/engine/include"
 )
 
+# 3.1.1) DriftEngine (engine systems)
+add_library(DriftEngine STATIC
+  engine/src/Input/GLFWInputManager.cpp
+)
+target_include_directories(DriftEngine PUBLIC
+  engine/include
+  rhi/include
+  renderer/include
+  ${glfw_SOURCE_DIR}/include
+)
+target_link_libraries(DriftEngine PUBLIC
+  DriftCore
+  DriftMath
+  glm
+  glfw
+)
+
 # 3.2) DriftCore (logging)
 add_library(DriftCore STATIC
   core/src/Log.cpp
@@ -93,6 +110,7 @@ target_link_libraries(DriftRHI_DX11 PUBLIC
 add_library(DriftRenderer STATIC
   renderer/src/IRenderPass.cpp
   renderer/src/TerrainPass.cpp
+  renderer/src/RenderManager.cpp
 )
 target_include_directories(DriftRenderer PUBLIC
   renderer/include
@@ -100,6 +118,7 @@ target_include_directories(DriftRenderer PUBLIC
 )
 target_link_libraries(DriftRenderer PUBLIC
   DriftRHI_DX11
+  DriftEngine
   DriftMath
   glm
   d3d11 dxgi D3DCompiler DirectXTK
@@ -129,6 +148,7 @@ target_include_directories(DriftApp PRIVATE
 )
 target_link_libraries(DriftApp PRIVATE
   DriftCore
+  DriftEngine
   DriftRHI_DX11
   DriftRenderer
   glfw

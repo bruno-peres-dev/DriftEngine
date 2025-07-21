@@ -55,6 +55,8 @@ namespace Drift::RHI::DX11 {
         void GSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
 
         void SetDepthTestEnabled(bool enabled) override;
+        void SetViewport(int x, int y, int width, int height) override;
+        void UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t size) override;
         void SetRenderTarget(ITexture* color, ITexture* depth = nullptr);
         void SetDebugLabel(const char* label);
         void BeginDebugEvent(const char* name);

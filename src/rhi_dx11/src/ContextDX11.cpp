@@ -245,6 +245,34 @@ void ContextDX11::SetDepthTestEnabled(bool enabled) {
     }
 }
 
+void ContextDX11::SetViewport(int x, int y, int width, int height) {
+    D3D11_VIEWPORT vp = {};
+    vp.TopLeftX = static_cast<float>(x);
+    vp.TopLeftY = static_cast<float>(y);
+    vp.Width = static_cast<float>(width);
+    vp.Height = static_cast<float>(height);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    
+    _context->RSSetViewports(1, &vp);
+}
+
+void ContextDX11::UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t size) {
+    if (!buffer || !data || size == 0) {
+        Drift::Core::Log("[DX11][ERRO] UpdateConstantBuffer: parâmetros inválidos!");
+        return;
+    }
+    
+    auto* d3dBuffer = static_cast<ID3D11Buffer*>(buffer->GetBackendHandle());
+    if (!d3dBuffer) {
+        Drift::Core::Log("[DX11][ERRO] UpdateConstantBuffer: buffer D3D11 é nullptr!");
+        return;
+    }
+    
+    // Atualiza o buffer usando UpdateSubresource
+    _context->UpdateSubresource(d3dBuffer, 0, nullptr, data, 0, 0);
+}
+
 // Conversão de enums para DXGI/D3D11
 DXGI_FORMAT ContextDX11::ToDXGIFormat(Drift::RHI::Format fmt) {
     switch (fmt) {

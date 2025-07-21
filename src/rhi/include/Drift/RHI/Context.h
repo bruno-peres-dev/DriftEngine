@@ -2,6 +2,7 @@
 
 #include "Drift/RHI/Types.h"
 #include "Drift/RHI/Texture.h"
+#include "Drift/RHI/Buffer.h"
 
 namespace Drift::RHI {
 
@@ -44,6 +45,12 @@ namespace Drift::RHI {
         virtual void VSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
         virtual void PSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
         virtual void GSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
+        
+        // Viewport control
+        virtual void SetViewport(int x, int y, int width, int height) = 0;
+        
+        // Constant buffer updates
+        virtual void UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t size) = 0;
     };
 
     // Interface para swapchain (controle de buffers de apresentação)
