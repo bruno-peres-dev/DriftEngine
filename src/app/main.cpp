@@ -74,7 +74,7 @@ int main() {
 
         // Cria TerrainPass (passa RHI puro: device + context)
         auto terrainPass = std::make_unique<Drift::Renderer::TerrainPass>(
-            *device, *context, L"textures/grass.png", 500, 500, 50.0f, false
+            *device, *context, L"textures/grass.png"
         );
 
         // Armazena em AppData para callbacks

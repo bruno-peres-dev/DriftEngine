@@ -5,190 +5,251 @@
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/RHI/Types.h"
 #include "Drift/Core/Log.h"
-#include <glm/gtc/type_ptr.hpp>
-#include <GLFW/glfw3.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include "Drift/Math/Math.h"
-#include <iostream>
 #include "Drift/RHI/DX11/RingBufferDX11.h"
 
-using namespace Drift::Renderer;
-using namespace Drift::RHI;
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
+#include <cmath>
+#include <set> // Para std::set usado no sistema profissional
 
-TerrainPass::TerrainPass(Drift::RHI::IDevice& device,
-                         Drift::RHI::IContext& context,
-                         const std::wstring& texturePath,
-                         int rows,
-                         int cols,
-                         float uvScale,
-                         bool sphere)
-    : _device(device)
-    , _context(context)
-    , _uvScale(uvScale)
-    , _sphere(sphere)
+namespace RHI = Drift::RHI;
+using namespace Drift::Renderer;
+
+//-----------------------------------------------------------------------------
+// TerrainManager - Sistema Profissional Inspirado em Engines AAA
+//-----------------------------------------------------------------------------
+
+TerrainManager::TerrainManager(RHI::IDevice& device,
+                               RHI::IContext& context,
+                               int tileSize,
+                               int visibleRadius)
+  : _device(device)
+  , _context(context)
+  , tileSize(tileSize)
+  , visibleRadius(visibleRadius)
+{}
+
+void TerrainManager::GenerateTileMesh(TerrainTile& tile) {
+    // SOLUÇÃO DEFINITIVA: Vértices nas bordas devem ser MATEMATICAMENTE IDÊNTICOS
+    // entre tiles adjacentes para eliminar gaps completamente
+    
+    const int resolution = 33; // 33x33 vértices (0-32) - número ímpar para centro exato
+    const float tileWorldSize = 128.0f;
+    
+    // Coordenadas world EXATAS do tile
+    double tileStartX = static_cast<double>(tile.tileCoord.x) * tileWorldSize;
+    double tileStartZ = static_cast<double>(tile.tileCoord.y) * tileWorldSize;
+    
+    tile.vertices.clear();
+    tile.indices.clear();
+    tile.vertices.reserve(resolution * resolution);
+    tile.indices.reserve((resolution-1) * (resolution-1) * 6);
+    
+    // Gerar vértices com precisão dupla para eliminar erros de ponto flutuante
+    for(int z = 0; z < resolution; ++z) {
+        for(int x = 0; x < resolution; ++x) {
+            // Usar aritmética de precisão dupla
+            double stepX = static_cast<double>(x) / (resolution - 1);
+            double stepZ = static_cast<double>(z) / (resolution - 1);
+            
+            // Posição world com precisão dupla
+            double worldX = tileStartX + stepX * tileWorldSize;
+            double worldZ = tileStartZ + stepZ * tileWorldSize;
+            
+            // CRÍTICO: Garantir bordas exatas
+            if(x == 0) worldX = tileStartX; // borda esquerda
+            if(x == resolution - 1) worldX = tileStartX + tileWorldSize; // borda direita
+            if(z == 0) worldZ = tileStartZ; // borda inferior
+            if(z == resolution - 1) worldZ = tileStartZ + tileWorldSize; // borda superior
+            
+            // Converter para float apenas no final
+            glm::vec3 position(static_cast<float>(worldX), 0.0f, static_cast<float>(worldZ));
+            glm::vec3 normal(0.0f, 1.0f, 0.0f);
+            
+            // UVs baseados na posição world
+            float u = static_cast<float>(worldX) * 0.005f; // escala menor para mais detalhes
+            float v = static_cast<float>(worldZ) * 0.005f;
+            
+            tile.vertices.push_back({position, normal, {u, v}});
+        }
+    }
+    
+    // Gerar índices
+    for(int z = 0; z < resolution - 1; ++z) {
+        for(int x = 0; x < resolution - 1; ++x) {
+            int topLeft = z * resolution + x;
+            int topRight = topLeft + 1;
+            int bottomLeft = (z + 1) * resolution + x;
+            int bottomRight = bottomLeft + 1;
+            
+            // Winding order consistente
+            tile.indices.push_back(topLeft);
+            tile.indices.push_back(bottomLeft);
+            tile.indices.push_back(topRight);
+            
+            tile.indices.push_back(topRight);
+            tile.indices.push_back(bottomLeft);
+            tile.indices.push_back(bottomRight);
+        }
+    }
+    
+    // Criar buffers GPU
+    tile.vb = _device.CreateBuffer({
+        RHI::BufferType::Vertex,
+        tile.vertices.size() * sizeof(Vertex),
+        tile.vertices.data()
+    });
+    
+    tile.ib = _device.CreateBuffer({
+        RHI::BufferType::Index,
+        tile.indices.size() * sizeof(uint32_t),
+        tile.indices.data()
+    });
+    
+    tile.loaded = (tile.vb && tile.ib);
+}
+
+void TerrainManager::Update(const glm::vec3& cameraPos) {
+    // Sistema profissional: tiles baseados na CÂMERA, não no world origin
+    const float tileWorldSize = 128.0f;
+    
+    // Calcular tile central baseado na posição da câmera (projeção XZ)
+    int centerTileX = static_cast<int>(std::floor(cameraPos.x / tileWorldSize));
+    int centerTileZ = static_cast<int>(std::floor(cameraPos.z / tileWorldSize));
+    
+    // DEBUG: Log da posição da câmera e tile central (menos frequente)
+    static int debugCounter = 0;
+    static glm::ivec2 lastCenterTile(-999, -999);
+    glm::ivec2 currentCenterTile(centerTileX, centerTileZ);
+    
+    // Log apenas quando mudar de tile central
+    if(currentCenterTile != lastCenterTile) {
+        Drift::Core::Log("[TerrainManager] Câmera em tile: (" + std::to_string(centerTileX) + "," + 
+                         std::to_string(centerTileZ) + ") - Tiles antes: " + std::to_string(tiles.size()));
+        lastCenterTile = currentCenterTile;
+    }
+    
+    // CORRIGIDO: Raio fixo e menor para evitar carregar muitos tiles
+    int loadRadius = 3; // Só carrega 7x7 = 49 tiles máximo
+    
+    // Primeiro: Remover tiles muito distantes da câmera
+    float maxLoadDistance = static_cast<float>(loadRadius) + 1.5f;
+    
+    auto it = tiles.begin();
+    while(it != tiles.end()) {
+        glm::vec2 tileCenter = glm::vec2(it->first);
+        glm::vec2 cameraCenter = glm::vec2(centerTileX, centerTileZ);
+        float distance = glm::distance(tileCenter, cameraCenter);
+        
+        if(distance > maxLoadDistance) {
+            it = tiles.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Segundo: Criar apenas tiles próximos à câmera
+    for(int dz = -loadRadius; dz <= loadRadius; ++dz) {
+        for(int dx = -loadRadius; dx <= loadRadius; ++dx) {
+            glm::ivec2 tileCoord(centerTileX + dx, centerTileZ + dz);
+            
+            if(tiles.find(tileCoord) == tiles.end()) {
+                TerrainTile newTile;
+                newTile.tileCoord = tileCoord;
+                GenerateTileMesh(newTile);
+                tiles[tileCoord] = std::move(newTile);
+            }
+        }
+    }
+    
+    // DEBUG: Log após atualização
+    if(currentCenterTile != lastCenterTile) {
+        Drift::Core::Log("[TerrainManager] Tiles depois: " + std::to_string(tiles.size()));
+    }
+}
+
+//-----------------------------------------------------------------------------
+// TerrainPass
+//-----------------------------------------------------------------------------
+
+TerrainPass::TerrainPass(RHI::IDevice& device,
+                         RHI::IContext& context,
+                         const std::wstring& texturePath)
+  : _device(device)
+  , _context(context)
+  , _tileManager(std::make_unique<TerrainManager>(device, context, 128, 4)) // Sistema profissional: tiles 128x128, raio 4
 {
-    PipelineDesc pd;
+    // pipeline sólido
+    RHI::PipelineDesc pd;
     pd.vsFile = "shaders/TerrainVS.hlsl";
     pd.psFile = "shaders/TerrainPS.hlsl";
     pd.inputLayout = {
-        { "POSITION", 0, 0,  "R32G32B32_FLOAT" },
-        { "NORMAL",   0, 12, "R32G32B32_FLOAT" },
-        { "TEXCOORD", 0, 24, "R32G32_FLOAT" }
+      {"POSITION",0,0,"R32G32B32_FLOAT"},
+      {"NORMAL",0,12,"R32G32B32_FLOAT"},
+      {"TEXCOORD",0,24,"R32G32_FLOAT"}
     };
-    pd.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Back;
+    pd.rasterizer.cullMode = RHI::PipelineDesc::RasterizerDesc::CullMode::Back;
     pd.rasterizer.wireframe = false;
-    std::cerr << "[TerrainPass] Criando pipeline: cullMode=" << static_cast<int>(pd.rasterizer.cullMode) << std::endl;
-    _pipeline = _device.CreatePipeline(pd); // Nenhum define
-    std::cerr << "[TerrainPass] _pipeline: " << (_pipeline ? "ok" : "null") << std::endl;
+    _pipeline = _device.CreatePipeline(pd);
 
-    PipelineDesc pdWire = pd;
-    pdWire.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Back;
-    pdWire.rasterizer.wireframe = true;
-    std::cerr << "[TerrainPass] Criando pipelineWireframe: cullMode=None" << std::endl;
-    pdWire.defines.push_back({ "WIREFRAME", "1" });
-    _pipelineWireframe = _device.CreatePipeline(pdWire); // Só wireframe
-    std::cerr << "[TerrainPass] _pipelineWireframe: " << (_pipelineWireframe ? "ok" : "null") << std::endl;
+    // wireframe
+    auto pw = pd; pw.rasterizer.wireframe = true;
+    pw.defines.push_back({"WIREFRAME","1"});
+    _pipelineWire = _device.CreatePipeline(pw);
 
-    PipelineDesc pdLine = pd;
-    pdLine.vsFile = "shaders/NormalDebugVS.hlsl";
-    pdLine.psFile = "shaders/LinePS.hlsl";
-    pdLine.gsFile = "shaders/NormalLineGS.hlsl";
-    pdLine.gsEntry = "GS";
-    pdLine.inputLayout = pd.inputLayout;
-    pdLine.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
-    pdLine.rasterizer.wireframe = false;
-    // Comentário: pipeline profissional para debug de normais via geometry shader
-    _pipelineLineTest = _device.CreatePipeline(pdLine);
-    std::cerr << "[TerrainPass] _pipelineLineTest: " << (_pipelineLineTest ? "ok" : "null") << std::endl;
+    // debug normais
+    RHI::PipelineDesc pd2 = pd;
+    pd2.gsFile  = "shaders/NormalLineGS.hlsl";
+    pd2.gsEntry = "GS";
+    pd2.psFile  = "shaders/LinePS.hlsl";
+    pd2.rasterizer.cullMode = RHI::PipelineDesc::RasterizerDesc::CullMode::None;
+    _pipelineDebug = _device.CreatePipeline(pd2);
 
-    BuildGrid(rows, cols);
-
-    BufferDesc cbd{ BufferType::Constant, sizeof(CBFrame), nullptr };
-    _cb = _device.CreateBuffer(cbd);
-    std::cerr << "[TerrainPass] _cb: " << (_cb ? "ok" : "null") << std::endl;
-
-    TextureDesc td{}; td.path = texturePath;
-    _tex = _device.CreateTexture(td);
-    std::cerr << "[TerrainPass] _tex: " << (_tex ? "ok" : "null") << std::endl;
-
-    SamplerDesc sd{};
-    _samp = _device.CreateSampler(sd);
-    std::cerr << "[TerrainPass] _samp: " << (_samp ? "ok" : "null") << std::endl;
+    _cb   = _device.CreateBuffer({RHI::BufferType::Constant,sizeof(CBFrame),nullptr});
+    _tex  = _device.CreateTexture({texturePath});
+    _samp = _device.CreateSampler({});
 
     _camera.SetFovY(glm::radians(45.0f));
     _camera.SetAspect(1.0f);
-    _camera.SetPosition({ 500.0f, 10.0f, 800.0f });
-    _camera.SetTarget({ 500.0f, 0.0f, 500.0f });
-    _camera.SetNearFar(0.1f, 100000.0f);
-
-    _ringBuffer = Drift::RHI::DX11::CreateRingBufferDX11(
-        static_cast<ID3D11Device*>(_device.GetNativeDevice()),
-        static_cast<ID3D11DeviceContext*>(_context.GetNativeContext()),
-        4 * 1024 * 1024 // 4MB para testes
-    );
+    _camera.SetNearFar(0.1f,100000.0f);
+    _camera.SetPosition({64, 20, 64}); // CORRIGIDO: posição inicial no centro do tile (0,0) mais próxima do chão
+    _camera.SetTarget({64, 0, 128});   // CORRIGIDO: olhando para frente no terreno
 }
 
-void TerrainPass::BuildGrid(int rows, int cols)
-{
-    const float scale  = _sphere ? 0.0f   : 1000.0f;
-    const float radius = _sphere ? 100.0f : 0.0f;
-    const float dx     = scale / cols;
-    const float dz     = scale / rows;
-
-    std::vector<Vertex> verts;
-    std::vector<uint32_t> idx;
-
-    if (_sphere) {
-        for (int y = 0; y <= rows; ++y) {
-            float v   = float(y) / float(rows);
-            float phi = v * Math::PI;
-            for (int x = 0; x <= cols; ++x) {
-                float u     = float(x) / float(cols);
-                float theta = u * 2.0f * Math::PI;
-                glm::vec3 pos = {
-                    radius * sin(phi) * cos(theta),
-                    radius * cos(phi),
-                    radius * sin(phi) * sin(theta)
-                };
-                glm::vec3 normal = glm::normalize(pos);
-                verts.push_back({ pos, normal, { u * _uvScale, v * _uvScale } });
-            }
-        }
-        for (int y = 0; y < rows; ++y) {
-            for (int x = 0; x < cols; ++x) {
-                int i0 = y * (cols + 1) + x;
-                int i1 = i0 + 1;
-                int i2 = i0 + (cols + 1);
-                int i3 = i2 + 1;
-
-                idx.push_back(uint32_t(i0));
-                idx.push_back(uint32_t(i1));
-                idx.push_back(uint32_t(i2));
-                idx.push_back(uint32_t(i1));
-                idx.push_back(uint32_t(i3));
-                idx.push_back(uint32_t(i2));
-
-            }
-        }
-    } else {
-        for (int z = 0; z <= rows; ++z) {
-            for (int x = 0; x <= cols; ++x) {
-                glm::vec3 pos    = { x * dx, 0.0f, z * dz };
-                glm::vec3 normal = { 0.0f, 1.0f, 0.0f };
-                float u = float(x) / float(cols);
-                float v = float(z) / float(rows);
-                verts.push_back({ pos, normal, { u * _uvScale, v * _uvScale } });
-            }
-        }
-        for (int z = 0; z < rows; ++z) {
-            for (int x = 0; x < cols; ++x) {
-                int i0 = z * (cols + 1) + x;
-                int i1 = i0 + 1;
-                int i2 = i0 + (cols + 1);
-                int i3 = i2 + 1;
-                idx.push_back(uint32_t(i0));
-                idx.push_back(uint32_t(i2));
-                idx.push_back(uint32_t(i1));
-                idx.push_back(uint32_t(i1));
-                idx.push_back(uint32_t(i2));
-                idx.push_back(uint32_t(i3));
-            }
-        }
-    }
-
-    _indexCount  = uint32_t(idx.size());
-    _indexFormat = Format::R32_UINT;
-    _vb = _device.CreateBuffer({ BufferType::Vertex, verts.size() * sizeof(Vertex), verts.data() });
-    if (!_vb) {
-        Drift::Core::Log("[TerrainPass][ERRO] Falha ao criar vertex buffer do terreno! Tamanho: " + std::to_string(verts.size() * sizeof(Vertex)));
-        return;
-    }
-    _ib = _device.CreateBuffer({ BufferType::Index,  idx.size()   * sizeof(uint32_t), idx.data()   });
-    if (!_ib) {
-        Drift::Core::Log("[TerrainPass][ERRO] Falha ao criar index buffer do terreno! Tamanho: " + std::to_string(idx.size() * sizeof(uint32_t)));
-        return;
-    }
-    std::cerr << "[TerrainPass] _vb: " << (_vb ? "ok" : "null") << ", _ib: " << (_ib ? "ok" : "null") << ", _indexCount: " << _indexCount << std::endl;
-    _verts = verts;
-}
-
-void TerrainPass::SetAspect(float aspect)
-{
-    _camera.SetAspect(aspect);
+void TerrainPass::SetAspect(float a) {
+    _camera.SetAspect(a);
 }
 
 void TerrainPass::Update(float dt, GLFWwindow* window)
 {
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    if (_firstMouse) {
-        _lastX = xpos; _lastY = ypos; _firstMouse = false;
+    // Toggle de captura de mouse com TAB
+    bool tabPressed = glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS;
+    if (tabPressed && !_prevTab) {
+        _mouseCaptured = !_mouseCaptured;
+        if (_mouseCaptured) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            _firstMouse = true; // reset para evitar jump
+        } else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
     }
-    float xoff = float(_lastX - xpos) * 0.1f;
-    float yoff = float(_lastY - ypos) * 0.1f;
-    _lastX = xpos; _lastY = ypos;
-    _yaw   += xoff; _pitch += yoff;
-    _pitch = glm::clamp(_pitch, -89.0f, 89.0f);
+    _prevTab = tabPressed;
+
+    // Só processa mouse se capturado
+    if (_mouseCaptured) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        if (_firstMouse) {
+            _lastX = xpos; _lastY = ypos; _firstMouse = false;
+        }
+        float xoff = float(_lastX - xpos) * 0.1f; // CORRIGIDO: invertido para comportamento FPS padrão
+        float yoff = float(_lastY - ypos) * 0.1f;
+        _lastX = xpos; _lastY = ypos;
+        _yaw   += xoff; _pitch += yoff;
+        _pitch = glm::clamp(_pitch, -89.0f, 89.0f);
+    }
 
     glm::vec3 front{
         cos(glm::radians(_yaw)) * cos(glm::radians(_pitch)),
@@ -217,53 +278,91 @@ void TerrainPass::Update(float dt, GLFWwindow* window)
     _prevF2 = f2;
 }
 
-void TerrainPass::Execute()
-{
-    _ringBuffer->NextFrame();
-    _context.Clear(0.0f, 0.0f, 0.0f, 1.0f); // Este método já limpa cor e depth-stencil no DX11
+void TerrainPass::Execute() {
+    _context.Clear(0.1f,0.1f,0.1f,1.0f);
 
-    // Forçar matriz identidade para teste visual
-    CBFrame cbf{ _camera.GetViewProjForHLSL() };
-    Drift::RHI::UpdateConstantBuffer(_cb.get(), cbf);
-    _context.VSSetConstantBuffer(0, _cb->GetBackendHandle());
-    _context.GSSetConstantBuffer(0, _cb->GetBackendHandle()); // Constant Buffer para Geometry Shader
+    // só precisa da posição
+    _tileManager->Update(_camera.GetPosition());
 
-    // 1. Sempre desenha o sólido (textura)
-    if (_pipeline && !_verts.empty() && _indexCount > 0) {
+    CBFrame cbf{_camera.GetViewProjForHLSL()};
+    RHI::UpdateConstantBuffer(_cb.get(), cbf);
+    _context.VSSetConstantBuffer(0,_cb->GetBackendHandle());
+    _context.GSSetConstantBuffer(0,_cb->GetBackendHandle());
+
+    // FRUSTUM CULLING PROFISSIONAL
+    // Calcular frustum da câmera para renderizar apenas tiles visíveis
+    glm::mat4 viewProj = _camera.GetViewProjForHLSL();
+    
+    // DEBUG: Contar tiles carregados vs renderizados
+    static int frameCount = 0;
+    int tilesLoaded = 0;
+    int tilesRendered = 0;
+
+    // desenha cada tile COM FRUSTUM CULLING BASEADO NA CÂMERA
+    _tileManager->ForEachTile([&](auto const& coord, TerrainTile& t){
+        if(!t.loaded) return;
+        tilesLoaded++;
+        
+        // FRUSTUM CULLING: Baseado na posição e direção da câmera
+        const float tileSize = 128.0f;
+        glm::vec3 cameraPos = _camera.GetPosition();
+        glm::vec3 cameraTarget = _camera.GetTarget();
+        glm::vec3 cameraDir = glm::normalize(cameraTarget - cameraPos);
+        
+        // Centro do tile no world space
+        glm::vec3 tileCenter(
+            coord.x * tileSize + tileSize * 0.5f,
+            0.0f, // terreno plano
+            coord.y * tileSize + tileSize * 0.5f
+        );
+        
+        // Vetor da câmera para o tile
+        glm::vec3 toTile = tileCenter - cameraPos;
+        float distanceToTile = glm::length(toTile);
+        
+        // Culling por distância: tiles muito distantes
+        if(distanceToTile > 400.0f) return; // Máximo 400 unidades (~3 tiles)
+        
+        // Culling por direção: tiles fora do FOV
+        if(distanceToTile > 0.1f) { // Evitar divisão por zero
+            glm::vec3 dirToTile = toTile / distanceToTile;
+            float dot = glm::dot(cameraDir, dirToTile);
+            
+            // FOV culling: só renderizar tiles na direção da câmera
+            if(dot < 0.2f) return; // ~78 graus de FOV (mais restritivo)
+        }
+        
+        tilesRendered++;
+        
+        // sólido
         _pipeline->Apply(_context);
-        // Upload dinâmico para o ring buffer (apenas vértices)
-        size_t vtxSize = _verts.size() * sizeof(Vertex);
-        size_t vtxOffset = 0;
-        void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
-        memcpy(vtxPtr, _verts.data(), vtxSize);
-
-        IBuffer* vtxBuf = _ringBuffer->GetBuffer();
-        IBuffer* idxBuf = _ib.get(); // buffer de índices estático
-        _context.IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
-        _context.IASetIndexBuffer(idxBuf->GetBackendHandle(), _indexFormat, 0);
-        _context.IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
+        _context.PSSetTexture(0,_tex.get());
+        _context.PSSetSampler(0,_samp.get());
+        _context.IASetVertexBuffer(t.vb->GetBackendHandle(),sizeof(Vertex),0);
+        _context.IASetIndexBuffer (t.ib->GetBackendHandle(),RHI::Format::R32_UINT,0);
         _context.SetDepthTestEnabled(true);
-        _context.PSSetTexture(0, _tex.get());
-        _context.PSSetSampler(0, _samp.get());
-        _context.DrawIndexed(_indexCount, 0, 0);
-    }
-    // Adicionar toggle para linhas das normais com F2
-    if (_showNormalLines && !_verts.empty() && _pipelineLineTest) {
-        _pipelineLineTest->Apply(_context);
-        _context.IASetVertexBuffer(_vb->GetBackendHandle(), sizeof(Vertex), 0);
-        _context.IASetPrimitiveTopology(PrimitiveTopology::PointList);
-        _context.SetDepthTestEnabled(false);
-        _context.Draw(static_cast<UINT>(_verts.size()), 0);
-    }
-    // 2. Se wireframe, desenha por cima
-    if (_showWireframe && _pipelineWireframe && _vb && _ib && _indexCount > 0) {
-        _pipelineWireframe->Apply(_context);
-        _context.IASetVertexBuffer(_vb->GetBackendHandle(), sizeof(Vertex), 0);
-        _context.IASetIndexBuffer(_ib->GetBackendHandle(), _indexFormat, 0);
-        _context.IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
-        _context.SetDepthTestEnabled(false);
-        _context.PSSetTexture(0, _tex.get());
-        _context.PSSetSampler(0, _samp.get());
-        _context.DrawIndexed(_indexCount, 0, 0);
+        _context.DrawIndexed(t.indices.size(),0,0);
+
+        // wire
+        if(_showWireframe){
+          _pipelineWire->Apply(_context);
+          _context.SetDepthTestEnabled(false);
+          _context.DrawIndexed(t.indices.size(),0,0);
+        }
+
+        // normais
+        if(_showNormalLines){
+          _pipelineDebug->Apply(_context);
+          _context.SetDepthTestEnabled(false);
+          _context.IASetPrimitiveTopology(RHI::PrimitiveTopology::PointList);
+          _context.Draw(static_cast<UINT>(t.vertices.size()),0);
+        }
+    });
+    
+    // DEBUG: Log tiles carregados vs renderizados (menos frequente)
+    if(frameCount++ % 300 == 0) { // A cada 5 segundos
+        Drift::Core::Log("[Render] Carregados: " + std::to_string(tilesLoaded) + 
+                         " | Renderizados: " + std::to_string(tilesRendered) + 
+                         " | Economia: " + std::to_string(tilesLoaded - tilesRendered));
     }
 }
