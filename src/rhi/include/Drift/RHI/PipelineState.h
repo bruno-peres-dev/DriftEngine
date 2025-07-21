@@ -28,6 +28,9 @@ struct PipelineDesc {
     std::string csFile; // Compute shader (opcional)
     std::vector<InputElementDesc> inputLayout; // Layout dos vértices
     std::vector<std::pair<std::string, std::string>> defines; // Macros de compilação
+    std::string vsEntry = "VSMain";
+    std::string psEntry = "PSMain";
+    std::string gsEntry = "GS"; // Novo: entrypoint do geometry shader
     struct BlendDesc {
         bool enable = false; // Ativa blending
         enum class BlendFactor {

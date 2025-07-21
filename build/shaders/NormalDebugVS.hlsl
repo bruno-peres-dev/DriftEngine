@@ -1,8 +1,4 @@
-cbuffer CBFrame : register(b0)
-{
-    matrix viewProj;
-};
-
+// NormalDebugVS.hlsl
 struct VS_IN {
     float3 pos : POSITION;
     float3 normal : NORMAL;
@@ -18,7 +14,7 @@ struct VS_OUT {
 VS_OUT VSMain(VS_IN input) {
     VS_OUT output;
     output.pos = input.pos;
-    output.normal = input.normal; // NÃO transformar!
+    output.normal = input.normal;
     output.uv = input.uv;
     return output;
-}
+} 

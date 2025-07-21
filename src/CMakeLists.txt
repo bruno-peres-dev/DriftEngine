@@ -126,6 +126,12 @@ add_custom_command(TARGET DriftApp PRE_BUILD
     "${CMAKE_SOURCE_DIR}/shaders"
     "$<TARGET_FILE_DIR:DriftApp>/shaders"
 )
+# Garantir que NormalLineGS.hlsl está incluso
+file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
+foreach(SHADER ${SHADERS})
+  get_filename_component(SHADER_NAME ${SHADER} NAME)
+  configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
+endforeach()
 
 target_include_directories(DriftApp PRIVATE
   ${glfw_SOURCE_DIR}/include

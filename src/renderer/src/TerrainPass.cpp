@@ -1,4 +1,6 @@
 // src/renderer/src/TerrainPass.cpp
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/RHI/Types.h"
@@ -48,10 +50,14 @@ TerrainPass::TerrainPass(Drift::RHI::IDevice& device,
     std::cerr << "[TerrainPass] _pipelineWireframe: " << (_pipelineWireframe ? "ok" : "null") << std::endl;
 
     PipelineDesc pdLine = pd;
+    pdLine.vsFile = "shaders/NormalDebugVS.hlsl";
     pdLine.psFile = "shaders/LinePS.hlsl";
-    pdLine.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Back;
+    pdLine.gsFile = "shaders/NormalLineGS.hlsl";
+    pdLine.gsEntry = "GS";
+    pdLine.inputLayout = pd.inputLayout;
+    pdLine.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
     pdLine.rasterizer.wireframe = false;
-    std::cerr << "[TerrainPass] Criando pipelineLineTest: cullMode=None" << std::endl;
+    // Comentário: pipeline profissional para debug de normais via geometry shader
     _pipelineLineTest = _device.CreatePipeline(pdLine);
     std::cerr << "[TerrainPass] _pipelineLineTest: " << (_pipelineLineTest ? "ok" : "null") << std::endl;
 
@@ -208,6 +214,7 @@ void TerrainPass::Execute()
     _ringBuffer->NextFrame();
     _context.Clear(0.0f, 0.0f, 0.0f, 1.0f); // Este método já limpa cor e depth-stencil no DX11
 
+    // Forçar matriz identidade para teste visual
     CBFrame cbf{ _camera.GetViewProjForHLSL() };
     Drift::RHI::UpdateConstantBuffer(_cb.get(), cbf);
     _context.VSSetConstantBuffer(0, _cb->GetBackendHandle());
@@ -231,28 +238,13 @@ void TerrainPass::Execute()
         _context.PSSetSampler(0, _samp.get());
         _context.DrawIndexed(_indexCount, 0, 0);
     }
-    
     // Adicionar toggle para linhas das normais com F2
     if (_showNormalLines && !_verts.empty() && _pipelineLineTest) {
-        const float normalScale = 5.0f;
-        std::vector<Vertex> normalLineVerts;
-        normalLineVerts.reserve(_verts.size() * 2);
-        for (const auto& v : _verts) {
-            normalLineVerts.push_back({ v.pos, v.normal, v.uv });
-            normalLineVerts.push_back({ v.pos + v.normal * normalScale, v.normal, v.uv });
-        }
-        size_t normalLineVBSize = normalLineVerts.size() * sizeof(Vertex);
-        size_t normalLineVBOffset = 0;
-        void* normalLineVBPtr = _ringBuffer->Allocate(normalLineVBSize, 16, normalLineVBOffset);
-        memcpy(normalLineVBPtr, normalLineVerts.data(), normalLineVBSize);
-        IBuffer* normalLineVB = _ringBuffer->GetBuffer();
-        if (normalLineVB) {
-            _pipelineLineTest->Apply(_context);
-            _context.IASetVertexBuffer(normalLineVB->GetBackendHandle(), sizeof(Vertex), (UINT)normalLineVBOffset);
-            _context.IASetPrimitiveTopology(PrimitiveTopology::LineList);
-            _context.SetDepthTestEnabled(false);
-            _context.Draw(static_cast<UINT>(normalLineVerts.size()), 0);
-        }
+        _pipelineLineTest->Apply(_context);
+        _context.IASetVertexBuffer(_vb->GetBackendHandle(), sizeof(Vertex), 0);
+        _context.IASetPrimitiveTopology(PrimitiveTopology::PointList);
+        _context.SetDepthTestEnabled(false);
+        _context.Draw(static_cast<UINT>(_verts.size()), 0);
     }
     // 2. Se wireframe, desenha por cima
     if (_showWireframe && _pipelineWireframe && _vb && _ib && _indexCount > 0) {
