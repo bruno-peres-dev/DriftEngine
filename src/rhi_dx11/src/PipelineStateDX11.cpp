@@ -26,14 +26,14 @@ static DXGI_FORMAT StringToDXGIFormat(const std::string& fmt) {
 
 // Cria e configura todos os estados fixos do pipeline (shaders, input layout, rasterizer, blend)
 PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& desc) {
-    // Compila VS/PS com defines
+    // Compila VS/PS/GS com defines
     std::vector<D3D_SHADER_MACRO> macros;
     for (const auto& def : desc.defines) {
         macros.push_back({ def.first.c_str(), def.second.c_str() });
     }
     macros.push_back({ nullptr, nullptr });
-    auto vsShader = CreateShaderDX11({ desc.vsFile, "VSMain", "vs_5_0" }, macros.data());
-    auto psShader = CreateShaderDX11({ desc.psFile, "PSMain", "ps_5_0" }, macros.data());
+    auto vsShader = CreateShaderDX11({ desc.vsFile, desc.vsEntry, "vs_5_0" }, macros.data());
+    auto psShader = CreateShaderDX11({ desc.psFile, desc.psEntry, "ps_5_0" }, macros.data());
 
     if (FAILED(device->CreateVertexShader(
         vsShader->GetBytecode(), vsShader->GetBytecodeSize(),
@@ -46,6 +46,18 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         nullptr, _ps.GetAddressOf())))
     {
         throw std::runtime_error("Failed to create PixelShader");
+    }
+
+    // Compila Geometry Shader se especificado
+    if (!desc.gsFile.empty()) {
+        auto gsShader = CreateShaderDX11({ desc.gsFile, desc.gsEntry, "gs_5_0" }, macros.data());
+        if (FAILED(device->CreateGeometryShader(
+            gsShader->GetBytecode(), gsShader->GetBytecodeSize(),
+            nullptr, _gs.GetAddressOf())))
+        {
+            throw std::runtime_error("Failed to create GeometryShader");
+        }
+        Drift::Core::Log("[DX11] GeometryShader created successfully: " + desc.gsFile);
     }
 
     // Cria input layout
@@ -191,6 +203,7 @@ void PipelineStateDX11::Apply(IContext& ctx) {
     d3dCtx->IASetInputLayout(_inputLayout.Get());
     d3dCtx->VSSetShader(_vs.Get(), nullptr, 0);
     d3dCtx->PSSetShader(_ps.Get(), nullptr, 0);
+    d3dCtx->GSSetShader(_gs.Get(), nullptr, 0); // Bind Geometry Shader (nullptr se não existir)
     // Cache de rasterizer
     if (dxCtx._currentRasterizerState != _rasterizerState.Get()) {
         d3dCtx->RSSetState(_rasterizerState.Get());
