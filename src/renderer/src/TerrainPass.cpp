@@ -159,7 +159,15 @@ void TerrainPass::BuildGrid(int rows, int cols)
     _indexCount  = uint32_t(idx.size());
     _indexFormat = Format::R32_UINT;
     _vb = _device.CreateBuffer({ BufferType::Vertex, verts.size() * sizeof(Vertex), verts.data() });
+    if (!_vb) {
+        Drift::Core::Log("[TerrainPass][ERRO] Falha ao criar vertex buffer do terreno! Tamanho: " + std::to_string(verts.size() * sizeof(Vertex)));
+        return;
+    }
     _ib = _device.CreateBuffer({ BufferType::Index,  idx.size()   * sizeof(uint32_t), idx.data()   });
+    if (!_ib) {
+        Drift::Core::Log("[TerrainPass][ERRO] Falha ao criar index buffer do terreno! Tamanho: " + std::to_string(idx.size() * sizeof(uint32_t)));
+        return;
+    }
     std::cerr << "[TerrainPass] _vb: " << (_vb ? "ok" : "null") << ", _ib: " << (_ib ? "ok" : "null") << ", _indexCount: " << _indexCount << std::endl;
     _verts = verts;
 }
