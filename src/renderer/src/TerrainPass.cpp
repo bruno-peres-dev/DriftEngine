@@ -111,6 +111,27 @@ TerrainLOD TerrainTile::SelectLOD(float cameraDistance) const {
     else return TerrainLOD::LOD3;                               // Low detail
 }
 
+TerrainLOD TerrainTile::SelectLODBasedOnCamera(float cameraDistance, bool isInFrustum, float screenSpaceSize) const {
+    // CORREÇÃO IMPLEMENTADA:
+    // - Tiles são gerados baseados no MUNDO (coordenadas de mundo)
+    // - LOD é selecionado baseado na CÂMERA (frustum + tamanho na tela)
+    // Isso evita desperdício de recursos em tiles não visíveis
+    
+    if (!isInFrustum) {
+        // Tiles fora do frustum usam LOD baixo para economizar recursos
+        return TerrainLOD::LOD3;
+    }
+    
+    // Para tiles visíveis, considera distância E tamanho na tela
+    // Tiles maiores na tela precisam de mais detalhes
+    float adjustedDistance = cameraDistance / glm::max(screenSpaceSize, 0.1f);
+    
+    if (adjustedDistance < 100.0f) return TerrainLOD::LOD0;      // High detail
+    else if (adjustedDistance < 250.0f) return TerrainLOD::LOD1; // Medium-high detail  
+    else if (adjustedDistance < 500.0f) return TerrainLOD::LOD2; // Medium detail
+    else return TerrainLOD::LOD3;                                 // Low detail
+}
+
 //-----------------------------------------------------------------------------
 // AAA Industry Standard: Border Vertex Cache Implementation
 //-----------------------------------------------------------------------------
@@ -302,14 +323,18 @@ bool TerrainManager::IsVisibleInFrustum(const TerrainTile& tile) const {
     return currentFrustum.IsBoxInFrustum(tile.boundingBoxCenter, tile.boundingBoxHalfExtents);
 }
 
-void TerrainManager::UpdateTileLODs(const glm::vec3& cameraPos) {
+void TerrainManager::UpdateTileLODs(const glm::vec3& cameraPos, const glm::mat4& viewProjMatrix) {
     for (auto& [coord, tile] : tiles) {
         if (tile.IsLoaded()) {
             // Calculate distance from camera to tile center
             tile.distanceFromCamera = glm::distance(cameraPos, tile.boundingBoxCenter);
             
-            // Select appropriate LOD
-            TerrainLOD newLOD = tile.SelectLOD(tile.distanceFromCamera);
+            // CORREÇÃO: LOD baseado na câmera - considera visibilidade E tamanho na tela
+            bool isVisible = IsVisibleInFrustum(tile);
+            float screenSpaceSize = isVisible ? CalculateScreenSpaceSize(tile, viewProjMatrix) : 0.0f;
+            
+            TerrainLOD newLOD = tile.SelectLODBasedOnCamera(tile.distanceFromCamera, isVisible, screenSpaceSize);
+            
             if (newLOD != tile.currentLOD) {
                 tile.currentLOD = newLOD;
                 tile.needsStitching = true;
@@ -318,7 +343,7 @@ void TerrainManager::UpdateTileLODs(const glm::vec3& cameraPos) {
     }
 }
 
-void TerrainManager::Update(const glm::vec3& cameraPos, const ViewFrustum& frustum) {
+void TerrainManager::Update(const glm::vec3& cameraPos, const ViewFrustum& frustum, const glm::mat4& viewProjMatrix) {
     currentFrustum = frustum;
     
     // Calculate camera tile coordinate
@@ -359,8 +384,8 @@ void TerrainManager::Update(const glm::vec3& cameraPos, const ViewFrustum& frust
         }
     }
     
-    // Update LODs based on camera distance
-    UpdateTileLODs(cameraPos);
+    // Update LODs based on camera distance and visibility
+    UpdateTileLODs(cameraPos, viewProjMatrix);
     
     // Update performance statistics
     for (const auto& [coord, tile] : tiles) {
@@ -381,6 +406,31 @@ void TerrainManager::Update(const glm::vec3& cameraPos, const ViewFrustum& frust
             }
         }
     }
+}
+
+float TerrainManager::CalculateScreenSpaceSize(const TerrainTile& tile, const glm::mat4& viewProjMatrix) const {
+    // Calcula o tamanho do tile no espaço da tela para LOD mais preciso
+    glm::vec4 center = glm::vec4(tile.boundingBoxCenter, 1.0f);
+    glm::vec4 corner = glm::vec4(tile.boundingBoxCenter + glm::vec3(tile.boundingBoxHalfExtents.x, 0, 0), 1.0f);
+    
+    // Transforma para clip space
+    glm::vec4 centerClip = viewProjMatrix * center;
+    glm::vec4 cornerClip = viewProjMatrix * corner;
+    
+    // Evita divisão por zero
+    if (centerClip.w <= 0.0f || cornerClip.w <= 0.0f) {
+        return 0.0f;
+    }
+    
+    // Converte para NDC
+    glm::vec3 centerNDC = glm::vec3(centerClip) / centerClip.w;
+    glm::vec3 cornerNDC = glm::vec3(cornerClip) / cornerClip.w;
+    
+    // Calcula tamanho na tela (0-2 range em NDC)
+    float screenSpaceSize = glm::length(cornerNDC - centerNDC);
+    
+    // Retorna um fator de escala (maior = mais detalhes necessários)
+    return glm::max(screenSpaceSize, 0.01f);
 }
 
 //-----------------------------------------------------------------------------
@@ -508,10 +558,11 @@ void TerrainPass::Execute() {
 
     // Extract frustum from camera
     ViewFrustum frustum;
-    frustum.ExtractFromMatrix(_camera.GetViewProjForHLSL());
+    glm::mat4 viewProjMatrix = _camera.GetViewProjForHLSL();
+    frustum.ExtractFromMatrix(viewProjMatrix);
     
-    // Update terrain manager with camera position and frustum
-    _tileManager->Update(_camera.GetPosition(), frustum);
+    // Update terrain manager with camera position, frustum, and view-projection matrix
+    _tileManager->Update(_camera.GetPosition(), frustum, viewProjMatrix);
 
     CBFrame cbf{_camera.GetViewProjForHLSL()};
     RHI::UpdateConstantBuffer(_cb.get(), cbf);

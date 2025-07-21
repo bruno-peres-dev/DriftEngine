@@ -117,6 +117,7 @@ namespace Drift::Renderer {
         bool IsLoaded() const { return state == TileState::Loaded || state == TileState::Rendering; }
         void UpdateBoundingBox(float tileSize);
         TerrainLOD SelectLOD(float cameraDistance) const;
+        TerrainLOD SelectLODBasedOnCamera(float cameraDistance, bool isInFrustum, float screenSpaceSize = 1.0f) const;
     };
 
     // AAA Industry Standard: Shared Border Vertex Cache
@@ -160,7 +161,7 @@ namespace Drift::Renderer {
                        int tileSize = 128,
                        int visibleRadius = 5);
 
-        void Update(const glm::vec3& cameraPos, const ViewFrustum& frustum);
+        void Update(const glm::vec3& cameraPos, const ViewFrustum& frustum, const glm::mat4& viewProjMatrix);
         
         template<typename F> 
         void ForEachVisibleTile(F&& f) {
@@ -186,13 +187,14 @@ namespace Drift::Renderer {
         void GenerateTileMesh(TerrainTile& tile);
         void GenerateLODMesh(TerrainTile& tile, TerrainLOD lod);
         void UnloadFarTiles(const glm::ivec2& camTile);
-        void UpdateTileLODs(const glm::vec3& cameraPos);
+        void UpdateTileLODs(const glm::vec3& cameraPos, const glm::mat4& viewProjMatrix);
         void StitchTileBorders(TerrainTile& tile);
         bool IsVisibleInFrustum(const TerrainTile& tile) const;
         
         // AAA Industry Standard: Precise vertex generation
         Vertex GenerateVertex(double worldX, double worldZ, TerrainLOD lod) const;
         uint32_t GetLODResolution(TerrainLOD lod) const;
+        float CalculateScreenSpaceSize(const TerrainTile& tile, const glm::mat4& viewProjMatrix) const;
         
         std::unordered_map<glm::ivec2, TerrainTile> tiles;
         BorderVertexCache vertexCache;
