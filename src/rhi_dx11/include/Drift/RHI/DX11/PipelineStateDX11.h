@@ -21,6 +21,7 @@ namespace Drift::RHI::DX11 {
         Microsoft::WRL::ComPtr<ID3D11InputLayout>  _inputLayout;
         Microsoft::WRL::ComPtr<ID3D11VertexShader> _vs;
         Microsoft::WRL::ComPtr<ID3D11PixelShader>  _ps;
+        Microsoft::WRL::ComPtr<ID3D11GeometryShader> _gs; // Pode ser nullptr se não houver GS
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
         Microsoft::WRL::ComPtr<ID3D11BlendState> _blendState; // Blend state avançado
     };

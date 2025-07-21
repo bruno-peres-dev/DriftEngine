@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Drift/RHI/Context.h"     // IContext, ISwapChain
 #include "Drift/RHI/Types.h"       // Format, PrimitiveTopology
@@ -52,6 +52,7 @@ namespace Drift::RHI::DX11 {
         void PSSetSampler(UINT slot, ISampler* samp) override;
         void VSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
         void PSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
+        void GSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
 
         void SetDepthTestEnabled(bool enabled) override;
         void SetRenderTarget(ITexture* color, ITexture* depth = nullptr);

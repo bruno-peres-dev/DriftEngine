@@ -218,6 +218,7 @@ void TerrainPass::Execute()
     CBFrame cbf{ _camera.GetViewProjForHLSL() };
     Drift::RHI::UpdateConstantBuffer(_cb.get(), cbf);
     _context.VSSetConstantBuffer(0, _cb->GetBackendHandle());
+    _context.GSSetConstantBuffer(0, _cb->GetBackendHandle());
 
     // 1. Sempre desenha o sólido (textura)
     if (_pipeline && !_verts.empty() && _indexCount > 0) {

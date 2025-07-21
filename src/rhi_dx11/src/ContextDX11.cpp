@@ -1,4 +1,4 @@
-﻿#include "Drift/RHI/DX11/ContextDX11.h"
+#include "Drift/RHI/DX11/ContextDX11.h"
 #include <stdexcept>
 #include <wrl/client.h>
 #include <cstring> // memcpy
@@ -273,6 +273,11 @@ void ContextDX11::VSSetConstantBuffer(UINT slot, BackendHandle buffer) {
 void ContextDX11::PSSetConstantBuffer(UINT slot, BackendHandle buffer) {
     ID3D11Buffer* buf = reinterpret_cast<ID3D11Buffer*>(buffer);
     _context->PSSetConstantBuffers(slot, 1, &buf);
+}
+
+void ContextDX11::GSSetConstantBuffer(UINT slot, BackendHandle buffer) {
+    ID3D11Buffer* buf = reinterpret_cast<ID3D11Buffer*>(buffer);
+    _context->GSSetConstantBuffers(slot, 1, &buf);
 }
 
 // Define render target e depth (pode ser backbuffer ou custom)
