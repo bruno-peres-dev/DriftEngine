@@ -9,16 +9,16 @@ struct VS_IN {
     float2 uv : TEXCOORD;
 };
 
-struct VS_OUT {
-    float3 pos : POSITION;
+struct PSInput {
+    float4 pos : SV_POSITION;
     float3 normal : NORMAL;
-    float2 uv : TEXCOORD;
+    float2 uv : TEXCOORD0;
 };
 
-VS_OUT VSMain(VS_IN input) {
-    VS_OUT output;
-    output.pos = input.pos;
-    output.normal = input.normal; // NÃO transformar!
+PSInput VSMain(VS_IN input) {
+    PSInput output;
+    output.pos = mul(float4(input.pos, 1.0), viewProj);
+    output.normal = input.normal;
     output.uv = input.uv;
     return output;
 }
