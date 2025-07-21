@@ -132,7 +132,12 @@ namespace Drift::Renderer {
         _context.SetDepthTestEnabled(false);
 
         // 5) Desenha
-        auto* d3dCtx = static_cast<ID3D11DeviceContext*>(_context.GetNativeContext());
+        auto* nativeCtx = _context.GetNativeContext();
+        if (!nativeCtx) {
+            Drift::Core::Log("[TrianglePass][ERRO] GetNativeContext() retornou nullptr!");
+            return;
+        }
+        auto* d3dCtx = static_cast<ID3D11DeviceContext*>(nativeCtx);
         d3dCtx->Draw(3, 0);
     }
 

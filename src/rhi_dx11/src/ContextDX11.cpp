@@ -4,6 +4,8 @@
 #include <cstring> // memcpy
 #include <d3d11.h>
 #include "Drift/Core/Log.h"
+#include <unordered_map>
+#include <mutex>
 
 using namespace Drift::RHI::DX11;
 using Microsoft::WRL::ComPtr;
@@ -23,6 +25,9 @@ ContextDX11::ContextDX11(
 , _height(height)
 , _vsync(vsync)
 {
+    if (!_swapChain) {
+        throw std::runtime_error("[DX11] Erro: SwapChain deve ser criado antes do ContextDX11!");
+    }
     CreateRTVandDSV();
 }
 
@@ -174,16 +179,49 @@ void ContextDX11::Resize(unsigned width, unsigned height) {
 void ContextDX11::PSSetTexture(UINT slot, ITexture* tex) {
     // tex->GetBackendHandle() deve retornar ID3D11ShaderResourceView*
     auto srv = static_cast<ID3D11ShaderResourceView*>(tex->GetBackendHandle());
+    if (!srv) {
+        Drift::Core::Log("[DX11][ERRO] PSSetTexture: ShaderResourceView é nullptr!");
+        return;
+    }
     _context->PSSetShaderResources(slot, 1, &srv);
 }
 
 void ContextDX11::PSSetSampler(UINT slot, ISampler* samp) {
     // samp->GetBackendHandle() deve retornar ID3D11SamplerState*
     auto s = static_cast<ID3D11SamplerState*>(samp->GetBackendHandle());
+    if (!s) {
+        Drift::Core::Log("[DX11][ERRO] PSSetSampler: SamplerState é nullptr!");
+        return;
+    }
     _context->PSSetSamplers(slot, 1, &s);
 }
 
 // Habilita/desabilita depth test
+namespace std {
+    template<>
+    struct equal_to<D3D11_DEPTH_STENCIL_DESC> {
+        bool operator()(const D3D11_DEPTH_STENCIL_DESC& a, const D3D11_DEPTH_STENCIL_DESC& b) const noexcept {
+            return std::memcmp(&a, &b, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0;
+        }
+    };
+}
+
+namespace std {
+    template<>
+    struct hash<D3D11_DEPTH_STENCIL_DESC> {
+        size_t operator()(const D3D11_DEPTH_STENCIL_DESC& desc) const noexcept {
+            const std::uint64_t* p = reinterpret_cast<const std::uint64_t*>(&desc);
+            size_t h = 0;
+            for (size_t i = 0; i < sizeof(D3D11_DEPTH_STENCIL_DESC) / sizeof(std::uint64_t); ++i)
+                h ^= std::hash<std::uint64_t>{}(p[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            return h;
+        }
+    };
+}
+
+static std::unordered_map<D3D11_DEPTH_STENCIL_DESC, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>> g_depthStencilCache;
+static std::mutex g_depthStencilCacheMutex;
+
 void ContextDX11::SetDepthTestEnabled(bool enabled) {
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
     dsDesc.DepthEnable = enabled ? TRUE : FALSE;
@@ -191,10 +229,19 @@ void ContextDX11::SetDepthTestEnabled(bool enabled) {
     dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
     dsDesc.StencilEnable = FALSE;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> dsState;
-    _device->CreateDepthStencilState(&dsDesc, dsState.GetAddressOf());
-    if (_currentDepthStencilState != dsState.Get()) {
+    {
+        std::lock_guard<std::mutex> lock(g_depthStencilCacheMutex);
+        auto it = g_depthStencilCache.find(dsDesc);
+        if (it != g_depthStencilCache.end()) {
+            dsState = it->second;
+        } else {
+            _device->CreateDepthStencilState(&dsDesc, dsState.GetAddressOf());
+            g_depthStencilCache[dsDesc] = dsState;
+        }
+    }
+    if (!_currentDepthStencilState || _currentDepthStencilState.Get() != dsState.Get()) {
         _context->OMSetDepthStencilState(dsState.Get(), 0);
-        _currentDepthStencilState = dsState.Get();
+        _currentDepthStencilState = dsState;
     }
 }
 
@@ -235,11 +282,19 @@ void ContextDX11::SetRenderTarget(ITexture* color, ITexture* depth) {
     if (color) {
         // Supondo que GetBackendHandle retorna ID3D11RenderTargetView* para render targets
         rtv = static_cast<ID3D11RenderTargetView*>(color->GetBackendHandle());
+        if (!rtv) {
+            Drift::Core::Log("[DX11][ERRO] SetRenderTarget: RenderTargetView é nullptr!");
+            return;
+        }
     } else if (_rtv) {
         rtv = _rtv.Get(); // fallback para backbuffer
     }
     if (depth) {
         dsv = static_cast<ID3D11DepthStencilView*>(depth->GetBackendHandle());
+        if (!dsv) {
+            Drift::Core::Log("[DX11][ERRO] SetRenderTarget: DepthStencilView é nullptr!");
+            return;
+        }
     } else if (_dsv) {
         dsv = _dsv.Get();
     }

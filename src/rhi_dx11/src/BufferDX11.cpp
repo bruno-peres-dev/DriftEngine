@@ -32,9 +32,11 @@ namespace Drift::RHI::DX11 {
         {
             Drift::Core::Log(std::string("[DX11] Erro ao criar buffer: size=") + std::to_string(desc.sizeBytes));
             // Fallback: tenta criar como DEFAULT (read-only)
+            Drift::Core::Log("[DX11][WARNING] Fallback: tentando criar buffer como D3D11_USAGE_DEFAULT (não mapeável)");
             bd.Usage = D3D11_USAGE_DEFAULT;
             bd.CPUAccessFlags = 0;
             if (FAILED(device->CreateBuffer(&bd, desc.initData ? &initData : nullptr, _buffer.GetAddressOf()))) {
+                Drift::Core::Log("[DX11][ERRO] Falha ao criar buffer como DYNAMIC e DEFAULT. Size: " + std::to_string(desc.sizeBytes));
                 throw std::runtime_error("Failed to create D3D11 buffer (dynamic e default). Size: " + std::to_string(desc.sizeBytes));
             } else {
                 Drift::Core::Log("[DX11] Fallback: buffer criado como D3D11_USAGE_DEFAULT");

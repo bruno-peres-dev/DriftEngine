@@ -4,6 +4,7 @@
 #include "Drift/RHI/Buffer.h"
 #include <cstring>
 #include <vector>
+#include <stdexcept>
 
 using namespace Drift::RHI::DX11;
 
@@ -45,6 +46,9 @@ void* RingBufferDX11::Allocate(size_t size, size_t alignment, size_t& outOffset)
     outOffset = aligned;
     // Retorna ponteiro para região alocada
     void* basePtr = static_cast<RingBufferDX11Impl*>(this)->_basePtr;
+    if (!basePtr) {
+        throw std::runtime_error("RingBufferDX11::Allocate: _basePtr é nullptr. Certifique-se de que Map() foi bem-sucedido.");
+    }
     void* result = static_cast<char*>(basePtr) + aligned;
     _offset = aligned + size;
     return result;

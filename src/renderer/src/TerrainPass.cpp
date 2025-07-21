@@ -241,10 +241,14 @@ void TerrainPass::Execute()
             normalLineVerts.push_back({ v.pos, v.normal, v.uv });
             normalLineVerts.push_back({ v.pos + v.normal * normalScale, v.normal, v.uv });
         }
-        auto normalLineVB = _device.CreateBuffer({ BufferType::Vertex, normalLineVerts.size() * sizeof(Vertex), normalLineVerts.data() });
+        size_t normalLineVBSize = normalLineVerts.size() * sizeof(Vertex);
+        size_t normalLineVBOffset = 0;
+        void* normalLineVBPtr = _ringBuffer->Allocate(normalLineVBSize, 16, normalLineVBOffset);
+        memcpy(normalLineVBPtr, normalLineVerts.data(), normalLineVBSize);
+        IBuffer* normalLineVB = _ringBuffer->GetBuffer();
         if (normalLineVB) {
             _pipelineLineTest->Apply(_context);
-            _context.IASetVertexBuffer(normalLineVB->GetBackendHandle(), sizeof(Vertex), 0);
+            _context.IASetVertexBuffer(normalLineVB->GetBackendHandle(), sizeof(Vertex), (UINT)normalLineVBOffset);
             _context.IASetPrimitiveTopology(PrimitiveTopology::LineList);
             _context.SetDepthTestEnabled(false);
             _context.Draw(static_cast<UINT>(normalLineVerts.size()), 0);

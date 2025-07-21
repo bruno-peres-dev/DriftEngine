@@ -11,6 +11,8 @@ namespace Drift::RHI::DX11 {
     // Contexto DX11: encapsula ID3D11DeviceContext, RTV/DSV e viewport.
     class ContextDX11 : public Drift::RHI::IContext {
     public:
+        // ATENÇÃO: SwapChain deve ser criado antes do ContextDX11!
+        // O ContextDX11 depende de um swapchain válido para inicialização correta.
         ContextDX11(
             ID3D11Device* device,
             ID3D11DeviceContext* context,
@@ -75,7 +77,7 @@ namespace Drift::RHI::DX11 {
         // Cache de estados
         ID3D11BlendState*      _currentBlendState = nullptr;
         ID3D11RasterizerState* _currentRasterizerState = nullptr;
-        ID3D11DepthStencilState* _currentDepthStencilState = nullptr;
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> _currentDepthStencilState;
 
         void CreateRTVandDSV();
 

@@ -102,9 +102,9 @@ std::shared_ptr<IBuffer> DeviceDX11::CreateBuffer(const BufferDesc& d) {
 }
 
 std::shared_ptr<IPipelineState> DeviceDX11::CreatePipeline(const PipelineDesc& d) {
-    // Limpa o cache para garantir que não estamos usando estados antigos
-    _pipelineCache.Clear();
-    Drift::Core::Log("[DX11] Pipeline cache cleared before creation");
+    // Não limpar o cache globalmente aqui! Isso pode causar race conditions e perda de performance.
+    // O cache de pipeline deve ser gerenciado por invalidação específica, não por limpeza total.
+    // Drift::Core::Log("[DX11] Pipeline cache cleared before creation");
     return _pipelineCache.GetOrCreate(d,
         [this](auto const& key) { return CreatePipelineDX11(_device.Get(), key); });
 }

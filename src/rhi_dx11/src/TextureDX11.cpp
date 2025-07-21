@@ -32,6 +32,12 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
 
     const std::string pathUtf8 = ToUTF8(desc.path);
 
+    // Checagem de existência do arquivo
+    if (!desc.path.empty() && !std::filesystem::exists(desc.path)) {
+        Drift::Core::Log("[DX11][ERRO] Arquivo de textura não encontrado: " + pathUtf8);
+        throw std::runtime_error("Arquivo de textura não encontrado: " + pathUtf8);
+    }
+
     // 1) DDS: usa DDSTextureLoader
     if (pathUtf8.size() >= 4 &&
         _stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".dds") == 0)
