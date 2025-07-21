@@ -642,6 +642,19 @@ windows/fast:
 	$(MAKE) $(MAKESILENT) -f _deps/glfw-build/tests/CMakeFiles/windows.dir/build.make _deps/glfw-build/tests/CMakeFiles/windows.dir/build
 .PHONY : windows/fast
 
+#=============================================================================
+# Target rules for targets named DirectXTK
+
+# Build rule for target.
+DirectXTK: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 DirectXTK
+.PHONY : DirectXTK
+
+# fast build rule for target.
+DirectXTK/fast:
+	$(MAKE) $(MAKESILENT) -f src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/build.make src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/build
+.PHONY : DirectXTK/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -656,6 +669,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... uninstall"
 	@echo "... update_mappings"
+	@echo "... DirectXTK"
 	@echo "... DriftApp"
 	@echo "... DriftCore"
 	@echo "... DriftRHI"

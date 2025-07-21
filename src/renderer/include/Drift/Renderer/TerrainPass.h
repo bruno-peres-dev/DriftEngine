@@ -114,10 +114,64 @@ namespace Drift::Renderer {
         bool needsStitching = false;
         std::array<TerrainLOD, 4> neighborLODs; // North, East, South, West
         
+        // Stitched index buffers for each edge (only created when needed)
+        std::array<std::shared_ptr<Drift::RHI::IBuffer>, 4> stitchedIndexBuffers;
+        std::array<std::vector<uint32_t>, 4> stitchedIndices;
+        std::array<bool, 4> hasStitchedEdge = {false, false, false, false};
+        
         bool IsLoaded() const { return state == TileState::Loaded || state == TileState::Rendering; }
         void UpdateBoundingBox(float tileSize);
         TerrainLOD SelectLOD(float cameraDistance) const;
         TerrainLOD SelectLODBasedOnCamera(float cameraDistance, bool isInFrustum, float screenSpaceSize = 1.0f) const;
+    };
+
+    // AAA Industry Standard: Index Stitching System
+    class IndexStitcher {
+    public:
+        // Edge directions for stitching
+        enum class Edge : uint8_t {
+            North = 0,
+            East = 1,
+            South = 2,
+            West = 3
+        };
+
+        // Lookup table for common resolution ratios
+        struct StitchingPattern {
+            float ratio;                              // Resolution ratio (neighbor/current)
+            std::vector<std::pair<uint32_t, uint32_t>> indexMappings; // (currentIndex, neighborIndex) pairs
+        };
+
+        // Pre-computed stitching patterns for common cases
+        static const std::vector<StitchingPattern> STITCHING_PATTERNS;
+
+        // Generate stitched indices for a tile edge
+        static std::vector<uint32_t> GenerateStitchedIndices(
+            const TerrainTile& tile,
+            Edge edge,
+            TerrainLOD currentLOD,
+            TerrainLOD neighborLOD,
+            uint32_t currentResolution,
+            uint32_t neighborResolution
+        );
+
+        // Get interpolation indices for smooth transitions
+        static std::vector<uint32_t> GetInterpolationIndices(
+            uint32_t edgeStart,
+            uint32_t edgeEnd,
+            uint32_t currentRes,
+            uint32_t neighborRes,
+            bool isVerticalEdge
+        );
+
+    private:
+        // Helper functions for index generation
+        static uint32_t MapVertexIndex(uint32_t index, uint32_t fromRes, uint32_t toRes);
+        static std::vector<uint32_t> GenerateTransitionStrip(
+            uint32_t startIdx, uint32_t endIdx,
+            uint32_t currentRes, uint32_t neighborRes,
+            bool isVertical
+        );
     };
 
     // AAA Industry Standard: Shared Border Vertex Cache
@@ -189,6 +243,8 @@ namespace Drift::Renderer {
         void UnloadFarTiles(const glm::ivec2& camTile);
         void UpdateTileLODs(const glm::vec3& cameraPos, const glm::mat4& viewProjMatrix);
         void StitchTileBorders(TerrainTile& tile);
+        void UpdateNeighborLODs(TerrainTile& tile);
+        void GenerateStitchedIndicesForTile(TerrainTile& tile);
         bool IsVisibleInFrustum(const TerrainTile& tile) const;
         
         // AAA Industry Standard: Precise vertex generation
@@ -218,6 +274,10 @@ namespace Drift::Renderer {
 
         void Execute() override;
         void SetAspect(float aspect) override;
+        
+        // Debug functions for stitching visualization
+        void SetShowStitching(bool show) { _showStitching = show; }
+        void SetShowLODTransitions(bool show) { _showLODTransitions = show; }
         void Update(float dt, GLFWwindow* window);
 
     private:
@@ -243,7 +303,9 @@ namespace Drift::Renderer {
         
         // AAA Industry Standard: Debug visualization
         bool   _showLODColors = false, _prevF3 = false;
-        bool   _showStats = false, _prevF4 = false;
+        bool   _showStitching = false, _prevF4 = false;
+        bool   _showLODTransitions = false, _prevF5 = false;
+        bool   _showStats = false, _prevF6 = false;
     };
 
 } // namespace Drift::Renderer
