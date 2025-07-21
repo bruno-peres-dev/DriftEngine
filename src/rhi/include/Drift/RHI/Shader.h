@@ -5,10 +5,11 @@
 
 namespace Drift::RHI {
 
+    // Descrição de um shader HLSL
     struct ShaderDesc {
-        std::string filePath;      // Caminho do HLSL
-        std::string entryPoint;    // e.g. "VSMain" ou "PSMain"
-        std::string target;        // e.g. "vs_5_0" ou "ps_5_0"
+        std::string filePath;      // Caminho do arquivo HLSL
+        std::string entryPoint;    // Entry point (ex: "VSMain", "PSMain")
+        std::string target;        // Target profile (ex: "vs_5_0", "ps_5_0")
         bool operator==(ShaderDesc const& o) const {
             return filePath == o.filePath
                 && entryPoint == o.entryPoint
@@ -16,21 +17,22 @@ namespace Drift::RHI {
         }
     };
 
+    // Interface para shader compilado
     class IShader {
     public:
         virtual ~IShader() = default;
         virtual const void* GetBytecode() const = 0;
         virtual size_t      GetBytecodeSize() const = 0;
-        // Callback para hot-reload
+        // Callback para hot-reload do shader
         using ReloadCallback = void(*)(IShader*);
         virtual void SetReloadCallback(ReloadCallback cb) = 0;
     };
 
-    // Removido: std::shared_ptr<IShader> CreateShader(const ShaderDesc&);
+    // (Removido) std::shared_ptr<IShader> CreateShader(const ShaderDesc&);
 
 } // namespace Drift::RHI
 
-// specialize hash for ShaderDesc
+// Especialização de hash para ShaderDesc
 #include <functional>
 namespace std {
     template<>

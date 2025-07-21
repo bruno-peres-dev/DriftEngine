@@ -28,12 +28,13 @@ namespace Drift::RHI {
 
 namespace Drift::RHI::DX11 {
 
+    // Implementação DX11 de IDevice
     class DeviceDX11 : public Drift::RHI::IDevice {
     public:
         explicit DeviceDX11(const Drift::RHI::DeviceDesc& desc);
         ~DeviceDX11() override;
 
-        // IDevice
+        // Métodos de criação de recursos (IDevice)
         std::shared_ptr<Drift::RHI::IContext>       CreateContext() override;
         std::shared_ptr<Drift::RHI::ISwapChain>     CreateSwapChain(void* hwnd) override;
         std::shared_ptr<Drift::RHI::IBuffer>        CreateBuffer(const Drift::RHI::BufferDesc& d) override;
@@ -56,7 +57,7 @@ namespace Drift::RHI::DX11 {
         ResourceCache<Drift::RHI::SamplerDesc, Drift::RHI::ISampler>       _samplerCache;
     };
 
-    // fábrica (inline para não precisar de <memory> em headers externos)
+    // Fábrica inline para criar DeviceDX11
     inline std::shared_ptr<Drift::RHI::IDevice> CreateDeviceDX11(const Drift::RHI::DeviceDesc& desc) {
         return std::make_shared<DeviceDX11>(desc);
     }

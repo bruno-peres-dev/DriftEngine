@@ -12,6 +12,7 @@ using Microsoft::WRL::ComPtr;
 using namespace Drift::RHI;
 using namespace Drift::RHI::DX11;
 
+// Converte string de formato para DXGI_FORMAT
 static DXGI_FORMAT StringToDXGIFormat(const std::string& fmt) {
     static const std::unordered_map<std::string, DXGI_FORMAT> lut = {
         {"R32G32B32_FLOAT", DXGI_FORMAT_R32G32B32_FLOAT},
@@ -23,8 +24,9 @@ static DXGI_FORMAT StringToDXGIFormat(const std::string& fmt) {
     return DXGI_FORMAT_UNKNOWN;
 }
 
+// Cria e configura todos os estados fixos do pipeline (shaders, input layout, rasterizer, blend)
 PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& desc) {
-    // Compilar VS/PS com defines
+    // Compila VS/PS com defines
     std::vector<D3D_SHADER_MACRO> macros;
     for (const auto& def : desc.defines) {
         macros.push_back({ def.first.c_str(), def.second.c_str() });
@@ -46,6 +48,7 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         throw std::runtime_error("Failed to create PixelShader");
     }
 
+    // Cria input layout
     std::vector<D3D11_INPUT_ELEMENT_DESC> dxLayout;
     for (const auto& elem : desc.inputLayout) {
         dxLayout.push_back({
@@ -73,13 +76,10 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         throw std::runtime_error("Failed to create InputLayout");
     }
 
-    // Rasterizer state: desabilitar culling
+    // Configura rasterizer state
     D3D11_RASTERIZER_DESC rastDesc = {};
     rastDesc.FillMode = desc.rasterizer.wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-    
-    // Log do valor do enum antes da conversão
     Drift::Core::Log("[DX11] CullMode enum value = " + std::to_string(static_cast<int>(desc.rasterizer.cullMode)));
-    
     switch (desc.rasterizer.cullMode) {
         case Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None:
             rastDesc.CullMode = D3D11_CULL_NONE;
@@ -118,7 +118,7 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
     }
     Drift::Core::Log("[DX11] RasterizerState created successfully");
 
-    // --- Blend State avançado ---
+    // Configura blend state
     D3D11_BLEND_DESC blendDesc = {};
     const auto& b = desc.blend;
     blendDesc.AlphaToCoverageEnable = b.alphaToCoverage ? TRUE : FALSE;
@@ -183,6 +183,7 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
     Drift::Core::Log("[DX11] BlendState created successfully");
 }
 
+// Aplica todos os estados do pipeline no contexto DX11
 void PipelineStateDX11::Apply(IContext& ctx) {
     auto& dxCtx = static_cast<ContextDX11&>(ctx);
     auto* d3dCtx = dxCtx.GetDeviceContext();
@@ -204,6 +205,7 @@ void PipelineStateDX11::Apply(IContext& ctx) {
 }
 
 namespace Drift::RHI::DX11 {
+    // Fábrica de pipeline state DX11
     std::shared_ptr<IPipelineState> CreatePipelineDX11(ID3D11Device* device, const PipelineDesc& desc) {
         return std::make_shared<PipelineStateDX11>(device, desc);
     }

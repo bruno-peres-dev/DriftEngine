@@ -5,21 +5,23 @@
 
 namespace Drift::RHI {
 
+    // Interface para listas de comandos (futuro: suporte a command buffers)
     class ICommandList {
     public:
         virtual ~ICommandList() = default;
     };
 
+    // Interface de contexto de renderização (encapsula device context, swapchain, etc)
     class IContext {
     public:
         virtual ~IContext() = default;
         using BackendHandle = void*;
 
-        // Limpeza e apresentação
+        // Limpa o render target e apresenta o frame
         virtual void Clear(float r, float g, float b, float a) = 0;
         virtual void Present() = 0;
 
-        // Input Assembler
+        // Configuração do Input Assembler
         virtual void IASetVertexBuffer(void* vb, UINT stride, UINT offset) = 0;
         virtual void IASetIndexBuffer(void* ib, Format format, UINT offset) = 0;
         virtual void IASetPrimitiveTopology(PrimitiveTopology topo) = 0;
@@ -28,14 +30,14 @@ namespace Drift::RHI {
         virtual void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertex, UINT startInstance) = 0;
         virtual void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndex, INT baseVertex, UINT startInstance) = 0;
 
-        // Redimensionamento
+        // Redimensiona o swapchain e recursos associados
         virtual void Resize(unsigned width, unsigned height) = 0;
 
-        // Acesso nativo
+        // Acesso nativo ao device/contexto
         virtual BackendHandle GetNativeDevice()  const = 0;
         virtual BackendHandle GetNativeContext() const = 0;
 
-        // Recursos de pixel shader
+        // Bind de recursos para pixel shader
         virtual void PSSetTexture(UINT slot, ITexture* tex) = 0;
         virtual void PSSetSampler(UINT slot, ISampler* samp) = 0;
         virtual void SetDepthTestEnabled(bool enabled) = 0;
@@ -43,10 +45,11 @@ namespace Drift::RHI {
         virtual void PSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
     };
 
+    // Interface para swapchain (controle de buffers de apresentação)
     class ISwapChain {
     public:
         virtual ~ISwapChain() = default;
-        // Apenas chama IDXGISwapChain::ResizeBuffers
+        // Redimensiona os buffers de apresentação
         virtual void Resize(unsigned width, unsigned height) = 0;
     };
 

@@ -7,16 +7,18 @@
 
 namespace Drift::RHI {
 
+// Descrição de uma textura
 struct TextureDesc {
-    std::wstring path;
-    unsigned width = 0, height = 0;
-    Format format = Format::Unknown;
+    std::wstring path;         // Caminho do arquivo (opcional)
+    unsigned width = 0, height = 0; // Dimensões
+    Format format = Format::Unknown; // Formato de pixel
 };
 
 inline bool operator==(const TextureDesc& a, const TextureDesc& b) {
     return a.path == b.path && a.width == b.width && a.height == b.height && a.format == b.format;
 }
 
+// Interface para textura de GPU
 class ITexture {
 public:
     virtual ~ITexture() = default;
@@ -25,6 +27,7 @@ public:
     virtual void UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) = 0;
 };
 
+// Interface para sampler state
 class ISampler {
 public:
     virtual ~ISampler() = default;
@@ -32,6 +35,7 @@ public:
     virtual BackendHandle GetBackendHandle() const = 0;
 };
 
+// Descrição de um sampler state
 struct SamplerDesc {
     enum class Filter { Point, Linear, Anisotropic };
     enum class AddressMode { Wrap, Mirror, Clamp, Border };
@@ -57,7 +61,7 @@ struct SamplerDesc {
 
 } // namespace Drift::RHI
 
-// --- Specializations de hash para usar em unordered_map ---
+// --- Especializações de hash para uso em unordered_map ---
 
 #include <functional>
 namespace std {

@@ -2,13 +2,14 @@
 #include "Drift/RHI/DX11/BufferDX11.h"
 #include "Drift/Core/Log.h"
 #include <stdexcept>
-#include <wrl/client.h>   // para Microsoft::WRL::ComPtr
+#include <wrl/client.h>   // Microsoft::WRL::ComPtr
 #include <d3d11.h>
 
 using Microsoft::WRL::ComPtr;
 
 namespace Drift::RHI::DX11 {
 
+    // Cria buffer dinâmico para vertex ou index. Fallback para DEFAULT se falhar.
     BufferDX11::BufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc)
         : _context(context)
     {
@@ -30,7 +31,7 @@ namespace Drift::RHI::DX11 {
             _buffer.GetAddressOf())))
         {
             Drift::Core::Log(std::string("[DX11] Erro ao criar buffer: size=") + std::to_string(desc.sizeBytes));
-            // Fallback: tentar criar como DEFAULT (read-only)
+            // Fallback: tenta criar como DEFAULT (read-only)
             bd.Usage = D3D11_USAGE_DEFAULT;
             bd.CPUAccessFlags = 0;
             if (FAILED(device->CreateBuffer(&bd, desc.initData ? &initData : nullptr, _buffer.GetAddressOf()))) {
@@ -46,9 +47,10 @@ namespace Drift::RHI::DX11 {
     {
     }
 
+    // Criação de buffer DX11 (vertex, index ou constant)
     std::shared_ptr<IBuffer> CreateBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc) {
         if (desc.type == BufferType::Constant) {
-            // cria constant buffer dinâmico
+            // Constant buffer dinâmico
             D3D11_BUFFER_DESC bd{};
             bd.ByteWidth = static_cast<UINT>(desc.sizeBytes);
             bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -62,11 +64,12 @@ namespace Drift::RHI::DX11 {
             return std::make_shared<BufferDX11>(buf, context);
         }
         else {
-            // vertex ou index
+            // Vertex ou index buffer
             return std::make_shared<BufferDX11>(device, context, desc);
         }
     }
 
+    // Mapeia o buffer para escrita pela CPU
     void* BufferDX11::Map() {
         if (!_context) throw std::runtime_error("BufferDX11: contexto não definido para Map");
         D3D11_MAPPED_SUBRESOURCE mapped{};
@@ -76,6 +79,7 @@ namespace Drift::RHI::DX11 {
         return _mappedPtr;
     }
 
+    // Desfaz o mapeamento do buffer
     void BufferDX11::Unmap() {
         if (!_context) throw std::runtime_error("BufferDX11: contexto não definido para Unmap");
         _context->Unmap(_buffer.Get(), 0);

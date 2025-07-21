@@ -7,7 +7,7 @@
 
 namespace Drift::RHI::DX11 {
 
-    /// Implementa��o DX11 de IBuffer
+    // Implementação DX11 de IBuffer
     class BufferDX11 : public IBuffer {
     public:
         BufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc);
@@ -22,7 +22,7 @@ namespace Drift::RHI::DX11 {
         void* _mappedPtr = nullptr;
     };
 
-    /// Cria um BufferDX11 (Vertex, Index ou Constant) e devolve shared_ptr<IBuffer>
+    // Cria um BufferDX11 (vertex, index ou constant) e retorna shared_ptr<IBuffer>
     std::shared_ptr<IBuffer> CreateBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc);
 
 } // namespace Drift::RHI::DX11

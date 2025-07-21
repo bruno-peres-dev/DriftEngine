@@ -7,6 +7,7 @@
 
 namespace Drift::RHI::DX11 {
 
+    // Implementação DX11 de ISampler
     class SamplerDX11 : public ISampler {
     public:
         explicit SamplerDX11(ID3D11SamplerState* s) : _s(s) {}
@@ -15,6 +16,7 @@ namespace Drift::RHI::DX11 {
         Microsoft::WRL::ComPtr<ID3D11SamplerState> _s;
     };
 
+    // Cria um SamplerDX11
     std::shared_ptr<ISampler> CreateSamplerDX11(
         ID3D11Device* dev,
         const SamplerDesc& desc);

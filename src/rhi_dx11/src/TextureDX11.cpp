@@ -13,13 +13,14 @@
 
 using namespace Drift::RHI::DX11;
 
+// Converte wstring para UTF-8 usando std::filesystem
 static std::string ToUTF8(const std::wstring& wstr) {
-    // Converte wstring -> UTF-8 string via filesystem
     return std::filesystem::path(wstr).u8string();
 }
 
 namespace Drift::RHI::DX11 {
 
+// Cria textura DX11 a partir de arquivo (DDS/WIC) ou memória
 std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
     ID3D11Device* dev,
     ID3D11DeviceContext* ctx,
@@ -31,7 +32,7 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
 
     const std::string pathUtf8 = ToUTF8(desc.path);
 
-    // 1) Se for arquivo DDS, use DDSTextureLoader
+    // 1) DDS: usa DDSTextureLoader
     if (pathUtf8.size() >= 4 &&
         _stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".dds") == 0)
     {
@@ -44,7 +45,7 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
                 pathUtf8 + "'");
         }
     }
-    // 2) Se for outro arquivo, use WICTextureLoader
+    // 2) Outros formatos: usa WICTextureLoader
     else if (!desc.path.empty())
     {
         hr = DirectX::CreateWICTextureFromFile(dev, ctx,
@@ -64,7 +65,7 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
         td.Height = desc.height;
         td.MipLevels = 1;
         td.ArraySize = 1;
-        // Mapear Format para DXGI_FORMAT
+        // Mapeia Format para DXGI_FORMAT
         auto toDXGIFormat = [](Drift::RHI::Format fmt) {
             switch (fmt) {
                 case Drift::RHI::Format::R8_UNORM: return DXGI_FORMAT_R8_UNORM;
@@ -112,11 +113,13 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
 
 } // namespace Drift::RHI::DX11
 
+// Construtor: armazena ponteiros do recurso e SRV
 TextureDX11::TextureDX11(ID3D11ShaderResourceView* srv, ID3D11Resource* resource, ID3D11DeviceContext* context)
     : _srv(srv), _resource(resource), _context(context)
 {
 }
 
+// Atualiza subresource da textura (ex: upload de dados)
 void TextureDX11::UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) {
     if (!_context) throw std::runtime_error("TextureDX11: contexto não definido para UpdateSubresource");
     UINT subresource = D3D11CalcSubresource(mipLevel, arraySlice, 1);

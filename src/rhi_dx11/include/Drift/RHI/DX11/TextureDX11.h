@@ -7,6 +7,7 @@
 
 namespace Drift::RHI::DX11 {
 
+    // Implementação DX11 de ITexture
     class TextureDX11 : public ITexture {
     public:
         TextureDX11(ID3D11ShaderResourceView* srv, ID3D11Resource* resource, ID3D11DeviceContext* context);
@@ -18,6 +19,7 @@ namespace Drift::RHI::DX11 {
         Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
     };
 
+    // Cria uma TextureDX11
     std::shared_ptr<ITexture> CreateTextureDX11(
         ID3D11Device* dev,
         ID3D11DeviceContext* ctx,

@@ -8,7 +8,7 @@
 using namespace Drift::RHI::DX11;
 using Microsoft::WRL::ComPtr;
 
-// Construtor: armazena pointers e dimensões, depois cria RTV/DSV + viewport
+// Construtor: inicializa contexto, swapchain e cria RTV/DSV + viewport
 ContextDX11::ContextDX11(
     ID3D11Device* device,
     ID3D11DeviceContext* context,
@@ -28,7 +28,7 @@ ContextDX11::ContextDX11(
 
 ContextDX11::~ContextDX11() = default;
 
-// Cria render target + depth stencil view e configura o viewport
+// Cria RTV (Render Target View) e DSV (Depth Stencil View) e configura viewport
 void ContextDX11::CreateRTVandDSV() {
     ComPtr<ID3D11Texture2D> backBuffer;
     if (FAILED(_swapChain->GetBuffer(
@@ -126,6 +126,7 @@ void ContextDX11::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instance
     _context->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndex, baseVertex, startInstance);
 }
 
+// Atualiza e faz bind de constant buffer dinâmico
 void ContextDX11::UpdateConstantBuffer(
     ID3D11Buffer* buffer,
     const void* data,
@@ -140,6 +141,7 @@ void ContextDX11::UpdateConstantBuffer(
     _context->PSSetConstantBuffers(slot, 1, &buffer);
 }
 
+// Redimensiona swapchain, RTV/DSV e viewport
 void ContextDX11::Resize(unsigned width, unsigned height) {
     Drift::Core::Log("[DX11] Resize chamado: width=" + std::to_string(width) + " height=" + std::to_string(height));
     if (width == 0 || height == 0) {
@@ -181,6 +183,7 @@ void ContextDX11::PSSetSampler(UINT slot, ISampler* samp) {
     _context->PSSetSamplers(slot, 1, &s);
 }
 
+// Habilita/desabilita depth test
 void ContextDX11::SetDepthTestEnabled(bool enabled) {
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
     dsDesc.DepthEnable = enabled ? TRUE : FALSE;
@@ -195,6 +198,7 @@ void ContextDX11::SetDepthTestEnabled(bool enabled) {
     }
 }
 
+// Conversão de enums para DXGI/D3D11
 DXGI_FORMAT ContextDX11::ToDXGIFormat(Drift::RHI::Format fmt) {
     switch (fmt) {
     case Drift::RHI::Format::R8G8B8A8_UNORM:    return DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -224,6 +228,7 @@ void ContextDX11::PSSetConstantBuffer(UINT slot, BackendHandle buffer) {
     _context->PSSetConstantBuffers(slot, 1, &buf);
 }
 
+// Define render target e depth (pode ser backbuffer ou custom)
 void ContextDX11::SetRenderTarget(ITexture* color, ITexture* depth) {
     ID3D11RenderTargetView* rtv = nullptr;
     ID3D11DepthStencilView* dsv = nullptr;
@@ -241,6 +246,7 @@ void ContextDX11::SetRenderTarget(ITexture* color, ITexture* depth) {
     _context->OMSetRenderTargets(1, &rtv, dsv);
 }
 
+// Debug helpers (logs)
 void ContextDX11::SetDebugLabel(const char* label) {
     Drift::Core::Log(std::string("[DX11] SetDebugLabel: ") + (label ? label : ""));
 }

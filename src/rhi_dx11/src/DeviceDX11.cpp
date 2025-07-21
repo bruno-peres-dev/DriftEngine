@@ -14,6 +14,7 @@ using Microsoft::WRL::ComPtr;
 using namespace Drift::RHI;
 using namespace Drift::RHI::DX11;
 
+// Inicializa o dispositivo DX11 e contexto principal
 DeviceDX11::DeviceDX11(const DeviceDesc& desc)
     : _desc(desc)
 {
@@ -40,9 +41,10 @@ DeviceDX11::DeviceDX11(const DeviceDesc& desc)
 
 DeviceDX11::~DeviceDX11() = default;
 
+// Cria contexto de renderização associado ao swapchain
 std::shared_ptr<Drift::RHI::IContext> DeviceDX11::CreateContext() {
     if (!_swapChain)
-        throw std::runtime_error("SwapChain n�o criada antes de CreateContext");
+        throw std::runtime_error("SwapChain não criada antes de CreateContext");
     return std::make_shared<ContextDX11>(
         _device.Get(), _context.Get(),
         _swapChain.Get(),
@@ -51,6 +53,7 @@ std::shared_ptr<Drift::RHI::IContext> DeviceDX11::CreateContext() {
     );
 }
 
+// Cria swapchain para a janela especificada
 std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
     Drift::Core::Log("[DX11] HWND usado para swapchain: " + std::to_string(reinterpret_cast<uintptr_t>(hwnd)));
     ComPtr<IDXGIDevice>  dxgiDev;
@@ -92,6 +95,7 @@ std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
     return std::make_shared<SwapChainDX11>(_swapChain.Get());
 }
 
+// Criação e cache de recursos (buffer, pipeline, shader, textura, sampler)
 std::shared_ptr<IBuffer> DeviceDX11::CreateBuffer(const BufferDesc& d) {
     return _bufferCache.GetOrCreate(d,
         [this](auto const& key) { return CreateBufferDX11(_device.Get(), _context.Get(), key); });

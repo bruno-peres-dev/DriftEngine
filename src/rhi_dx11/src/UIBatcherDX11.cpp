@@ -5,6 +5,7 @@
 using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
 
+// Construtor: armazena ring buffer e contexto
 UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* ctx)
     : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {}
 
@@ -13,6 +14,7 @@ void UIBatcherDX11::Begin() {
     _indices.clear();
 }
 
+// Adiciona um retângulo ao batch de UI
 void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) {
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({x,     y,     color});
@@ -27,10 +29,12 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     _indices.push_back(base + 0);
 }
 
+// Stub: integração futura com sistema de fontes/texto
 void UIBatcherDX11::AddText(float, float, const char*, unsigned) {
-    // Stub: implementar integração com sistema de fontes/texto
+    // Não implementado
 }
 
+// Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
     if (_vertices.empty() || _indices.empty()) return;
     size_t vtxSize = _vertices.size() * sizeof(Vertex);
@@ -48,6 +52,7 @@ void UIBatcherDX11::End() {
     _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
 }
 
+// Fábrica de UIBatcherDX11
 std::unique_ptr<IUIBatcher> Drift::RHI::DX11::CreateUIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* ctx) {
     return std::make_unique<UIBatcherDX11>(std::move(ringBuffer), ctx);
 } 

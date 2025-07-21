@@ -7,12 +7,12 @@
 
 namespace Drift::RHI {
 
-    /// Cache genÈrico de recurso: dado uma chave Key e 
-    /// um valor compartilhado T, guarda e reaproveita inst‚ncias.
+    // Cache gen√©rico de recursos compartilhados.
+    // Dado uma chave Key e um valor T, armazena inst√¢ncias compartilhadas e reaproveita recursos.
     template<typename Key, typename T>
     class ResourceCache {
     public:
-        /// Factory È uma callable que recebe (Key const&) e devolve std::shared_ptr<T>
+        // Factory: callable que recebe (Key const&) e retorna std::shared_ptr<T>
         template<typename Factory>
         std::shared_ptr<T> GetOrCreate(Key const& key, Factory factory) {
             std::lock_guard<std::mutex> lock(_mutex);
@@ -25,13 +25,13 @@ namespace Drift::RHI {
             return resource;
         }
 
-        /// Remove um recurso do cache (se existir)
+        // Remove um recurso do cache, se existir
         void Invalidate(Key const& key) {
             std::lock_guard<std::mutex> lock(_mutex);
             _map.erase(key);
         }
 
-        /// Esvazia todo o cache
+        // Esvazia todo o cache
         void Clear() {
             std::lock_guard<std::mutex> lock(_mutex);
             _map.clear();

@@ -5,30 +5,32 @@
 
 namespace Drift::RHI {
 
-// Tipos de buffer suportados
+// Tipos de buffer suportados pela API de renderização
 enum class BufferType { Vertex, Index, Constant };
 
+// Descrição de um buffer genérico
 struct BufferDesc {
-    BufferType type;
-    size_t sizeBytes;
-    const void* initData = nullptr;
+    BufferType type;      // Tipo do buffer (vertex, index, constant)
+    size_t sizeBytes;     // Tamanho em bytes
+    const void* initData = nullptr; // Dados iniciais (opcional)
     bool operator==(const BufferDesc& o) const {
         return type == o.type && sizeBytes == o.sizeBytes && initData == o.initData;
     }
 };
 
+// Interface para buffers de GPU
 class IBuffer {
 public:
     virtual ~IBuffer() = default;
     using BackendHandle = void*;
     virtual BackendHandle GetBackendHandle() = 0;
-    virtual void* Map() = 0; // Mapeia o buffer para escrita
-    virtual void  Unmap() = 0; // Desmapeia o buffer
+    virtual void* Map() = 0;   // Mapeia o buffer para acesso CPU
+    virtual void  Unmap() = 0; // Desfaz o mapeamento
 };
 
 } // namespace Drift::RHI
 
-// Utilitário para atualizar constant buffer a partir de struct C++
+// Utilitário para atualizar constant buffer a partir de uma struct C++
 namespace Drift::RHI {
     template<typename T>
     inline void UpdateConstantBuffer(IBuffer* buffer, const T& data) {
@@ -38,7 +40,7 @@ namespace Drift::RHI {
     }
 }
 
-// RingBuffer para uploads dinâmicos
+// Interface para ring buffer dinâmico (ex: uploads frequentes)
 namespace Drift::RHI {
     class IRingBuffer {
     public:
@@ -50,19 +52,15 @@ namespace Drift::RHI {
     };
 }
 
-// Batching para UI
+// Interface para batching de UI (ex: primitivas 2D)
 namespace Drift::RHI {
     class IUIBatcher {
     public:
         virtual ~IUIBatcher() = default;
-        // Inicia um novo batch
-        virtual void Begin() = 0;
-        // Adiciona um retângulo ao batch
-        virtual void AddRect(float x, float y, float w, float h, unsigned color) = 0;
-        // Adiciona um texto ao batch (API simplificada)
-        virtual void AddText(float x, float y, const char* text, unsigned color) = 0;
-        // Envia os dados para o ring buffer e emite draw calls
-        virtual void End() = 0;
+        virtual void Begin() = 0; // Inicia um novo batch
+        virtual void AddRect(float x, float y, float w, float h, unsigned color) = 0; // Adiciona retângulo
+        virtual void AddText(float x, float y, const char* text, unsigned color) = 0;  // Adiciona texto
+        virtual void End() = 0;   // Finaliza e envia draw calls
     };
 }
 

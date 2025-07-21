@@ -8,6 +8,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Drift::RHI::DX11 {
 
+    // Construtor: armazena blob compilado
     ShaderDX11::ShaderDX11(ID3DBlob* blob)
         : _blob(blob)
     {
@@ -15,6 +16,7 @@ namespace Drift::RHI::DX11 {
 
     ShaderDX11::~ShaderDX11() = default;
 
+    // Compila shader HLSL a partir de arquivo
     std::shared_ptr<IShader> CreateShaderDX11(const ShaderDesc& desc) {
         ComPtr<ID3DBlob> compiled, errors;
         HRESULT hr = D3DCompileFromFile(
@@ -42,6 +44,7 @@ namespace Drift::RHI::DX11 {
         return std::make_shared<ShaderDX11>(compiled.Get());
     }
 
+    // Compila shader HLSL com macros de pré-processador
     std::shared_ptr<IShader> CreateShaderDX11(const ShaderDesc& desc, const D3D_SHADER_MACRO* macros) {
         ComPtr<ID3DBlob> compiled, errors;
         HRESULT hr = D3DCompileFromFile(

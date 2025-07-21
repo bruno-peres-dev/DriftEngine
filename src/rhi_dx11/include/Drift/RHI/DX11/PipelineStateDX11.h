@@ -9,7 +9,7 @@
 
 namespace Drift::RHI::DX11 {
 
-    /// Implementa��o DX11 de IPipelineState
+    // Implementação DX11 de IPipelineState
     class PipelineStateDX11 : public IPipelineState {
     public:
         PipelineStateDX11(ID3D11Device* device, const PipelineDesc& desc);
@@ -22,10 +22,10 @@ namespace Drift::RHI::DX11 {
         Microsoft::WRL::ComPtr<ID3D11VertexShader> _vs;
         Microsoft::WRL::ComPtr<ID3D11PixelShader>  _ps;
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
-        Microsoft::WRL::ComPtr<ID3D11BlendState> _blendState; // Novo: blend state avançado
+        Microsoft::WRL::ComPtr<ID3D11BlendState> _blendState; // Blend state avançado
     };
 
-    /// Cria um PipelineStateDX11 e devolve shared_ptr<IPipelineState>
+    // Cria um PipelineStateDX11 e retorna shared_ptr<IPipelineState>
     std::shared_ptr<IPipelineState> CreatePipelineDX11(ID3D11Device* device, const PipelineDesc& desc);
 
 } // namespace Drift::RHI::DX11

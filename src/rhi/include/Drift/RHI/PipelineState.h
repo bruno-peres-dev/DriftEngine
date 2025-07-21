@@ -6,11 +6,12 @@
 
 namespace Drift::RHI {
 
+// Descrição de um elemento de input layout (vertex)
 struct InputElementDesc {
-    std::string semanticName;
-    unsigned semanticIndex;
-    unsigned offset;
-    std::string format; // Ex: "R32G32B32_FLOAT"
+    std::string semanticName; // Nome semântico (ex: POSITION)
+    unsigned semanticIndex;   // Índice do semântico
+    unsigned offset;          // Offset em bytes
+    std::string format;       // Formato (ex: "R32G32B32_FLOAT")
     bool operator==(const InputElementDesc& o) const {
         return semanticName == o.semanticName &&
                semanticIndex == o.semanticIndex &&
@@ -19,15 +20,16 @@ struct InputElementDesc {
     }
 };
 
+// Descrição completa de um pipeline gráfico
 struct PipelineDesc {
-    std::string vsFile;
-    std::string psFile;
-    std::string gsFile;
-    std::string csFile;
-    std::vector<InputElementDesc> inputLayout;
-    std::vector<std::pair<std::string, std::string>> defines;
+    std::string vsFile; // Vertex shader
+    std::string psFile; // Pixel shader
+    std::string gsFile; // Geometry shader (opcional)
+    std::string csFile; // Compute shader (opcional)
+    std::vector<InputElementDesc> inputLayout; // Layout dos vértices
+    std::vector<std::pair<std::string, std::string>> defines; // Macros de compilação
     struct BlendDesc {
-        bool enable = false;
+        bool enable = false; // Ativa blending
         enum class BlendFactor {
             Zero, One, SrcColor, InvSrcColor, SrcAlpha, InvSrcAlpha, DestAlpha, InvDestAlpha, DestColor, InvDestColor, SrcAlphaSaturate
         } srcColor = BlendFactor::One, dstColor = BlendFactor::Zero,
@@ -49,15 +51,15 @@ struct PipelineDesc {
     BlendDesc blend;
     struct RasterizerDesc {
         enum class CullMode { None, Back, Front };
-        CullMode cullMode = CullMode::Back;
-        bool wireframe = false;
+        CullMode cullMode = CullMode::Back; // Modo de culling
+        bool wireframe = false;             // Renderização wireframe
         bool operator==(const RasterizerDesc& o) const {
             return cullMode == o.cullMode && wireframe == o.wireframe;
         }
     } rasterizer;
     struct DepthStencilDesc {
-        bool depthEnable = true;
-        bool depthWrite = true;
+        bool depthEnable = true; // Ativa teste de profundidade
+        bool depthWrite = true;  // Ativa escrita no depth
         bool operator==(const DepthStencilDesc& o) const {
             return depthEnable == o.depthEnable && depthWrite == o.depthWrite;
         }
@@ -75,6 +77,7 @@ struct PipelineDesc {
     }
 };
 
+// Interface para pipeline state (encapsula configuração de renderização)
 class IPipelineState {
 public:
     virtual ~IPipelineState() = default;
@@ -83,7 +86,7 @@ public:
 
 } // namespace Drift::RHI
 
-// specialize hash for PipelineDesc
+// Especialização de hash para PipelineDesc
 #include <functional>
 namespace std {
     template<>

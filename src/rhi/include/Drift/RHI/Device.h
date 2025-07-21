@@ -9,11 +9,13 @@
 
 namespace Drift::RHI {
 
+    // Descrição de dispositivo de renderização
     struct DeviceDesc {
-        unsigned width, height;
-        bool vsync;
+        unsigned width, height; // Dimensões da janela
+        bool vsync;            // Sincronização vertical
     };
 
+    // Interface para dispositivo de renderização (fábrica de recursos)
     class IDevice {
     public:
         virtual ~IDevice() = default;
@@ -27,7 +29,7 @@ namespace Drift::RHI {
         virtual void* GetNativeDevice() const = 0;
     };
 
-    /// stub (no usado em DX11)
+    // Implementação stub (usada apenas para testes, não utilizada em DX11)
     std::shared_ptr<IDevice> CreateDeviceStub(const DeviceDesc& desc);
 
 } // namespace Drift::RHI

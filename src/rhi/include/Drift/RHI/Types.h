@@ -6,7 +6,7 @@ namespace Drift::RHI {
 using UINT = unsigned int;
 using INT = int;
 
-// Formatos de dados suportados
+// Formatos de dados suportados para buffers/texturas
 enum class Format {
     Unknown,
     R8_UNORM,
@@ -19,7 +19,7 @@ enum class Format {
     BC3_UNORM
 };
 
-// Topologias de primitivos
+// Topologias de primitivos para renderização
 enum class PrimitiveTopology {
     Undefined,
     PointList,

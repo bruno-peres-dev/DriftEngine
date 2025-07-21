@@ -6,6 +6,7 @@
 
 namespace Drift::RHI::DX11 {
 
+// Implementação DX11 de IUIBatcher para batching de primitivas 2D
 class UIBatcherDX11 : public Drift::RHI::IUIBatcher {
 public:
     UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, Drift::RHI::IContext* ctx);
@@ -24,6 +25,7 @@ private:
     Drift::RHI::IContext* _ctx;
 };
 
+// Cria um UIBatcherDX11
 std::unique_ptr<Drift::RHI::IUIBatcher> CreateUIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, Drift::RHI::IContext* ctx);
 
 } // namespace Drift::RHI::DX11 

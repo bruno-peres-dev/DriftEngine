@@ -8,7 +8,7 @@
 
 namespace Drift::RHI::DX11 {
 
-    /// Contexto DX11: encapsula ID3D11DeviceContext, RTV/DSV e viewport.
+    // Contexto DX11: encapsula ID3D11DeviceContext, RTV/DSV e viewport.
     class ContextDX11 : public Drift::RHI::IContext {
     public:
         ContextDX11(
@@ -21,11 +21,11 @@ namespace Drift::RHI::DX11 {
         );
         ~ContextDX11() override;
 
-        // Limpa e apresenta
+        // Limpa o render target e apresenta o frame
         void Clear(float r, float g, float b, float a) override;
         void Present() override;
 
-        // Input Assembler
+        // Configuração do Input Assembler
         void IASetVertexBuffer(void* vb, UINT stride, UINT offset) override;
         void IASetIndexBuffer(void* ib, Drift::RHI::Format format, UINT offset) override;
         void IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology topo) override;
@@ -35,7 +35,7 @@ namespace Drift::RHI::DX11 {
         void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertex, UINT startInstance) override;
         void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndex, INT baseVertex, UINT startInstance) override;
 
-        // Atualiza e liga um constant buffer dinâmico (slot bN)
+        // Atualiza e faz bind de um constant buffer dinâmico (slot bN)
         void UpdateConstantBuffer(
             ID3D11Buffer* buffer,
             const void* data,
@@ -43,11 +43,11 @@ namespace Drift::RHI::DX11 {
             UINT slot
         );
 
-        // Redimensionamento: ajusta width/height, resize swap‑chain e recria RTV/DSV + viewport
+        // Redimensiona swapchain, RTV/DSV e viewport
         void Resize(unsigned width, unsigned height) override;
 
-        virtual void PSSetTexture(UINT slot, ITexture* tex) override;
-        virtual void PSSetSampler(UINT slot, ISampler* samp) override;
+        void PSSetTexture(UINT slot, ITexture* tex) override;
+        void PSSetSampler(UINT slot, ISampler* samp) override;
         void VSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
         void PSSetConstantBuffer(UINT slot, BackendHandle buffer) override;
 
@@ -57,7 +57,7 @@ namespace Drift::RHI::DX11 {
         void BeginDebugEvent(const char* name);
         void EndDebugEvent();
 
-        // Acesso nativo
+        // Acesso nativo ao device/contexto
         void* GetNativeDevice()  const override { return _device.Get(); }
         void* GetNativeContext() const override { return _context.Get(); }
         ID3D11DeviceContext* GetDeviceContext() const { return _context.Get(); }

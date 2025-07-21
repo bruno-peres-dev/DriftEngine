@@ -6,6 +6,7 @@
 
 namespace Drift::RHI::DX11 {
 
+// Implementação DX11 de IRingBuffer para uploads dinâmicos
 class RingBufferDX11 : public IRingBuffer {
 public:
     RingBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, size_t sizeBytes, int numBuffers = 3);
@@ -21,6 +22,7 @@ protected:
     int _numBuffers;
 };
 
+// Cria um RingBufferDX11
 std::shared_ptr<IRingBuffer> CreateRingBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, size_t sizeBytes, int numBuffers = 3);
 
 } // namespace Drift::RHI::DX11 
