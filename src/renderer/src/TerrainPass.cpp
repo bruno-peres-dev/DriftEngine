@@ -323,6 +323,283 @@ bool TerrainManager::IsVisibleInFrustum(const TerrainTile& tile) const {
     return currentFrustum.IsBoxInFrustum(tile.boundingBoxCenter, tile.boundingBoxHalfExtents);
 }
 
+// AAA Industry Standard: Index Stitching Implementation
+
+// Pre-computed stitching patterns for common resolution ratios
+const std::vector<IndexStitcher::StitchingPattern> IndexStitcher::STITCHING_PATTERNS = {
+    // 1:2 ratio (neighbor has half resolution)
+    { 0.5f, {} },
+    // 1:3 ratio (neighbor has 1/3 resolution) 
+    { 0.333f, {} },
+    // 1:4 ratio (neighbor has 1/4 resolution)
+    { 0.25f, {} },
+    // 2:1 ratio (neighbor has double resolution)
+    { 2.0f, {} },
+    // 3:1 ratio (neighbor has triple resolution)
+    { 3.0f, {} },
+    // 4:1 ratio (neighbor has quadruple resolution)
+    { 4.0f, {} }
+};
+
+uint32_t IndexStitcher::MapVertexIndex(uint32_t index, uint32_t fromRes, uint32_t toRes) {
+    // Map vertex index from one resolution to another
+    // This ensures smooth transitions between different LOD levels
+    float ratio = static_cast<float>(toRes - 1) / static_cast<float>(fromRes - 1);
+    return static_cast<uint32_t>(index * ratio + 0.5f);
+}
+
+std::vector<uint32_t> IndexStitcher::GenerateTransitionStrip(
+    uint32_t startIdx, uint32_t endIdx,
+    uint32_t currentRes, uint32_t neighborRes,
+    bool isVertical) {
+    
+    std::vector<uint32_t> indices;
+    
+    if (currentRes == neighborRes) {
+        // No transition needed - same resolution
+        return indices;
+    }
+    
+    // Generate triangle strip for smooth transition
+    uint32_t steps = std::max(currentRes, neighborRes) - 1;
+    
+    for (uint32_t i = 0; i < steps; ++i) {
+        uint32_t currentIdx = startIdx + (i * (endIdx - startIdx)) / steps;
+        uint32_t nextIdx = startIdx + ((i + 1) * (endIdx - startIdx)) / steps;
+        
+        // Map to neighbor resolution
+        uint32_t neighborCurrentIdx = MapVertexIndex(i, steps, neighborRes - 1);
+        uint32_t neighborNextIdx = MapVertexIndex(i + 1, steps, neighborRes - 1);
+        
+        // Create triangles for smooth transition
+        if (isVertical) {
+            // Vertical edge (North/South)
+            indices.push_back(currentIdx);
+            indices.push_back(neighborCurrentIdx);
+            indices.push_back(nextIdx);
+            
+            indices.push_back(nextIdx);
+            indices.push_back(neighborCurrentIdx);
+            indices.push_back(neighborNextIdx);
+        } else {
+            // Horizontal edge (East/West)
+            indices.push_back(currentIdx);
+            indices.push_back(nextIdx);
+            indices.push_back(neighborCurrentIdx);
+            
+            indices.push_back(neighborCurrentIdx);
+            indices.push_back(nextIdx);
+            indices.push_back(neighborNextIdx);
+        }
+    }
+    
+    return indices;
+}
+
+std::vector<uint32_t> IndexStitcher::GetInterpolationIndices(
+    uint32_t edgeStart, uint32_t edgeEnd,
+    uint32_t currentRes, uint32_t neighborRes,
+    bool isVerticalEdge) {
+    
+    std::vector<uint32_t> indices;
+    
+    if (currentRes == neighborRes) {
+        return indices; // No interpolation needed
+    }
+    
+    // Generate transition triangles along the edge
+    if (currentRes > neighborRes) {
+        // Current tile has higher resolution - create triangles that connect multiple current vertices to one neighbor vertex
+        float ratio = static_cast<float>(currentRes - 1) / static_cast<float>(neighborRes - 1);
+        
+        for (uint32_t neighborIdx = 0; neighborIdx < neighborRes - 1; ++neighborIdx) {
+            // Find corresponding range in current resolution
+            uint32_t currentStart = static_cast<uint32_t>(neighborIdx * ratio);
+            uint32_t currentEnd = static_cast<uint32_t>((neighborIdx + 1) * ratio);
+            
+            // Create fan triangles from neighbor vertex to current vertices
+            for (uint32_t currentIdx = currentStart; currentIdx < currentEnd; ++currentIdx) {
+                uint32_t nextCurrentIdx = currentIdx + 1;
+                
+                if (isVerticalEdge) {
+                    // North/South edge - vertices are arranged in rows
+                    uint32_t currentVertex1 = currentIdx * currentRes + edgeStart;
+                    uint32_t currentVertex2 = nextCurrentIdx * currentRes + edgeStart;
+                    uint32_t neighborVertex = neighborIdx * neighborRes + edgeStart;
+                    
+                    // Create triangle connecting the edge
+                    indices.push_back(currentVertex1);
+                    indices.push_back(currentVertex2);
+                    indices.push_back(neighborVertex);
+                } else {
+                    // East/West edge - vertices are arranged in columns
+                    uint32_t currentVertex1 = edgeStart * currentRes + currentIdx;
+                    uint32_t currentVertex2 = edgeStart * currentRes + nextCurrentIdx;
+                    uint32_t neighborVertex = edgeStart * neighborRes + neighborIdx;
+                    
+                    indices.push_back(currentVertex1);
+                    indices.push_back(neighborVertex);
+                    indices.push_back(currentVertex2);
+                }
+            }
+        }
+    } else {
+        // Neighbor has higher resolution - create triangles that connect one current vertex to multiple neighbor vertices
+        float ratio = static_cast<float>(neighborRes - 1) / static_cast<float>(currentRes - 1);
+        
+        for (uint32_t currentIdx = 0; currentIdx < currentRes - 1; ++currentIdx) {
+            // Find corresponding range in neighbor resolution
+            uint32_t neighborStart = static_cast<uint32_t>(currentIdx * ratio);
+            uint32_t neighborEnd = static_cast<uint32_t>((currentIdx + 1) * ratio);
+            
+            // Create fan triangles from current vertex to neighbor vertices
+            for (uint32_t neighborIdx = neighborStart; neighborIdx < neighborEnd; ++neighborIdx) {
+                uint32_t nextNeighborIdx = neighborIdx + 1;
+                
+                if (isVerticalEdge) {
+                    uint32_t currentVertex = currentIdx * currentRes + edgeStart;
+                    uint32_t neighborVertex1 = neighborIdx * neighborRes + edgeStart;
+                    uint32_t neighborVertex2 = nextNeighborIdx * neighborRes + edgeStart;
+                    
+                    indices.push_back(currentVertex);
+                    indices.push_back(neighborVertex1);
+                    indices.push_back(neighborVertex2);
+                } else {
+                    uint32_t currentVertex = edgeStart * currentRes + currentIdx;
+                    uint32_t neighborVertex1 = edgeStart * neighborRes + neighborIdx;
+                    uint32_t neighborVertex2 = edgeStart * neighborRes + nextNeighborIdx;
+                    
+                    indices.push_back(currentVertex);
+                    indices.push_back(neighborVertex2);
+                    indices.push_back(neighborVertex1);
+                }
+            }
+        }
+    }
+    
+    return indices;
+}
+
+std::vector<uint32_t> IndexStitcher::GenerateStitchedIndices(
+    const TerrainTile& tile,
+    Edge edge,
+    TerrainLOD currentLOD,
+    TerrainLOD neighborLOD,
+    uint32_t currentResolution,
+    uint32_t neighborResolution) {
+    
+    std::vector<uint32_t> stitchedIndices;
+    
+    if (currentResolution == neighborResolution) {
+        return stitchedIndices; // No stitching needed
+    }
+    
+    // Determine edge parameters
+    bool isVertical = (edge == Edge::North || edge == Edge::South);
+    uint32_t edgeStart = 0;
+    
+    switch (edge) {
+        case Edge::North:
+            edgeStart = currentResolution - 1; // Top row
+            break;
+        case Edge::South:
+            edgeStart = 0; // Bottom row
+            break;
+        case Edge::East:
+            edgeStart = currentResolution - 1; // Right column
+            break;
+        case Edge::West:
+            edgeStart = 0; // Left column
+            break;
+    }
+    
+    // Generate interpolation indices for smooth transition
+    stitchedIndices = GetInterpolationIndices(
+        edgeStart, 
+        isVertical ? currentResolution - 1 : currentResolution - 1,
+        currentResolution,
+        neighborResolution,
+        isVertical
+    );
+    
+    return stitchedIndices;
+}
+
+void TerrainManager::UpdateNeighborLODs(TerrainTile& tile) {
+    // Check all four neighbors and update their LOD information
+    glm::ivec2 neighbors[4] = {
+        {tile.tileCoord.x, tile.tileCoord.y + 1}, // North
+        {tile.tileCoord.x + 1, tile.tileCoord.y}, // East
+        {tile.tileCoord.x, tile.tileCoord.y - 1}, // South
+        {tile.tileCoord.x - 1, tile.tileCoord.y}  // West
+    };
+    
+    tile.needsStitching = false;
+    
+    for (int i = 0; i < 4; ++i) {
+        auto neighborIt = tiles.find(neighbors[i]);
+        if (neighborIt != tiles.end() && neighborIt->second.IsLoaded()) {
+            tile.neighborLODs[i] = neighborIt->second.currentLOD;
+            
+            // Check if stitching is needed
+            if (tile.currentLOD != neighborIt->second.currentLOD) {
+                tile.needsStitching = true;
+            }
+        } else {
+            // No neighbor or neighbor not loaded - assume same LOD
+            tile.neighborLODs[i] = tile.currentLOD;
+        }
+    }
+}
+
+void TerrainManager::GenerateStitchedIndicesForTile(TerrainTile& tile) {
+    if (!tile.needsStitching) {
+        return;
+    }
+    
+    const uint32_t currentResolution = GetLODResolution(tile.currentLOD);
+    
+    // Generate stitched indices for each edge that needs it
+    for (int edgeIdx = 0; edgeIdx < 4; ++edgeIdx) {
+        TerrainLOD neighborLOD = tile.neighborLODs[edgeIdx];
+        uint32_t neighborResolution = GetLODResolution(neighborLOD);
+        
+        if (currentResolution != neighborResolution) {
+            // Generate stitched indices for this edge
+            tile.stitchedIndices[edgeIdx] = IndexStitcher::GenerateStitchedIndices(
+                tile,
+                static_cast<IndexStitcher::Edge>(edgeIdx),
+                tile.currentLOD,
+                neighborLOD,
+                currentResolution,
+                neighborResolution
+            );
+            
+            // Create GPU buffer for stitched indices
+            if (!tile.stitchedIndices[edgeIdx].empty()) {
+                tile.stitchedIndexBuffers[edgeIdx] = _device.CreateBuffer({
+                    RHI::BufferType::Index,
+                    tile.stitchedIndices[edgeIdx].size() * sizeof(uint32_t),
+                    tile.stitchedIndices[edgeIdx].data()
+                });
+                tile.hasStitchedEdge[edgeIdx] = true;
+            }
+        } else {
+            tile.hasStitchedEdge[edgeIdx] = false;
+        }
+    }
+}
+
+void TerrainManager::StitchTileBorders(TerrainTile& tile) {
+    // Update neighbor LOD information
+    UpdateNeighborLODs(tile);
+    
+    // Generate stitched indices if needed
+    if (tile.needsStitching) {
+        GenerateStitchedIndicesForTile(tile);
+    }
+}
+
 void TerrainManager::UpdateTileLODs(const glm::vec3& cameraPos, const glm::mat4& viewProjMatrix) {
     for (auto& [coord, tile] : tiles) {
         if (tile.IsLoaded()) {
@@ -386,6 +663,13 @@ void TerrainManager::Update(const glm::vec3& cameraPos, const ViewFrustum& frust
     
     // Update LODs based on camera distance and visibility
     UpdateTileLODs(cameraPos, viewProjMatrix);
+    
+    // Apply stitching to all tiles that need it
+    for (auto& [coord, tile] : tiles) {
+        if (tile.IsLoaded()) {
+            StitchTileBorders(tile);
+        }
+    }
     
     // Update performance statistics
     for (const auto& [coord, tile] : tiles) {
@@ -544,13 +828,17 @@ void TerrainPass::Update(float dt, GLFWwindow* window)
     bool f2 = glfwGetKey(window, GLFW_KEY_F2)==GLFW_PRESS;
     bool f3 = glfwGetKey(window, GLFW_KEY_F3)==GLFW_PRESS;
     bool f4 = glfwGetKey(window, GLFW_KEY_F4)==GLFW_PRESS;
+    bool f5 = glfwGetKey(window, GLFW_KEY_F5)==GLFW_PRESS;
+    bool f6 = glfwGetKey(window, GLFW_KEY_F6)==GLFW_PRESS;
     
-    if (f1 && !_prevF1) _showWireframe   = !_showWireframe;
-    if (f2 && !_prevF2) _showNormalLines = !_showNormalLines;
-    if (f3 && !_prevF3) _showLODColors   = !_showLODColors;
-    if (f4 && !_prevF4) _showStats       = !_showStats;
+    if (f1 && !_prevF1) _showWireframe      = !_showWireframe;
+    if (f2 && !_prevF2) _showNormalLines    = !_showNormalLines;
+    if (f3 && !_prevF3) _showLODColors      = !_showLODColors;
+    if (f4 && !_prevF4) _showStitching      = !_showStitching;
+    if (f5 && !_prevF5) _showLODTransitions = !_showLODTransitions;
+    if (f6 && !_prevF6) _showStats          = !_showStats;
     
-    _prevF1 = f1; _prevF2 = f2; _prevF3 = f3; _prevF4 = f4;
+    _prevF1 = f1; _prevF2 = f2; _prevF3 = f3; _prevF4 = f4; _prevF5 = f5; _prevF6 = f6;
 }
 
 void TerrainPass::Execute() {
@@ -578,18 +866,46 @@ void TerrainPass::Execute() {
         // Check if LOD buffers exist
         if (!tile.lodVertexBuffers[lodIndex] || !tile.lodIndexBuffers[lodIndex]) return;
         
-                 // Solid rendering with LOD colors if enabled
-         if (_showLODColors) {
-             _pipelineLOD->Apply(_context);
-         } else {
-             _pipeline->Apply(_context);
-         }
-         _context.PSSetTexture(0,_tex.get());
-         _context.PSSetSampler(0,_samp.get());
-         _context.IASetVertexBuffer(tile.lodVertexBuffers[lodIndex]->GetBackendHandle(),sizeof(Vertex),0);
-         _context.IASetIndexBuffer(tile.lodIndexBuffers[lodIndex]->GetBackendHandle(),RHI::Format::R32_UINT,0);
-         _context.SetDepthTestEnabled(true);
-         _context.DrawIndexed(static_cast<UINT>(tile.lodIndices[lodIndex].size()),0,0);
+        // Solid rendering with LOD colors if enabled
+        if (_showLODColors) {
+            _pipelineLOD->Apply(_context);
+        } else {
+            _pipeline->Apply(_context);
+        }
+        _context.PSSetTexture(0,_tex.get());
+        _context.PSSetSampler(0,_samp.get());
+        _context.IASetVertexBuffer(tile.lodVertexBuffers[lodIndex]->GetBackendHandle(),sizeof(Vertex),0);
+        _context.SetDepthTestEnabled(true);
+        
+        // Render main tile with standard indices
+        _context.IASetIndexBuffer(tile.lodIndexBuffers[lodIndex]->GetBackendHandle(),RHI::Format::R32_UINT,0);
+        _context.DrawIndexed(static_cast<UINT>(tile.lodIndices[lodIndex].size()),0,0);
+        
+        // Render stitched edges if needed
+        if (tile.needsStitching) {
+            for (int edgeIdx = 0; edgeIdx < 4; ++edgeIdx) {
+                if (tile.hasStitchedEdge[edgeIdx] && tile.stitchedIndexBuffers[edgeIdx]) {
+                    if (_showStitching) {
+                        // Render stitched edges in wireframe mode for visualization
+                        _pipelineWire->Apply(_context);
+                        _context.SetDepthTestEnabled(false);
+                    }
+                    
+                    _context.IASetIndexBuffer(tile.stitchedIndexBuffers[edgeIdx]->GetBackendHandle(),RHI::Format::R32_UINT,0);
+                    _context.DrawIndexed(static_cast<UINT>(tile.stitchedIndices[edgeIdx].size()),0,0);
+                    
+                    if (_showStitching) {
+                        // Restore solid rendering
+                        if (_showLODColors) {
+                            _pipelineLOD->Apply(_context);
+                        } else {
+                            _pipeline->Apply(_context);
+                        }
+                        _context.SetDepthTestEnabled(true);
+                    }
+                }
+            }
+        }
 
         // Wireframe overlay
         if(_showWireframe){
@@ -611,8 +927,23 @@ void TerrainPass::Execute() {
     static int frameCount = 0;
     if (frameCount++ % 300 == 0 && _showStats) {
         const auto& stats = _tileManager->GetStats();
+        
+        // Count tiles with stitching
+        int stitchedTiles = 0;
+        int totalStitchedEdges = 0;
+        _tileManager->ForEachVisibleTile([&](auto const& coord, TerrainTile& tile){
+            if (tile.needsStitching) {
+                stitchedTiles++;
+                for (int i = 0; i < 4; ++i) {
+                    if (tile.hasStitchedEdge[i]) totalStitchedEdges++;
+                }
+            }
+        });
+        
         Drift::Core::Log("[Terrain Stats] Loaded: " + std::to_string(stats.tilesLoaded) + 
                          " | Rendered: " + std::to_string(stats.tilesRendered) + 
+                         " | Stitched: " + std::to_string(stitchedTiles) + 
+                         " | StitchedEdges: " + std::to_string(totalStitchedEdges) +
                          " | LOD0: " + std::to_string(stats.tilesLOD0) +
                          " | LOD1: " + std::to_string(stats.tilesLOD1) +
                          " | LOD2: " + std::to_string(stats.tilesLOD2) +

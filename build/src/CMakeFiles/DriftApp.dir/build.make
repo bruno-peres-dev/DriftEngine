@@ -103,6 +103,7 @@ src/DriftApp: _deps/glfw-build/src/libglfw3.a
 src/DriftApp: src/libDriftRHI_DX11.a
 src/DriftApp: src/libDriftRHI.a
 src/DriftApp: src/libDriftCore.a
+src/DriftApp: lib/libDirectXTK.a
 src/DriftApp: /usr/lib/x86_64-linux-gnu/librt.a
 src/DriftApp: /usr/lib/x86_64-linux-gnu/libm.so
 src/DriftApp: /usr/lib/x86_64-linux-gnu/libX11.so

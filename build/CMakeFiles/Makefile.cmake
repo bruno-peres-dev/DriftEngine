@@ -7,6 +7,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
+  "/usr/share/cmake-3.31/Modules/BasicConfigVersion-AnyNewerVersion.cmake.in"
   "/usr/share/cmake-3.31/Modules/BasicConfigVersion-SameMajorVersion.cmake.in"
   "/usr/share/cmake-3.31/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake"
@@ -21,6 +22,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake"
   "/usr/share/cmake-3.31/Modules/CheckFunctionExists.cmake"
   "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake"
+  "/usr/share/cmake-3.31/Modules/CheckIncludeFileCXX.cmake"
   "/usr/share/cmake-3.31/Modules/CheckLibraryExists.cmake"
   "/usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/usr/share/cmake-3.31/Modules/Compiler/Clang-C.cmake"
@@ -77,6 +79,11 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/workspace/shaders/TrianglePS.hlsl"
   "/workspace/shaders/TriangleVS.hlsl"
   "/workspace/src/CMakeLists.txt"
+  "/workspace/src/extern/DirectXTK/CMakeLists.txt"
+  "/workspace/src/extern/DirectXTK/build/CompilerAndLinker.cmake"
+  "/workspace/src/extern/DirectXTK/build/DirectXTK-config.cmake.in"
+  "/workspace/src/extern/DirectXTK/build/DirectXTK.pc.in"
+  "/workspace/src/extern/DirectXTK/build/JoinPaths.cmake"
   )
 
 # The corresponding makefile is:
@@ -107,6 +114,10 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "_deps/glfw-build/src/CMakeFiles/CMakeDirectoryInformation.cmake"
   "_deps/glfw-build/examples/CMakeFiles/CMakeDirectoryInformation.cmake"
   "_deps/glfw-build/tests/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/extern/DirectXTK-build/directxtk-config-version.cmake"
+  "src/extern/DirectXTK-build/directxtk-config.cmake"
+  "src/extern/DirectXTK-build/DirectXTK.pc"
+  "src/extern/DirectXTK-build/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -148,4 +159,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "_deps/glfw-build/tests/CMakeFiles/title.dir/DependInfo.cmake"
   "_deps/glfw-build/tests/CMakeFiles/triangle-vulkan.dir/DependInfo.cmake"
   "_deps/glfw-build/tests/CMakeFiles/windows.dir/DependInfo.cmake"
+  "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/DependInfo.cmake"
   )
