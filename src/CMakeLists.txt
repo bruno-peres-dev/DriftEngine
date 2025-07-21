@@ -36,7 +36,8 @@ target_include_directories(glm INTERFACE
 # ------------------------------------------------
 # 2) DirectXTK (core + WIC loader) via subdirectory
 # ------------------------------------------------
-add_subdirectory(extern/DirectXTK "extern/DirectXTK-build")
+# Comentado para Linux - DirectXTK é específico do Windows
+# add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
 # Isso vai criar os targets:
 #   DirectXTK
 #   DirectXTK_WICTextureLoader
@@ -91,7 +92,7 @@ target_link_libraries(DriftRHI_DX11 PUBLIC
   d3d11
   dxgi
   D3DCompiler
-  DirectXTK
+  # DirectXTK # Comentado para Linux
 )
 
 # 3.5) DriftRenderer (passes)
@@ -111,7 +112,7 @@ target_link_libraries(DriftRenderer PUBLIC
   d3d11
   dxgi
   D3DCompiler
-  DirectXTK
+  # DirectXTK # Comentado para Linux
 )
 
 # ------------------------------------------------

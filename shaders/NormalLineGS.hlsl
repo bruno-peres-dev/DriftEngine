@@ -16,7 +16,7 @@ cbuffer CBFrame : register(b0) {
 };
 
 [maxvertexcount(2)]
-void GS(line VS_OUT input[1], inout LineStream<GS_OUT> outStream) {
+void GS(point VS_OUT input[1], inout LineStream<GS_OUT> outStream) {
     GS_OUT v0, v1;
     float3 p = input[0].pos;
     float3 n = input[0].normal;

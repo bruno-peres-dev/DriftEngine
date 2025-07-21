@@ -43,6 +43,7 @@ namespace Drift::RHI {
         virtual void SetDepthTestEnabled(bool enabled) = 0;
         virtual void VSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
         virtual void PSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
+        virtual void GSSetConstantBuffer(UINT slot, BackendHandle buffer) = 0;
     };
 
     // Interface para swapchain (controle de buffers de apresentação)
