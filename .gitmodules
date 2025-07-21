@@ -1,0 +1,3 @@
+[submodule "extern/DirectXTK"]
+	path = extern/DirectXTK
+	url = https://github.com/microsoft/DirectXTK.git
