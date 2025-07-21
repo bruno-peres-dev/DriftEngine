@@ -92,7 +92,6 @@ target_link_libraries(DriftRHI_DX11 PUBLIC
 # 3.5) DriftRenderer (passes)
 add_library(DriftRenderer STATIC
   renderer/src/IRenderPass.cpp
-  renderer/src/TrianglePass.cpp
   renderer/src/TerrainPass.cpp
 )
 target_include_directories(DriftRenderer PUBLIC

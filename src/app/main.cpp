@@ -3,7 +3,6 @@
 #include "Drift/Core/Log.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/Renderer/TerrainPass.h"
-#include "Drift/Renderer/TrianglePass.h"
 
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -74,7 +73,7 @@ int main() {
 
         // Cria TerrainPass (passa RHI puro: device + context)
         auto terrainPass = std::make_unique<Drift::Renderer::TerrainPass>(
-            *device, *context, L"textures/grass.png"
+            *device, *context, L"textures/grass.png", 100, 100, 50.0f, false
         );
 
         // Armazena em AppData para callbacks
