@@ -92,8 +92,17 @@ void ContextDX11::Clear(float r, float g, float b, float a) {
 }
 
 void ContextDX11::Present() {
+    // Verificar se o RTV ainda está válido antes do Present
+    ComPtr<ID3D11Resource> currentRes;
+    if (_rtv) {
+        _rtv->GetResource(currentRes.GetAddressOf());
+    }
+    
+    Drift::Core::Log("[DX11] Present: Chamando Present com RTV=" + std::to_string(reinterpret_cast<uintptr_t>(_rtv.Get())) + 
+                     " Resource=" + std::to_string(reinterpret_cast<uintptr_t>(currentRes.Get())));
+    
     _swapChain->Present(_vsync ? 1 : 0, 0);
-    Drift::Core::Log("[DX11] Present called RTV=" + std::to_string(reinterpret_cast<uintptr_t>(_rtv.Get())));
+    Drift::Core::Log("[DX11] Present: Present completado");
 }
 
 void ContextDX11::IASetVertexBuffer(void* vb, UINT stride, UINT offset) {
@@ -379,7 +388,12 @@ void ContextDX11::BindBackBufferRTV() {
             Drift::Core::Log("[DX11][ERRO] BindBackBufferRTV: CreateRenderTargetView falhou");
             return;
         }
+        Drift::Core::Log("[DX11] BindBackBufferRTV: Novo RTV criado");
+    } else {
+        Drift::Core::Log("[DX11] BindBackBufferRTV: RTV já válido, reutilizando");
     }
 
     _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _dsv.Get());
+    Drift::Core::Log("[DX11] BindBackBufferRTV: OMSetRenderTargets chamado com RTV=" + std::to_string(reinterpret_cast<uintptr_t>(_rtv.Get())) + 
+                     " DSV=" + std::to_string(reinterpret_cast<uintptr_t>(_dsv.Get())));
 }

@@ -201,19 +201,6 @@ DriftRHI/fast:
 .PHONY : DriftRHI/fast
 
 #=============================================================================
-# Target rules for targets named DriftRHI_DX11
-
-# Build rule for target.
-DriftRHI_DX11: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 DriftRHI_DX11
-.PHONY : DriftRHI_DX11
-
-# fast build rule for target.
-DriftRHI_DX11/fast:
-	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/build
-.PHONY : DriftRHI_DX11/fast
-
-#=============================================================================
 # Target rules for targets named DriftRenderer
 
 # Build rule for target.
@@ -668,19 +655,6 @@ windows/fast:
 	$(MAKE) $(MAKESILENT) -f _deps/glfw-build/tests/CMakeFiles/windows.dir/build.make _deps/glfw-build/tests/CMakeFiles/windows.dir/build
 .PHONY : windows/fast
 
-#=============================================================================
-# Target rules for targets named DirectXTK
-
-# Build rule for target.
-DirectXTK: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 DirectXTK
-.PHONY : DirectXTK
-
-# fast build rule for target.
-DirectXTK/fast:
-	$(MAKE) $(MAKESILENT) -f src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/build.make src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/build
-.PHONY : DirectXTK/fast
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -695,12 +669,10 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... uninstall"
 	@echo "... update_mappings"
-	@echo "... DirectXTK"
 	@echo "... DriftApp"
 	@echo "... DriftCore"
 	@echo "... DriftEngine"
 	@echo "... DriftRHI"
-	@echo "... DriftRHI_DX11"
 	@echo "... DriftRenderer"
 	@echo "... DriftUI"
 	@echo "... boing"

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc
+CXX_INCLUDES = -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include
 
 CXX_FLAGS = -std=gnu++17
 

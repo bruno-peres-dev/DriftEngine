@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Drift/Math/Math.h"
 #include <iostream>
-#include "Drift/RHI/DX11/RingBufferDX11.h"
+// #include "Drift/RHI/DX11/RingBufferDX11.h" // Não disponível no Linux
 
 using namespace Drift::Renderer;
 using namespace Drift::RHI;
@@ -144,12 +144,15 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
     
     // Inicializa RingBuffer na primeira execução (lazy initialization)
     if (!_ringBuffer) {
+        // RingBuffer DX11 não disponível no Linux
+        /*
         _ringBuffer = Drift::RHI::DX11::CreateRingBufferDX11(
             static_cast<ID3D11Device*>(_device.GetNativeDevice()),
             static_cast<ID3D11DeviceContext*>(context.GetNativeContext()),
             4 * 1024 * 1024 // 4MB
         );
-        Drift::Core::Log("[TerrainPass] RingBuffer inicializado com sucesso");
+        */
+        Drift::Core::Log("[TerrainPass] RingBuffer DX11 não disponível no Linux");
     }
     
     // Atualiza constant buffer com matriz da câmera

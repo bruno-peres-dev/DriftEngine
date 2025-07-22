@@ -7,7 +7,6 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
-  "/usr/share/cmake-3.31/Modules/BasicConfigVersion-AnyNewerVersion.cmake.in"
   "/usr/share/cmake-3.31/Modules/BasicConfigVersion-SameMajorVersion.cmake.in"
   "/usr/share/cmake-3.31/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake"
@@ -22,7 +21,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake"
   "/usr/share/cmake-3.31/Modules/CheckFunctionExists.cmake"
   "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake"
-  "/usr/share/cmake-3.31/Modules/CheckIncludeFileCXX.cmake"
   "/usr/share/cmake-3.31/Modules/CheckLibraryExists.cmake"
   "/usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/usr/share/cmake-3.31/Modules/Compiler/Clang-C.cmake"
@@ -71,11 +69,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "_deps/glfw-src/src/glfw3Config.cmake.in"
   "_deps/glfw-src/src/glfw_config.h.in"
   "_deps/glfw-src/tests/CMakeLists.txt"
-  "/workspace/extern/DirectXTK/CMakeLists.txt"
-  "/workspace/extern/DirectXTK/build/CompilerAndLinker.cmake"
-  "/workspace/extern/DirectXTK/build/DirectXTK-config.cmake.in"
-  "/workspace/extern/DirectXTK/build/DirectXTK.pc.in"
-  "/workspace/extern/DirectXTK/build/JoinPaths.cmake"
   "/workspace/shaders/LinePS.hlsl"
   "/workspace/shaders/TerrainPS.hlsl"
   "/workspace/shaders/TerrainVS.hlsl"
@@ -108,10 +101,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "_deps/glfw-build/src/CMakeFiles/CMakeDirectoryInformation.cmake"
   "_deps/glfw-build/examples/CMakeFiles/CMakeDirectoryInformation.cmake"
   "_deps/glfw-build/tests/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "src/extern/DirectXTK-build/directxtk-config-version.cmake"
-  "src/extern/DirectXTK-build/directxtk-config.cmake"
-  "src/extern/DirectXTK-build/DirectXTK.pc"
-  "src/extern/DirectXTK-build/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -119,7 +108,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "src/CMakeFiles/DriftEngine.dir/DependInfo.cmake"
   "src/CMakeFiles/DriftCore.dir/DependInfo.cmake"
   "src/CMakeFiles/DriftRHI.dir/DependInfo.cmake"
-  "src/CMakeFiles/DriftRHI_DX11.dir/DependInfo.cmake"
   "src/CMakeFiles/DriftRenderer.dir/DependInfo.cmake"
   "src/CMakeFiles/DriftUI.dir/DependInfo.cmake"
   "src/CMakeFiles/DriftApp.dir/DependInfo.cmake"
@@ -155,5 +143,4 @@ set(CMAKE_DEPEND_INFO_FILES
   "_deps/glfw-build/tests/CMakeFiles/title.dir/DependInfo.cmake"
   "_deps/glfw-build/tests/CMakeFiles/triangle-vulkan.dir/DependInfo.cmake"
   "_deps/glfw-build/tests/CMakeFiles/windows.dir/DependInfo.cmake"
-  "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/DependInfo.cmake"
   )

@@ -2,7 +2,16 @@
 // Demo da nova arquitetura AAA do DriftEngine
 
 #include "Drift/Core/Log.h"
+
+#ifdef _WIN32
 #include "Drift/RHI/DX11/DeviceDX11.h"
+#include "Drift/RHI/DX11/RingBufferDX11.h"
+#include "Drift/RHI/DX11/UIBatcherDX11.h"
+#include <d3d11.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#endif
+
 #include "Drift/Renderer/RenderManager.h"
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/Engine/Input/Input.h"
@@ -10,15 +19,13 @@
 #include "Drift/Engine/Viewport/Viewport.h"
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/UIElement.h"
-#include "Drift/RHI/DX11/RingBufferDX11.h"
-#include "Drift/RHI/DX11/UIBatcherDX11.h"
-#include <d3d11.h>
 
 #include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
+
 #include <filesystem>
 #include <string>
 #include <memory>
@@ -70,13 +77,14 @@ int main() {
         GLFWwindow* window = glfwCreateWindow(1280, 720, "DriftEngine", nullptr, nullptr);
         if (!window) throw std::runtime_error("Falha ao criar janela GLFW");
 
-        HWND hwnd = glfwGetWin32Window(window);
-        if (!hwnd) throw std::runtime_error("Falha ao obter HWND");
-
-        // ================================
         // 2. CRIAÇÃO DO RHI
         // ================================
         
+#ifdef _WIN32
+        HWND hwnd = glfwGetWin32Window(window);
+#endif
+        
+#ifdef _WIN32
         // Cria Device DX11
         RHI::DeviceDesc desc{ 1280, 720, /* vsync */ false };
         auto device = RHI::DX11::CreateDeviceDX11(desc);
@@ -84,6 +92,16 @@ int main() {
         // Cria SwapChain e Context
         auto swapChain = device->CreateSwapChain(hwnd);
         auto context = device->CreateContext();
+#else
+        // DX11 não disponível no Linux
+        Drift::Core::Log("[App] Este projeto foi desenvolvido para Windows com DX11.");
+        Drift::Core::Log("[App] No Linux, a funcionalidade DX11 não está disponível.");
+        Drift::Core::Log("[App] Os logs de debug da UI foram adicionados, mas a renderização não funcionará.");
+        
+        // Retorna erro
+        glfwTerminate();
+        return -1;
+#endif
         
         // ================================
         // 3. SISTEMA DE INPUT ABSTRATO
@@ -205,11 +223,13 @@ int main() {
         // ================================
 
         {
+#ifdef _WIN32
             ID3D11Device*       nativeDev  = static_cast<ID3D11Device*>(device->GetNativeDevice());
             ID3D11DeviceContext* nativeCtx = static_cast<ID3D11DeviceContext*>(appData.context->GetNativeContext());
 
             appData.uiRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 2 * 1024 * 1024);
             appData.uiBatcher    = Drift::RHI::DX11::CreateUIBatcherDX11(appData.uiRingBuffer, appData.context.get());
+#endif
         }
 
         // Configura callback de resize

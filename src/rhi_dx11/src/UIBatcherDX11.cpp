@@ -15,9 +15,15 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
 void UIBatcherDX11::Begin() {
     // Garante que estamos renderizando no back-buffer atual
     _ctx->BindBackBufferRTV();
+    
+    // Log para debug
+    Drift::Core::Log("[UIBatcher] Begin: BindBackBufferRTV chamado");
 
     // Desativa teste de profundidade e escrita, para overlay
     _ctx->SetDepthTestEnabled(false);
+    
+    // Log para debug
+    Drift::Core::Log("[UIBatcher] Begin: SetDepthTestEnabled(false) chamado");
 
     _vertices.clear();
     _indices.clear();
@@ -31,6 +37,16 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     auto toClipY = [this](float py) {
         return 1.0f - (py / _screenH) * 2.0f;
     };
+
+    // Log para debug
+    float clipX1 = toClipX(x);
+    float clipY1 = toClipY(y);
+    float clipX2 = toClipX(x + w);
+    float clipY2 = toClipY(y + h);
+    
+    Drift::Core::Log("[UIBatcher] AddRect: screen(" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(w) + "," + std::to_string(h) + 
+                     ") -> clip(" + std::to_string(clipX1) + "," + std::to_string(clipY1) + "," + std::to_string(clipX2) + "," + std::to_string(clipY2) + 
+                     ") screenSize(" + std::to_string(_screenW) + "," + std::to_string(_screenH) + ")");
 
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({toClipX(x),       toClipY(y),       color});
@@ -54,14 +70,22 @@ void UIBatcherDX11::AddText(float, float, const char*, unsigned) {
 
 // Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
-    if (_vertices.empty() || _indices.empty()) return;
+    if (_vertices.empty() || _indices.empty()) {
+        Drift::Core::Log("[UIBatcher] End: Vertices ou indices vazios, pulando renderização");
+        return;
+    }
+    
+    Drift::Core::Log("[UIBatcher] End: Renderizando " + std::to_string(_vertices.size()) + " vertices, " + std::to_string(_indices.size()) + " indices");
 
     EnsurePipeline();
 
-    // Desabilita depth
+    // Desabilita depth - garantindo que está desabilitado antes do draw
     _ctx->SetDepthTestEnabled(false);
+    Drift::Core::Log("[UIBatcher] End: SetDepthTestEnabled(false) chamado antes do draw");
+    
     // Assume viewport já configurado pelo RenderManager
     _pipeline->Apply(*_ctx);
+    Drift::Core::Log("[UIBatcher] End: Pipeline aplicado");
 
     size_t vtxSize = _vertices.size() * sizeof(Vertex);
     size_t idxSize = _indices.size() * sizeof(unsigned);
@@ -75,7 +99,11 @@ void UIBatcherDX11::End() {
     _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
     _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
     _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
+    
+    Drift::Core::Log("[UIBatcher] End: Buffers configurados, chamando DrawIndexed com " + std::to_string(_indices.size()) + " indices");
     _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+    
+    Drift::Core::Log("[UIBatcher] End: DrawIndexed completado");
 
     // Log removido para performance - DrawIndexed count=" + std::to_string(_indices.size())
 }

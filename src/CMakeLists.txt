@@ -37,7 +37,10 @@ target_include_directories(glm INTERFACE
 # 2) DirectXTK (core + WIC loader) via subdirectory
 # ------------------------------------------------
 
-add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
+# DirectXTK só é necessário no Windows
+if(WIN32)
+  add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
+endif()
 
 # ------------------------------------------------
 # 3) DriftEngine Libraries
@@ -85,26 +88,28 @@ target_link_libraries(DriftRHI PUBLIC
   DriftCore
 )
 
-# 3.4) DriftRHI_DX11 (implementação DX11)
-add_library(DriftRHI_DX11 STATIC
-  rhi_dx11/src/DeviceDX11.cpp
-  rhi_dx11/src/ContextDX11.cpp
-  rhi_dx11/src/BufferDX11.cpp
-  rhi_dx11/src/PipelineStateDX11.cpp
-  rhi_dx11/src/ShaderDX11.cpp
-  rhi_dx11/src/TextureDX11.cpp
-  rhi_dx11/src/SamplerDX11.cpp
-  rhi_dx11/src/SwapChainDX11.cpp
-  rhi_dx11/src/RingBufferDX11.cpp
-  rhi_dx11/src/UIBatcherDX11.cpp
-)
-target_include_directories(DriftRHI_DX11 PUBLIC
-  rhi_dx11/include
-)
-target_link_libraries(DriftRHI_DX11 PUBLIC
-  DriftRHI
-  d3d11 dxgi D3DCompiler DirectXTK
-)
+# 3.4) DriftRHI_DX11 (implementação DX11) - apenas no Windows
+if(WIN32)
+  add_library(DriftRHI_DX11 STATIC
+    rhi_dx11/src/DeviceDX11.cpp
+    rhi_dx11/src/ContextDX11.cpp
+    rhi_dx11/src/BufferDX11.cpp
+    rhi_dx11/src/PipelineStateDX11.cpp
+    rhi_dx11/src/ShaderDX11.cpp
+    rhi_dx11/src/TextureDX11.cpp
+    rhi_dx11/src/SamplerDX11.cpp
+    rhi_dx11/src/SwapChainDX11.cpp
+    rhi_dx11/src/RingBufferDX11.cpp
+    rhi_dx11/src/UIBatcherDX11.cpp
+  )
+  target_include_directories(DriftRHI_DX11 PUBLIC
+    rhi_dx11/include
+  )
+  target_link_libraries(DriftRHI_DX11 PUBLIC
+    DriftRHI
+    d3d11 dxgi D3DCompiler DirectXTK
+  )
+endif()
 
 # 3.5) DriftRenderer (passes)
 add_library(DriftRenderer STATIC
@@ -116,13 +121,23 @@ target_include_directories(DriftRenderer PUBLIC
   renderer/include
   ${glfw_SOURCE_DIR}/include
 )
-target_link_libraries(DriftRenderer PUBLIC
-  DriftRHI_DX11
-  DriftEngine
-  DriftMath
-  glm
-  d3d11 dxgi D3DCompiler DirectXTK
-)
+
+# Dependências condicionais baseadas na plataforma
+if(WIN32)
+  target_link_libraries(DriftRenderer PUBLIC
+    DriftRHI_DX11
+    DriftEngine
+    DriftMath
+    glm
+    d3d11 dxgi D3DCompiler DirectXTK
+  )
+else()
+  target_link_libraries(DriftRenderer PUBLIC
+    DriftEngine
+    DriftMath
+    glm
+  )
+endif()
 
 # 3.6) DriftUI (sistema de interface)
 add_library(DriftUI STATIC
@@ -168,14 +183,26 @@ endforeach()
 target_include_directories(DriftApp PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
-target_link_libraries(DriftApp PRIVATE
-  DriftCore
-  DriftEngine
-  DriftRHI_DX11
-  DriftRenderer
-  DriftUI
-  glfw
-)
+
+# Dependências condicionais para a aplicação
+if(WIN32)
+  target_link_libraries(DriftApp PRIVATE
+    DriftCore
+    DriftEngine
+    DriftRHI_DX11
+    DriftRenderer
+    DriftUI
+    glfw
+  )
+else()
+  target_link_libraries(DriftApp PRIVATE
+    DriftCore
+    DriftEngine
+    DriftRenderer
+    DriftUI
+    glfw
+  )
+endif()
 
 # ------------------------------------------------
 # Instruções:

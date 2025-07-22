@@ -5,6 +5,7 @@
 #include <functional>
 #include <cstdint>
 #include <typeindex>
+#include <algorithm>
 
 namespace Drift::UI {
 
