@@ -37,7 +37,7 @@ target_include_directories(glm INTERFACE
 # 2) DirectXTK (core + WIC loader) via subdirectory
 # ------------------------------------------------
 
-add_subdirectory(extern/DirectXTK "extern/DirectXTK-build")
+add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
 
 # ------------------------------------------------
 # 3) DriftEngine Libraries
