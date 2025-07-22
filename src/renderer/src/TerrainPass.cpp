@@ -32,7 +32,7 @@ TerrainPass::TerrainPass(Drift::RHI::IDevice& device,
         { "NORMAL",   0, 12, "R32G32B32_FLOAT" },
         { "TEXCOORD", 0, 24, "R32G32_FLOAT" }
     };
-    pd.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Back;
+    pd.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
     pd.rasterizer.wireframe = false;
     
     _pipeline = _device.CreatePipeline(pd);
@@ -163,7 +163,7 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
     if (pipeline && !_verts.empty() && _indexCount > 0) {
         pipeline->Apply(context);
         
-                 // Upload dinâmico via RingBuffer (preferível) ou buffers estáticos (fallback)
+        // Upload dinâmico via RingBuffer (preferível) ou buffers estáticos (fallback)
          if (_ringBuffer) {
              _ringBuffer->NextFrame();
              size_t vtxSize = _verts.size() * sizeof(Vertex);

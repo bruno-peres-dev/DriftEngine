@@ -12,18 +12,36 @@ namespace Drift::Renderer {
         // Start timing this frame
         _frameStartTime = std::chrono::high_resolution_clock::now();
         
-        // Update all viewports in order
+        // Detecta troca de foco (clique com botão esquerdo)
+        if (input.IsMouseButtonPressed(Engine::Input::MouseButton::Left)) {
+            for (const std::string& name : _renderOrder) {
+                auto it = _viewports.find(name);
+                if (it != _viewports.end() && it->second) {
+                    if (it->second->IsPointInside(static_cast<int>(input.mousePosition.x),
+                                                  static_cast<int>(input.mousePosition.y)) &&
+                        it->second->GetDesc().acceptsInput) {
+                        _activeViewport = name;
+                        break;
+                    }
+                }
+            }
+        }
+
+        Engine::Input::InputFrame emptyInput; // tudo Released
+
+        // Update viewports: somente a ativa recebe input real
         for (const std::string& name : _renderOrder) {
             auto it = _viewports.find(name);
             if (it != _viewports.end() && it->second) {
                 auto& viewport = it->second;
                 if (viewport->IsEnabled()) {
-                    viewport->Update(deltaTime, input);
+                    const auto& inp = (name == _activeViewport) ? input : emptyInput;
+                    viewport->Update(deltaTime, inp);
                 }
             }
         }
         
-        Drift::Core::Log("[RenderManager] Updated " + std::to_string(_renderOrder.size()) + " viewports");
+        //Drift::Core::Log("[RenderManager] Updated " + std::to_string(_renderOrder.size()) + " viewports");
     }
     
     void RenderManager::Render(RHI::IContext& context) {
@@ -47,7 +65,7 @@ namespace Drift::Renderer {
             frameEndTime - _frameStartTime);
         _stats.frameTime = frameDuration.count() / 1000.0f; // Convert to milliseconds
         
-        Drift::Core::Log("[RenderManager] Rendered " + std::to_string(_stats.viewportsRendered) + " viewports");
+        //Drift::Core::Log("[RenderManager] Rendered " + std::to_string(_stats.viewportsRendered) + " viewports");
     }
     
     void RenderManager::SetLayout(ViewportLayout layout, int screenWidth, int screenHeight) {

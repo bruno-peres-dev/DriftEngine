@@ -14,7 +14,7 @@ namespace Drift::Engine::Camera {
         virtual const glm::mat4& GetProjectionMatrix() const = 0;
         virtual const glm::mat4& GetViewProjectionMatrix() const = 0;
         
-        // Compatibilidade com HLSL (transposta para column-major)
+        // Para HLSL (row-vector * matrix) precisamos da matriz transposta
         virtual glm::mat4 GetViewProjectionMatrixForHLSL() const {
             return glm::transpose(GetViewProjectionMatrix());
         }

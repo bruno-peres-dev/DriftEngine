@@ -83,13 +83,19 @@ namespace Drift::Engine::Viewport {
             if (!_cameraController) {
                 throw std::runtime_error("BasicViewport requer um CameraController válido");
             }
+            // Garante que a câmara nasce com o aspect ratio correcto
+            if (_cameraController && _cameraController->GetCamera()) {
+                float aspect = (_desc.height > 0) ? static_cast<float>(_desc.width) / static_cast<float>(_desc.height) : 1.0f;
+                _cameraController->GetCamera()->SetAspectRatio(aspect);
+            }
         }
         
         void Update(float deltaTime, const Input::InputFrame& input) override {
             if (!_desc.enabled) return;
             
-            // Só processa input se aceitar input E o mouse estiver dentro da viewport
-            if (_desc.acceptsInput && IsPointInside((int)input.mousePosition.x, (int)input.mousePosition.y)) {
+            // O RenderManager já decide qual viewport recebe o InputFrame real.
+            // Portanto, se acceptsInput estiver true, processamos o input diretamente.
+            if (_desc.acceptsInput) {
                 _cameraController->Update(deltaTime, input);
             }
         }
@@ -134,10 +140,11 @@ namespace Drift::Engine::Viewport {
         const ViewportDesc& GetDesc() const override { return _desc; }
         
         void SetDesc(const ViewportDesc& desc) override {
+            // Detecta alteração de tamanho ANTES de sobrescrever _desc
+            bool sizeChanged = (_desc.width != desc.width) || (_desc.height != desc.height);
             _desc = desc;
-            // Atualiza aspect ratio se necessário
-            if (desc.width != _desc.width || desc.height != _desc.height) {
-                Resize(desc.width, desc.height);
+            if (sizeChanged) {
+                Resize(_desc.width, _desc.height);
             }
         }
         

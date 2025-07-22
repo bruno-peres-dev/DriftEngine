@@ -119,58 +119,50 @@ int main() {
             100, 100, 50.0f, false
         );
         gamePasses.push_back(terrainPass);
-        
-        // Cria viewport do jogo
-        Engine::Viewport::ViewportDesc gameViewDesc;
-        gameViewDesc.name = "GameView";
-        gameViewDesc.x = 0;
-        gameViewDesc.y = 0;
-        gameViewDesc.width = 1280;
-        gameViewDesc.height = 720;
-        gameViewDesc.acceptsInput = true;
-        gameViewDesc.clearColor[0] = 0.1f; // Azul escuro
-        gameViewDesc.clearColor[1] = 0.1f;
-        gameViewDesc.clearColor[2] = 0.2f;
-        gameViewDesc.clearColor[3] = 1.0f;
-        
-        auto gameViewport = std::make_unique<Engine::Viewport::BasicViewport>(
-            gameViewDesc, 
-            std::move(gameCameraController), 
-            gamePasses
+
+        // --------------------------------
+        // 4.2. VIEWPORT SECUNDÁRIA (Editor)
+        // --------------------------------
+
+        // Cria câmera para a viewport de editor (sem input por enquanto)
+        auto editorCamera = std::make_unique<Engine::Camera::PerspectiveCamera>(
+            glm::vec3{500.0f, 150.0f, 300.0f}, // posição
+            glm::vec3{500.0f, 0.0f, 500.0f},   // alvo
+            glm::vec3{0.0f, 1.0f, 0.0f},
+            glm::radians(45.0f),
+            16.0f / 9.0f,
+            0.1f,
+            10000.0f
         );
-        
-        renderManager->AddViewport("GameView", std::move(gameViewport));
-        
-        // --------------------------------
-        // 4.2. VIEWPORT SECUNDÁRIA (Editor - futuro)
-        // --------------------------------
-        /*
-        // Exemplo de como adicionar uma segunda viewport para editor:
-        
-        auto editorCamera = std::make_unique<Engine::Camera::PerspectiveCamera>();
-        auto editorController = std::make_unique<Engine::Camera::OrbitCameraController>(
+
+        auto editorController = std::make_unique<Engine::Camera::FreeCameraController>(
             std::move(editorCamera)
         );
-        
+        editorController->SetMovementSpeed(50.0f);
+        editorController->SetMouseSensitivity(0.08f);
+
         Engine::Viewport::ViewportDesc editorViewDesc;
         editorViewDesc.name = "EditorView";
-        editorViewDesc.x = 640;
+        editorViewDesc.x = 0; // será ajustado pelo layout
         editorViewDesc.y = 0;
-        editorViewDesc.width = 640;
+        editorViewDesc.width = 1280;
         editorViewDesc.height = 720;
-        editorViewDesc.acceptsInput = false; // Editor viewport não aceita input por enquanto
-        
+        editorViewDesc.acceptsInput = true; // apenas visualização
+        editorViewDesc.clearColor[0] = 0.0f;
+        editorViewDesc.clearColor[1] = 0.2f;
+        editorViewDesc.clearColor[2] = 0.3f;
+        editorViewDesc.clearColor[3] = 1.0f;
+
         auto editorViewport = std::make_unique<Engine::Viewport::BasicViewport>(
             editorViewDesc,
             std::move(editorController),
-            gamePasses // Reutiliza os mesmos passes por enquanto
+            gamePasses // reutiliza os mesmos passes (terrain)
         );
-        
+
         renderManager->AddViewport("EditorView", std::move(editorViewport));
-        
-        // Aplica layout split horizontal
-        renderManager->SetLayout(Renderer::ViewportLayout::SplitHorizontal, 1280, 720);
-        */
+
+        // Configura layout horizontal lado a lado
+        renderManager->SetLayout(Renderer::ViewportLayout::Single, 1280, 720);
         
         // ================================
         // 5. CONFIGURAÇÃO DA APLICAÇÃO
@@ -217,12 +209,13 @@ int main() {
                 frameCount = 0;
                 
                 char title[256];
+                const char* activeVp = appData.renderManager->GetActiveViewport().c_str();
                 snprintf(title, sizeof(title), 
-                    "DriftEngine AAA [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu]", 
+                    "DriftEngine AAA [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu] [Active: %s]", 
                     fps, 
                     appData.renderManager->GetStats().frameTime,
-                    appData.renderManager->GetViewportCount()
-                );
+                    appData.renderManager->GetViewportCount(),
+                    activeVp);
                 glfwSetWindowTitle(window, title);
             }
             

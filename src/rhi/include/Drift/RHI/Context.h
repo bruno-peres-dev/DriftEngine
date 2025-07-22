@@ -49,7 +49,7 @@ namespace Drift::RHI {
         // Viewport control
         virtual void SetViewport(int x, int y, int width, int height) = 0;
         
-        // Constant buffer updates
+        // Atualiza constant buffer (Map/Unmap para dinâmicos, UpdateSubresource para default)
         virtual void UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t size) = 0;
     };
 

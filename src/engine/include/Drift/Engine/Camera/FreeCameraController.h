@@ -3,6 +3,7 @@
 #include "Drift/Engine/Camera/ICameraController.h"
 #include "Drift/Engine/Camera/PerspectiveCamera.h"
 #include <glm/glm.hpp>
+#include "Drift/Core/Log.h"
 
 namespace Drift::Engine::Camera {
 
@@ -121,6 +122,7 @@ namespace Drift::Engine::Camera {
         
         void HandleMovement(float deltaTime, const Input::InputFrame& input, 
                            PerspectiveCamera& camera) {
+
             float currentSpeed = _movementSpeed * _speedMultiplier * deltaTime;
             
             glm::vec3 position = camera.GetPosition();

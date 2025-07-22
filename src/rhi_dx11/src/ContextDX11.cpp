@@ -269,8 +269,22 @@ void ContextDX11::UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t
         return;
     }
     
-    // Atualiza o buffer usando UpdateSubresource
-    _context->UpdateSubresource(d3dBuffer, 0, nullptr, data, 0, 0);
+    // Detecta se o buffer é dinâmico (CPUAccessWrite) usando Desc
+    D3D11_BUFFER_DESC bd{};
+    d3dBuffer->GetDesc(&bd);
+    if (bd.Usage == D3D11_USAGE_DYNAMIC) {
+        // Usa Map/Unmap para buffers dinâmicos
+        D3D11_MAPPED_SUBRESOURCE mapped{};
+        if (FAILED(_context->Map(d3dBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+            Drift::Core::Log("[DX11][ERRO] UpdateConstantBuffer: Map falhou!");
+            return;
+        }
+        std::memcpy(mapped.pData, data, size);
+        _context->Unmap(d3dBuffer, 0);
+    } else {
+        // Para buffers DEFAULT, usa UpdateSubresource
+        _context->UpdateSubresource(d3dBuffer, 0, nullptr, data, 0, 0);
+    }
 }
 
 // Conversão de enums para DXGI/D3D11

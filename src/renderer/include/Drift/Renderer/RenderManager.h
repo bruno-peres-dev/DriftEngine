@@ -77,7 +77,11 @@ namespace Drift::Renderer {
         
         void SetWireframeMode(bool enabled) { _wireframeMode = enabled; }
         bool IsWireframeMode() const { return _wireframeMode; }
-        
+
+        // Foco de viewport
+        void SetActiveViewport(const std::string& name) { _activeViewport = name; }
+        const std::string& GetActiveViewport() const { return _activeViewport; }
+
     private:
         // Storage de viewports
         std::unordered_map<std::string, std::unique_ptr<Engine::Viewport::IViewport>> _viewports;
@@ -90,7 +94,10 @@ namespace Drift::Renderer {
         // Configurações globais
         bool _vsyncEnabled = true;
         bool _wireframeMode = false;
-        
+
+        // Viewport atualmente com foco/input
+        std::string _activeViewport;
+
         // Helpers para layout
         void ApplySingleLayout(int screenWidth, int screenHeight);
         void ApplySplitHorizontalLayout(int screenWidth, int screenHeight);
@@ -112,6 +119,11 @@ namespace Drift::Renderer {
         // Adiciona nova viewport
         _viewports[name] = std::move(viewport);
         _renderOrder.push_back(name);
+
+        // Se ainda não houver viewport ativa, define esta
+        if (_activeViewport.empty()) {
+            _activeViewport = name;
+        }
     }
     
     inline void RenderManager::RemoveViewport(const std::string& name) {
