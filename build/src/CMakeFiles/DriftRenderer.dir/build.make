@@ -86,24 +86,10 @@ src/CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.s"
 	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/renderer/src/IRenderPass.cpp -o CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.s
 
-src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o: src/CMakeFiles/DriftRenderer.dir/flags.make
-src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o: /workspace/src/renderer/src/TrianglePass.cpp
-src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o: src/CMakeFiles/DriftRenderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o"
-	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o -MF CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o.d -o CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o -c /workspace/src/renderer/src/TrianglePass.cpp
-
-src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.i"
-	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspace/src/renderer/src/TrianglePass.cpp > CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.i
-
-src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.s"
-	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/renderer/src/TrianglePass.cpp -o CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.s
-
 src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o: src/CMakeFiles/DriftRenderer.dir/flags.make
 src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o: /workspace/src/renderer/src/TerrainPass.cpp
 src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o: src/CMakeFiles/DriftRenderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o"
 	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o -MF CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o.d -o CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o -c /workspace/src/renderer/src/TerrainPass.cpp
 
 src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.i: cmake_force
@@ -114,18 +100,32 @@ src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.s"
 	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/renderer/src/TerrainPass.cpp -o CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.s
 
+src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o: src/CMakeFiles/DriftRenderer.dir/flags.make
+src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o: /workspace/src/renderer/src/RenderManager.cpp
+src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o: src/CMakeFiles/DriftRenderer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o -MF CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o.d -o CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o -c /workspace/src/renderer/src/RenderManager.cpp
+
+src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.i"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspace/src/renderer/src/RenderManager.cpp > CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.i
+
+src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.s"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/renderer/src/RenderManager.cpp -o CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.s
+
 # Object files for target DriftRenderer
 DriftRenderer_OBJECTS = \
 "CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.o" \
-"CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o" \
-"CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o"
+"CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o" \
+"CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o"
 
 # External object files for target DriftRenderer
 DriftRenderer_EXTERNAL_OBJECTS =
 
 src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.o
-src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o
 src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o
+src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o
 src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/build.make
 src/libDriftRenderer.a: src/CMakeFiles/DriftRenderer.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libDriftRenderer.a"

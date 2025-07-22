@@ -381,5 +381,5 @@ void ContextDX11::BindBackBufferRTV() {
         }
     }
 
-    _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), nullptr);
+    _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _dsv.Get());
 }

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DNDEBUG
 
-CXX_INCLUDES = -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/src/extern/DirectXTK/Src -I/workspace/src/extern/DirectXTK/Inc -I/workspace/src/extern/DirectXTK/Audio
+CXX_INCLUDES = -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio
 
 CXX_FLAGS = -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage
 

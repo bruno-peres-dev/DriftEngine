@@ -97,16 +97,20 @@ src/DriftApp: src/CMakeFiles/DriftApp.dir/app/main.cpp.o
 src/DriftApp: src/CMakeFiles/DriftApp.dir/build.make
 src/DriftApp: src/CMakeFiles/DriftApp.dir/compiler_depend.ts
 src/DriftApp: src/libDriftCore.a
+src/DriftApp: src/libDriftEngine.a
 src/DriftApp: src/libDriftRHI_DX11.a
 src/DriftApp: src/libDriftRenderer.a
+src/DriftApp: src/libDriftUI.a
 src/DriftApp: _deps/glfw-build/src/libglfw3.a
-src/DriftApp: src/libDriftRHI_DX11.a
-src/DriftApp: src/libDriftRHI.a
-src/DriftApp: src/libDriftCore.a
-src/DriftApp: lib/libDirectXTK.a
+src/DriftApp: src/libDriftEngine.a
+src/DriftApp: _deps/glfw-build/src/libglfw3.a
 src/DriftApp: /usr/lib/x86_64-linux-gnu/librt.a
 src/DriftApp: /usr/lib/x86_64-linux-gnu/libm.so
 src/DriftApp: /usr/lib/x86_64-linux-gnu/libX11.so
+src/DriftApp: src/libDriftRHI_DX11.a
+src/DriftApp: src/libDriftRHI.a
+src/DriftApp: lib/libDirectXTK.a
+src/DriftApp: src/libDriftCore.a
 src/DriftApp: src/CMakeFiles/DriftApp.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable DriftApp"
 	cd /workspace/build/src && /usr/bin/cmake -E copy_directory /workspace/shaders /workspace/build/src/shaders

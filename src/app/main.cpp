@@ -110,6 +110,7 @@ int main() {
             auto panel = std::make_shared<UI::UIElement>(uiContext.get());
             panel->SetPosition({50.0f, 50.0f});
             panel->SetSize({200.0f, 100.0f});
+            panel->SetColor(0xFF0000FF); // Vermelho sólido para teste
             root->AddChild(panel);
         }
         
@@ -311,7 +312,7 @@ int main() {
 
             // ---- PRESENT ----
             appData.context->Present();
-            Drift::Core::Log("[App] Frame apresentado");
+            // Log removido para performance: Frame apresentado
             
             // ---- DEBUG OUTPUT (esporádico) ----
             static float debugTimer = 0.0f;
