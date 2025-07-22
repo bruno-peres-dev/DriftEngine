@@ -296,13 +296,6 @@ int main() {
 
             // ---- UI RENDER (overlay) ----
             {
-                int fbw2, fbh2;
-                glfwGetFramebufferSize(window, &fbw2, &fbh2);
-
-                // Define viewport de tela cheia para sobrepor UI
-                appData.context->SetViewport(0, 0, fbw2, fbh2);
-                appData.uiBatcher->SetScreenSize((float)fbw2, (float)fbh2);
-
                 appData.uiBatcher->Begin();
                 appData.uiContext->Render(*appData.uiBatcher);
                 appData.uiBatcher->End();
@@ -310,20 +303,6 @@ int main() {
 
             // ---- PRESENT ----
             appData.context->Present();
-            // Log removido para performance: Frame apresentado
-            
-            // ---- DEBUG OUTPUT (esporádico) ----
-            static float debugTimer = 0.0f;
-            debugTimer += deltaTime;
-            if (debugTimer >= 5.0f) { // A cada 5 segundos
-                const size_t childCount = appData.uiContext->GetRoot()->GetChildren().size();
-                const auto& stats = appData.renderManager->GetStats();
-                Core::Log("[App] Stats: " + 
-                    std::to_string(stats.viewportsRendered) + " viewports, " +
-                    std::to_string(stats.frameTime) + "ms frame time");
-                Core::Log("[UI] Root children: " + std::to_string(childCount));
-                debugTimer = 0.0f;
-            }
         }
 
         // ================================
