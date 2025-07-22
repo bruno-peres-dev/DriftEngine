@@ -61,6 +61,9 @@ namespace Drift::RHI {
         virtual void AddRect(float x, float y, float w, float h, unsigned color) = 0; // Adiciona retângulo
         virtual void AddText(float x, float y, const char* text, unsigned color) = 0;  // Adiciona texto
         virtual void End() = 0;   // Finaliza e envia draw calls
+
+        // Dimensões da tela (pode ser ignorado por implementações que usam matriz proj)
+        virtual void SetScreenSize(float /*w*/, float /*h*/) {}
     };
 }
 

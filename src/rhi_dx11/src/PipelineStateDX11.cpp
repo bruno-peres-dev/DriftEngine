@@ -17,7 +17,8 @@ static DXGI_FORMAT StringToDXGIFormat(const std::string& fmt) {
     static const std::unordered_map<std::string, DXGI_FORMAT> lut = {
         {"R32G32B32_FLOAT", DXGI_FORMAT_R32G32B32_FLOAT},
         {"R32G32_FLOAT", DXGI_FORMAT_R32G32_FLOAT},
-        // Adicione outros formatos conforme necessário
+        {"R32_UINT", DXGI_FORMAT_R32_UINT},
+        {"R8G8B8A8_UNORM", DXGI_FORMAT_R8G8B8A8_UNORM},
     };
     auto it = lut.find(fmt);
     if (it != lut.end()) return it->second;

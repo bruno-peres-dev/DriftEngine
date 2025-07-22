@@ -62,6 +62,12 @@ namespace Drift::RHI::DX11 {
         void BeginDebugEvent(const char* name);
         void EndDebugEvent();
 
+        // Garante que _rtv aponta para o back-buffer atual e faz OMSetRenderTargets()
+        void BindBackBufferRTV();
+
+        // Exposição para debug
+        ID3D11RenderTargetView* GetCurrentRTV() const { return _rtv.Get(); }
+
         // Acesso nativo ao device/contexto
         void* GetNativeDevice()  const override { return _device.Get(); }
         void* GetNativeContext() const override { return _context.Get(); }

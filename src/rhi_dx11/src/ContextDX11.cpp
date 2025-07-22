@@ -93,6 +93,7 @@ void ContextDX11::Clear(float r, float g, float b, float a) {
 
 void ContextDX11::Present() {
     _swapChain->Present(_vsync ? 1 : 0, 0);
+    Drift::Core::Log("[DX11] Present called RTV=" + std::to_string(reinterpret_cast<uintptr_t>(_rtv.Get())));
 }
 
 void ContextDX11::IASetVertexBuffer(void* vb, UINT stride, UINT offset) {
@@ -357,4 +358,28 @@ void ContextDX11::BeginDebugEvent(const char* name) {
 }
 void ContextDX11::EndDebugEvent() {
     Drift::Core::Log("[DX11] EndDebugEvent");
+}
+
+void ContextDX11::BindBackBufferRTV() {
+    // Obter o buffer atual da swapchain e recriar RTV se mudou
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuf;
+    if (FAILED(_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuf.GetAddressOf())))) {
+        Drift::Core::Log("[DX11][ERRO] BindBackBufferRTV: GetBuffer falhou");
+        return;
+    }
+
+    // Compare pointers
+    ComPtr<ID3D11Resource> prevRes;
+    if (_rtv) _rtv->GetResource(prevRes.GetAddressOf());
+    if (prevRes.Get() != backBuf.Get()) {
+        // Need new RTV
+        _rtv.Reset();
+        HRESULT hr = _device->CreateRenderTargetView(backBuf.Get(), nullptr, _rtv.GetAddressOf());
+        if (FAILED(hr)) {
+            Drift::Core::Log("[DX11][ERRO] BindBackBufferRTV: CreateRenderTargetView falhou");
+            return;
+        }
+    }
+
+    _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), nullptr);
 }

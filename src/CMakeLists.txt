@@ -124,6 +124,28 @@ target_link_libraries(DriftRenderer PUBLIC
   d3d11 dxgi D3DCompiler DirectXTK
 )
 
+# 3.6) DriftUI (sistema de interface)
+add_library(DriftUI STATIC
+  ui/src/UIContext.cpp
+  ui/src/EventBus.cpp
+  ui/src/UIElement.cpp
+  ui/src/LayoutEngine.cpp
+)
+
+target_include_directories(DriftUI PUBLIC
+  ui/include
+  rhi/include
+)
+
+target_link_libraries(DriftUI PUBLIC
+  DriftCore
+  DriftMath
+  glm
+)
+
+# Vincular DriftUI ao DriftEngine e DriftRenderer
+# (se necessário futura integração)
+
 # ------------------------------------------------
 # 4) Executável DriftApp
 # ------------------------------------------------
@@ -151,6 +173,7 @@ target_link_libraries(DriftApp PRIVATE
   DriftEngine
   DriftRHI_DX11
   DriftRenderer
+  DriftUI
   glfw
 )
 

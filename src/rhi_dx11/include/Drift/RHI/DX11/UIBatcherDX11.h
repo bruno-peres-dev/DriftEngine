@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+namespace Drift::RHI { class IPipelineState; }
+
 namespace Drift::RHI::DX11 {
 
 // Implementação DX11 de IUIBatcher para batching de primitivas 2D
@@ -14,11 +16,20 @@ public:
     void AddRect(float x, float y, float w, float h, unsigned color) override;
     void AddText(float x, float y, const char* text, unsigned color) override; // Stub
     void End() override;
+
+    void SetScreenSize(float w, float h) override { _screenW = w; _screenH = h; }
 private:
     struct Vertex {
         float x, y;
         unsigned color;
     };
+
+    // Helper
+    void EnsurePipeline();
+
+    float _screenW{1280.0f};
+    float _screenH{720.0f};
+    std::shared_ptr<Drift::RHI::IPipelineState> _pipeline;
     std::vector<Vertex> _vertices;
     std::vector<unsigned> _indices;
     std::shared_ptr<IRingBuffer> _ringBuffer;

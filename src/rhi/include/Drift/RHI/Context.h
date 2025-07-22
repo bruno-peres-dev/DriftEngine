@@ -51,6 +51,9 @@ namespace Drift::RHI {
         
         // Atualiza constant buffer (Map/Unmap para dinâmicos, UpdateSubresource para default)
         virtual void UpdateConstantBuffer(IBuffer* buffer, const void* data, size_t size) = 0;
+
+        // Garantir RTV atual para swap-chain com múltiplos buffers
+        virtual void BindBackBufferRTV() = 0;
     };
 
     // Interface para swapchain (controle de buffers de apresentação)

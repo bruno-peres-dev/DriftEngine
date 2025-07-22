@@ -8,6 +8,11 @@
 #include "Drift/Engine/Input/Input.h"
 #include "Drift/Engine/Camera/Camera.h"
 #include "Drift/Engine/Viewport/Viewport.h"
+#include "Drift/UI/UIContext.h"
+#include "Drift/UI/UIElement.h"
+#include "Drift/RHI/DX11/RingBufferDX11.h"
+#include "Drift/RHI/DX11/UIBatcherDX11.h"
+#include <d3d11.h>
 
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -27,6 +32,9 @@ struct AppData {
     std::shared_ptr<RHI::IContext> context;
     std::unique_ptr<Engine::Input::IInputManager> inputManager;
     std::unique_ptr<Renderer::RenderManager> renderManager;
+    std::shared_ptr<RHI::IRingBuffer> uiRingBuffer;
+    std::unique_ptr<RHI::IUIBatcher> uiBatcher;
+    std::unique_ptr<UI::UIContext> uiContext;
 };
 
 static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -88,6 +96,22 @@ int main() {
         // ================================
         
         auto renderManager = std::make_unique<Renderer::RenderManager>();
+
+        // ================================
+        // 4.b UI CONTEXT
+        // ================================
+
+        auto uiContext = std::make_unique<UI::UIContext>();
+        uiContext->Initialize();
+
+        // Cria painel simples como demo
+        {
+            auto root = uiContext->GetRoot();
+            auto panel = std::make_shared<UI::UIElement>(uiContext.get());
+            panel->SetPosition({50.0f, 50.0f});
+            panel->SetSize({200.0f, 100.0f});
+            root->AddChild(panel);
+        }
         
         // --------------------------------
         // 4.1. VIEWPORT PRINCIPAL (Game)
@@ -173,6 +197,19 @@ int main() {
         appData.context = std::move(context);
         appData.inputManager = std::move(inputManager);
         appData.renderManager = std::move(renderManager);
+        appData.uiContext = std::move(uiContext);
+
+        // ================================
+        // 4.c UI BATCHER E RING BUFFER
+        // ================================
+
+        {
+            ID3D11Device*       nativeDev  = static_cast<ID3D11Device*>(device->GetNativeDevice());
+            ID3D11DeviceContext* nativeCtx = static_cast<ID3D11DeviceContext*>(appData.context->GetNativeContext());
+
+            appData.uiRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 2 * 1024 * 1024);
+            appData.uiBatcher    = Drift::RHI::DX11::CreateUIBatcherDX11(appData.uiRingBuffer, appData.context.get());
+        }
 
         // Configura callback de resize
         glfwSetWindowUserPointer(window, &appData);
@@ -240,6 +277,9 @@ int main() {
             // ---- RENDER MANAGER UPDATE ----
             appData.renderManager->Update(deltaTime, input);
 
+            // ---- UI UPDATE ----
+            appData.uiContext->Update(deltaTime);
+
             // ---- CURSOR LOCK ----
             bool lockCursor = false;
             const std::string& activeName = appData.renderManager->GetActiveViewport();
@@ -251,21 +291,38 @@ int main() {
             }
             appData.inputManager->SetMouseLocked(lockCursor);
             appData.inputManager->SetMouseVisible(!lockCursor);
- 
+
             // ---- RENDER ----
             appData.renderManager->Render(*appData.context);
-            
+
+            // ---- UI RENDER (overlay) ----
+            {
+                int fbw2, fbh2;
+                glfwGetFramebufferSize(window, &fbw2, &fbh2);
+
+                // Define viewport de tela cheia para sobrepor UI
+                appData.context->SetViewport(0, 0, fbw2, fbh2);
+                appData.uiBatcher->SetScreenSize((float)fbw2, (float)fbh2);
+
+                appData.uiBatcher->Begin();
+                appData.uiContext->Render(*appData.uiBatcher);
+                appData.uiBatcher->End();
+            }
+
             // ---- PRESENT ----
             appData.context->Present();
+            Drift::Core::Log("[App] Frame apresentado");
             
             // ---- DEBUG OUTPUT (esporádico) ----
             static float debugTimer = 0.0f;
             debugTimer += deltaTime;
             if (debugTimer >= 5.0f) { // A cada 5 segundos
+                const size_t childCount = appData.uiContext->GetRoot()->GetChildren().size();
                 const auto& stats = appData.renderManager->GetStats();
                 Core::Log("[App] Stats: " + 
                     std::to_string(stats.viewportsRendered) + " viewports, " +
                     std::to_string(stats.frameTime) + "ms frame time");
+                Core::Log("[UI] Root children: " + std::to_string(childCount));
                 debugTimer = 0.0f;
             }
         }
@@ -276,6 +333,8 @@ int main() {
         
         Core::Log("[App] Finalizando aplicação...");
         
+        appData.uiContext->Shutdown();
+
         // Cleanup automático via RAII
         glfwDestroyWindow(window);
         glfwTerminate();
