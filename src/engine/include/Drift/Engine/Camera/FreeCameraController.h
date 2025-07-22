@@ -111,7 +111,7 @@ namespace Drift::Engine::Camera {
             mouseDelta *= _mouseSensitivity;
             
             // Atualiza ângulos
-            _yaw += mouseDelta.x;
+            _yaw -= mouseDelta.x;
             _pitch -= mouseDelta.y; // Inverte Y para comportamento natural
             
             // Limita pitch
@@ -138,10 +138,10 @@ namespace Drift::Engine::Camera {
                 position -= forward * currentSpeed;
             }
             if (input.IsKeyDown(Input::Key::A)) {
-                position -= right * currentSpeed;
+                position += right * currentSpeed;
             }
             if (input.IsKeyDown(Input::Key::D)) {
-                position += right * currentSpeed;
+                position -= right * currentSpeed;
             }
             
             // Movimento vertical (Space/Ctrl)

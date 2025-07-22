@@ -239,7 +239,19 @@ int main() {
             
             // ---- RENDER MANAGER UPDATE ----
             appData.renderManager->Update(deltaTime, input);
-            
+
+            // ---- CURSOR LOCK ----
+            bool lockCursor = false;
+            const std::string& activeName = appData.renderManager->GetActiveViewport();
+            if (!activeName.empty()) {
+                auto* activeVP = appData.renderManager->GetViewport(activeName);
+                if (activeVP && activeVP->GetDesc().acceptsInput) {
+                    lockCursor = true;
+                }
+            }
+            appData.inputManager->SetMouseLocked(lockCursor);
+            appData.inputManager->SetMouseVisible(!lockCursor);
+ 
             // ---- RENDER ----
             appData.renderManager->Render(*appData.context);
             
