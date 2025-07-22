@@ -88,8 +88,6 @@ namespace Drift::Renderer {
                 // Layout customizado - não faz nada, deixa as viewports como estão
                 break;
         }
-        
-        Drift::Core::Log("[RenderManager] Applied layout: " + std::to_string(static_cast<int>(layout)));
     }
     
     void RenderManager::SetAllViewportsEnabled(bool enabled) {
@@ -98,8 +96,6 @@ namespace Drift::Renderer {
                 viewport->SetEnabled(enabled);
             }
         }
-        
-        Drift::Core::Log("[RenderManager] Set all viewports enabled: " + std::string(enabled ? "true" : "false"));
     }
     
     void RenderManager::ResizeAllViewports(int screenWidth, int screenHeight) {

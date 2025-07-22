@@ -71,7 +71,6 @@ void ContextDX11::CreateRTVandDSV() {
     }
 
     _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _dsv.Get());
-    Drift::Core::Log("[DX11] OMSetRenderTargets chamado");
     D3D11_VIEWPORT vp{
         0.0f, 0.0f,
         static_cast<FLOAT>(_width),
@@ -93,7 +92,6 @@ void ContextDX11::Clear(float r, float g, float b, float a) {
 
 void ContextDX11::Present() {
     _swapChain->Present(_vsync ? 1 : 0, 0);
-    Drift::Core::Log("[DX11] Present called RTV=" + std::to_string(reinterpret_cast<uintptr_t>(_rtv.Get())));
 }
 
 void ContextDX11::IASetVertexBuffer(void* vb, UINT stride, UINT offset) {
@@ -149,9 +147,7 @@ void ContextDX11::UpdateConstantBuffer(
 
 // Redimensiona swapchain, RTV/DSV e viewport
 void ContextDX11::Resize(unsigned width, unsigned height) {
-    Drift::Core::Log("[DX11] Resize chamado: width=" + std::to_string(width) + " height=" + std::to_string(height));
     if (width == 0 || height == 0) {
-        Drift::Core::Log("[DX11] Resize ignorado: width==0 ou height==0");
         return;
     }
     _width = width;
@@ -162,19 +158,15 @@ void ContextDX11::Resize(unsigned width, unsigned height) {
 
     _rtv.Reset();
     _dsv.Reset();
-    Drift::Core::Log("[DX11] RTV e DSV resetados");
 
     HRESULT hr = _swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
-    Drift::Core::Log("[DX11] ResizeBuffers HRESULT = " + std::to_string(hr));
     if (FAILED(hr)) {
         HRESULT removedReason = _device->GetDeviceRemovedReason();
         Drift::Core::Log("[DX11] DeviceRemovedReason = " + std::to_string(removedReason));
         Drift::Core::Log("[DX11] ERRO: SwapChain->ResizeBuffers falhou");
         throw std::runtime_error("SwapChain->ResizeBuffers falhou");
     }
-    Drift::Core::Log("[DX11] SwapChain->ResizeBuffers OK");
     CreateRTVandDSV();
-    Drift::Core::Log("[DX11] CreateRTVandDSV OK");
 }
 
 void ContextDX11::PSSetTexture(UINT slot, ITexture* tex) {

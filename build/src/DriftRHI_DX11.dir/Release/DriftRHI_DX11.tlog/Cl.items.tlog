@@ -1,0 +1,10 @@
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\DeviceDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\DeviceDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\ContextDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\ContextDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\BufferDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\BufferDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\PipelineStateDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\PipelineStateDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\ShaderDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\ShaderDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\TextureDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\TextureDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\SamplerDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\SamplerDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\SwapChainDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\SwapChainDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\RingBufferDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\RingBufferDX11.obj
+C:\Users\Bruno\Desktop\DriftEngine\src\rhi_dx11\src\UIBatcherDX11.cpp;C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftRHI_DX11.dir\Release\UIBatcherDX11.obj

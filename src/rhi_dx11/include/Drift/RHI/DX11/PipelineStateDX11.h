@@ -24,6 +24,7 @@ namespace Drift::RHI::DX11 {
         Microsoft::WRL::ComPtr<ID3D11GeometryShader> _gs; // Geometry Shader
         Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
         Microsoft::WRL::ComPtr<ID3D11BlendState> _blendState; // Blend state avançado
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> _depthStencilState; // Depth stencil state
     };
 
     // Cria um PipelineStateDX11 e retorna shared_ptr<IPipelineState>

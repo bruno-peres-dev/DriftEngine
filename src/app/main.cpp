@@ -50,8 +50,6 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     
     // Redimensiona todas as viewports
     app->renderManager->ResizeAllViewports(width, height);
-    
-    Core::Log("[App] Redimensionado para " + std::to_string(width) + "x" + std::to_string(height));
 }
 
 int main() {

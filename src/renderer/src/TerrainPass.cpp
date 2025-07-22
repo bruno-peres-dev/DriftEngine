@@ -57,8 +57,6 @@ TerrainPass::TerrainPass(Drift::RHI::IDevice& device,
 
     // RingBuffer será criado dinamicamente no primeiro Execute() quando temos contexto
     _ringBuffer = nullptr;
-    
-    Drift::Core::Log("[TerrainPass] Inicializado com sucesso");
 }
 
 void TerrainPass::BuildGrid(int rows, int cols)
@@ -134,8 +132,6 @@ void TerrainPass::BuildGrid(int rows, int cols)
     _ib = _device.CreateBuffer({ BufferType::Index, idx.size() * sizeof(uint32_t), idx.data() });
     
     _verts = verts;
-    
-    Drift::Core::Log("[TerrainPass] Grid construído: " + std::to_string(_indexCount) + " índices");
 }
 
 void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera& camera)
@@ -149,7 +145,6 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
             static_cast<ID3D11DeviceContext*>(context.GetNativeContext()),
             4 * 1024 * 1024 // 4MB
         );
-        Drift::Core::Log("[TerrainPass] RingBuffer inicializado com sucesso");
     }
     
     // Atualiza constant buffer com matriz da câmera

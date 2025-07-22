@@ -74,16 +74,10 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
             0
         });
     }
-    std::string layoutLog = "[DX11] Criando InputLayout: ";
-    for (const auto& elem : desc.inputLayout) {
-        layoutLog += elem.semanticName + "(" + std::to_string(elem.offset) + "," + elem.format + ") ";
-    }
-    Drift::Core::Log(layoutLog);
     HRESULT hr = device->CreateInputLayout(
         dxLayout.data(), (UINT)dxLayout.size(),
         vsShader->GetBytecode(), vsShader->GetBytecodeSize(),
         _inputLayout.GetAddressOf());
-    Drift::Core::Log(std::string("[DX11] CreateInputLayout HRESULT = ") + std::to_string(hr));
     if (FAILED(hr)) {
         Drift::Core::Log("[DX11] ERRO: Failed to create InputLayout");
         throw std::runtime_error("Failed to create InputLayout");
@@ -92,23 +86,18 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
     // Configura rasterizer state
     D3D11_RASTERIZER_DESC rastDesc = {};
     rastDesc.FillMode = desc.rasterizer.wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-    Drift::Core::Log("[DX11] CullMode enum value = " + std::to_string(static_cast<int>(desc.rasterizer.cullMode)));
     switch (desc.rasterizer.cullMode) {
         case Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None:
             rastDesc.CullMode = D3D11_CULL_NONE;
-            Drift::Core::Log("[DX11] Setting CullMode to D3D11_CULL_NONE");
             break;
         case Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Back:
             rastDesc.CullMode = D3D11_CULL_BACK;
-            Drift::Core::Log("[DX11] Setting CullMode to D3D11_CULL_BACK");
             break;
         case Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::Front:
             rastDesc.CullMode = D3D11_CULL_FRONT;
-            Drift::Core::Log("[DX11] Setting CullMode to D3D11_CULL_FRONT");
             break;
         default:
             rastDesc.CullMode = D3D11_CULL_NONE;
-            Drift::Core::Log("[DX11] Setting CullMode to D3D11_CULL_NONE (default)");
             break;
     }
     rastDesc.FrontCounterClockwise = FALSE;
@@ -120,16 +109,11 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
     rastDesc.DepthBiasClamp = 0.0f;
     rastDesc.SlopeScaledDepthBias = 0.0f;
 
-    Drift::Core::Log("[DX11] Rasterizer Final State: FillMode=" + std::to_string(rastDesc.FillMode) +
-                     " CullMode=" + std::to_string(rastDesc.CullMode) +
-                     " FrontCCW=" + std::to_string(rastDesc.FrontCounterClockwise));
-
     hr = device->CreateRasterizerState(&rastDesc, &_rasterizerState);
     if (FAILED(hr)) {
         Drift::Core::Log("[DX11] Failed to create RasterizerState! HRESULT = " + std::to_string(hr));
         throw std::runtime_error("Failed to create RasterizerState");
     }
-    Drift::Core::Log("[DX11] RasterizerState created successfully");
 
     // Configura blend state
     D3D11_BLEND_DESC blendDesc = {};
@@ -193,7 +177,30 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         Drift::Core::Log("[DX11] Failed to create BlendState! HRESULT = " + std::to_string(hr));
         throw std::runtime_error("Failed to create BlendState");
     }
-    Drift::Core::Log("[DX11] BlendState created successfully");
+
+    // Configura depth stencil state
+    D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+    const auto& d = desc.depthStencil;
+    dsDesc.DepthEnable = d.depthEnable ? TRUE : FALSE;
+    dsDesc.DepthWriteMask = d.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    dsDesc.StencilEnable = FALSE;
+    dsDesc.StencilReadMask = 0xFF;
+    dsDesc.StencilWriteMask = 0xFF;
+    dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    hr = device->CreateDepthStencilState(&dsDesc, &_depthStencilState);
+    if (FAILED(hr)) {
+        Drift::Core::Log("[DX11] Failed to create DepthStencilState! HRESULT = " + std::to_string(hr));
+        throw std::runtime_error("Failed to create DepthStencilState");
+    }
 }
 
 // Aplica todos os estados do pipeline no contexto DX11
@@ -212,9 +219,15 @@ void PipelineStateDX11::Apply(IContext& ctx) {
     }
     // Cache de blend
     float blendFactor[4] = {1,1,1,1};
+    
     if (dxCtx._currentBlendState != _blendState.Get()) {
         d3dCtx->OMSetBlendState(_blendState.Get(), blendFactor, 0xFFFFFFFF);
         dxCtx._currentBlendState = _blendState.Get();
+    }
+    // Cache de depth stencil
+    if (dxCtx._currentDepthStencilState.Get() != _depthStencilState.Get()) {
+        d3dCtx->OMSetDepthStencilState(_depthStencilState.Get(), 0);
+        dxCtx._currentDepthStencilState = _depthStencilState;
     }
 }
 

@@ -9,7 +9,6 @@ UIContext::UIContext()
     : m_EventBus(std::make_shared<EventBus>())
     , m_LayoutEngine(std::make_unique<LayoutEngine>())
 {
-    Drift::Core::Log("UIContext criado");
     // Cria elemento raiz que cobre a tela inteira por padrão
     m_Root = std::make_shared<UIElement>(this);
 }
@@ -22,7 +21,6 @@ UIContext::~UIContext()
 void UIContext::Initialize()
 {
     // Carregar temas, preparar atlases, etc.
-    Drift::Core::Log("UIContext::Initialize");
 }
 
 void UIContext::Update(float deltaSeconds)

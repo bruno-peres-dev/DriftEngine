@@ -100,8 +100,6 @@ namespace Drift::Engine::Input {
             // Configura callbacks do GLFW
             glfwSetWindowUserPointer(_window, this);
             glfwSetScrollCallback(_window, ScrollCallback);
-            
-            Drift::Core::Log("[InputManager] Inicializado com sucesso");
         }
         
         ~GLFWInputManager() override {
@@ -155,8 +153,6 @@ namespace Drift::Engine::Input {
                     _currentFrame.mouseButtons[buttonIdx], isPressed);
             }
             
-            // Mouse scroll é resetado a cada frame (acumulado via callback)
-            // Não reseta aqui, será resetado no próximo Update após ser lido
         }
 
         const InputFrame& GetCurrentFrame() const override {

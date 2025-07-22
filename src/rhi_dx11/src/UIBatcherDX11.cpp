@@ -13,9 +13,6 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {}
 
 void UIBatcherDX11::Begin() {
-    // Garante que estamos renderizando no back-buffer atual
-    _ctx->BindBackBufferRTV();
-
     // Desativa teste de profundidade e escrita, para overlay
     _ctx->SetDepthTestEnabled(false);
 
@@ -32,19 +29,24 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
         return 1.0f - (py / _screenH) * 2.0f;
     };
 
+    // Converte ARGB para BGRA (DirectX espera BGRA para R8G8B8A8_UNORM)
+    unsigned a = (color >> 24) & 0xFF;
+    unsigned r = (color >> 16) & 0xFF;
+    unsigned g = (color >> 8) & 0xFF;
+    unsigned b = color & 0xFF;
+    unsigned bgra = (b) | (g << 8) | (r << 16) | (a << 24);
+
     unsigned base = (unsigned)_vertices.size();
-    _vertices.push_back({toClipX(x),       toClipY(y),       color});
-    _vertices.push_back({toClipX(x + w),   toClipY(y),       color});
-    _vertices.push_back({toClipX(x + w),   toClipY(y + h),   color});
-    _vertices.push_back({toClipX(x),       toClipY(y + h),   color});
+    _vertices.push_back({toClipX(x),       toClipY(y),       bgra});
+    _vertices.push_back({toClipX(x + w),   toClipY(y),       bgra});
+    _vertices.push_back({toClipX(x + w),   toClipY(y + h),   bgra});
+    _vertices.push_back({toClipX(x),       toClipY(y + h),   bgra});
     _indices.push_back(base + 0);
     _indices.push_back(base + 1);
     _indices.push_back(base + 2);
     _indices.push_back(base + 2);
     _indices.push_back(base + 3);
     _indices.push_back(base + 0);
-
-    // Log de depuração removido para melhor performance
 }
 
 // Stub: integração futura com sistema de fontes/texto
@@ -54,7 +56,9 @@ void UIBatcherDX11::AddText(float, float, const char*, unsigned) {
 
 // Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
-    if (_vertices.empty() || _indices.empty()) return;
+    if (_vertices.empty() || _indices.empty()) {
+        return;
+    }
 
     EnsurePipeline();
 
@@ -63,21 +67,24 @@ void UIBatcherDX11::End() {
     // Assume viewport já configurado pelo RenderManager
     _pipeline->Apply(*_ctx);
 
+    // Garante que o ring buffer está pronto para o próximo frame
+    _ringBuffer->NextFrame();
+
     size_t vtxSize = _vertices.size() * sizeof(Vertex);
     size_t idxSize = _indices.size() * sizeof(unsigned);
     size_t vtxOffset = 0, idxOffset = 0;
     void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
     void* idxPtr = _ringBuffer->Allocate(idxSize, 4, idxOffset);
+    
     std::memcpy(vtxPtr, _vertices.data(), vtxSize);
     std::memcpy(idxPtr, _indices.data(), idxSize);
     IBuffer* vtxBuf = _ringBuffer->GetBuffer();
     IBuffer* idxBuf = _ringBuffer->GetBuffer();
+    
     _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
     _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
     _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
     _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
-
-    // Log removido para performance - DrawIndexed count=" + std::to_string(_indices.size())
 }
 
 void UIBatcherDX11::EnsurePipeline() {
@@ -97,10 +104,10 @@ void UIBatcherDX11::EnsurePipeline() {
 
     // Sem defines de debug por padrão
     desc.blend.enable = true;
-    desc.blend.srcColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::SrcAlpha;
-    desc.blend.dstColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
+    desc.blend.srcColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
+    desc.blend.dstColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
     desc.blend.srcAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
-    desc.blend.dstAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
+    desc.blend.dstAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
     desc.blend.blendFactorSeparate = true;
 
     desc.depthStencil.depthEnable = false;
@@ -109,7 +116,6 @@ void UIBatcherDX11::EnsurePipeline() {
 
     _pipeline = Drift::RHI::DX11::CreatePipelineDX11(device, desc);
 
-    // Log removido para performance: Pipeline UI criado com sucesso
 }
 
 // Fábrica de UIBatcherDX11

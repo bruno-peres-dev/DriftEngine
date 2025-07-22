@@ -55,7 +55,6 @@ std::shared_ptr<Drift::RHI::IContext> DeviceDX11::CreateContext() {
 
 // Cria swapchain para a janela especificada
 std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
-    Drift::Core::Log("[DX11] HWND usado para swapchain: " + std::to_string(reinterpret_cast<uintptr_t>(hwnd)));
     ComPtr<IDXGIDevice>  dxgiDev;
     ComPtr<IDXGIAdapter> dxgiAdap;
     ComPtr<IDXGIFactory> factory;
@@ -82,12 +81,8 @@ std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
     scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     scd.Flags = 0;
 
-    Drift::Core::Log("[DX11] Criando SwapChain para HWND: " + std::to_string(reinterpret_cast<uintptr_t>(hwnd)));
-    Drift::Core::Log("[DX11] SwapChain: width=" + std::to_string(scd.BufferDesc.Width) + " height=" + std::to_string(scd.BufferDesc.Height) + " format=" + std::to_string(scd.BufferDesc.Format));
-
     ComPtr<IDXGISwapChain> sc;
     HRESULT hr = factory->CreateSwapChain(_device.Get(), &scd, sc.GetAddressOf());
-    Drift::Core::Log("[DX11] CreateSwapChain HRESULT = " + std::to_string(hr));
     if (FAILED(hr))
         throw std::runtime_error("Falha ao criar SwapChain");
 
@@ -102,9 +97,6 @@ std::shared_ptr<IBuffer> DeviceDX11::CreateBuffer(const BufferDesc& d) {
 }
 
 std::shared_ptr<IPipelineState> DeviceDX11::CreatePipeline(const PipelineDesc& d) {
-    // Não limpar o cache globalmente aqui! Isso pode causar race conditions e perda de performance.
-    // O cache de pipeline deve ser gerenciado por invalidação específica, não por limpeza total.
-    // Drift::Core::Log("[DX11] Pipeline cache cleared before creation");
     return _pipelineCache.GetOrCreate(d,
         [this](auto const& key) { return CreatePipelineDX11(_device.Get(), key); });
 }
