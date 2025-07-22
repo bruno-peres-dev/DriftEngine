@@ -204,20 +204,6 @@ DriftRHI/fast:
 .PHONY : DriftRHI/fast
 
 # Convenience name for target.
-src/CMakeFiles/DriftRHI_DX11.dir/rule:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/DriftRHI_DX11.dir/rule
-.PHONY : src/CMakeFiles/DriftRHI_DX11.dir/rule
-
-# Convenience name for target.
-DriftRHI_DX11: src/CMakeFiles/DriftRHI_DX11.dir/rule
-.PHONY : DriftRHI_DX11
-
-# fast build rule for target.
-DriftRHI_DX11/fast:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/build
-.PHONY : DriftRHI_DX11/fast
-
-# Convenience name for target.
 src/CMakeFiles/DriftRenderer.dir/rule:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/DriftRenderer.dir/rule
 .PHONY : src/CMakeFiles/DriftRenderer.dir/rule
@@ -403,6 +389,30 @@ renderer/src/TerrainPass.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.s
 .PHONY : renderer/src/TerrainPass.cpp.s
 
+rhi/src/ContextStub.o: rhi/src/ContextStub.cpp.o
+.PHONY : rhi/src/ContextStub.o
+
+# target to build an object file
+rhi/src/ContextStub.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI.dir/build.make src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o
+.PHONY : rhi/src/ContextStub.cpp.o
+
+rhi/src/ContextStub.i: rhi/src/ContextStub.cpp.i
+.PHONY : rhi/src/ContextStub.i
+
+# target to preprocess a source file
+rhi/src/ContextStub.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI.dir/build.make src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.i
+.PHONY : rhi/src/ContextStub.cpp.i
+
+rhi/src/ContextStub.s: rhi/src/ContextStub.cpp.s
+.PHONY : rhi/src/ContextStub.s
+
+# target to generate assembly for a file
+rhi/src/ContextStub.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI.dir/build.make src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.s
+.PHONY : rhi/src/ContextStub.cpp.s
+
 rhi/src/DeviceStub.o: rhi/src/DeviceStub.cpp.o
 .PHONY : rhi/src/DeviceStub.o
 
@@ -426,246 +436,6 @@ rhi/src/DeviceStub.s: rhi/src/DeviceStub.cpp.s
 rhi/src/DeviceStub.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI.dir/build.make src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.s
 .PHONY : rhi/src/DeviceStub.cpp.s
-
-rhi_dx11/src/BufferDX11.o: rhi_dx11/src/BufferDX11.cpp.o
-.PHONY : rhi_dx11/src/BufferDX11.o
-
-# target to build an object file
-rhi_dx11/src/BufferDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/BufferDX11.cpp.o
-.PHONY : rhi_dx11/src/BufferDX11.cpp.o
-
-rhi_dx11/src/BufferDX11.i: rhi_dx11/src/BufferDX11.cpp.i
-.PHONY : rhi_dx11/src/BufferDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/BufferDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/BufferDX11.cpp.i
-.PHONY : rhi_dx11/src/BufferDX11.cpp.i
-
-rhi_dx11/src/BufferDX11.s: rhi_dx11/src/BufferDX11.cpp.s
-.PHONY : rhi_dx11/src/BufferDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/BufferDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/BufferDX11.cpp.s
-.PHONY : rhi_dx11/src/BufferDX11.cpp.s
-
-rhi_dx11/src/ContextDX11.o: rhi_dx11/src/ContextDX11.cpp.o
-.PHONY : rhi_dx11/src/ContextDX11.o
-
-# target to build an object file
-rhi_dx11/src/ContextDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ContextDX11.cpp.o
-.PHONY : rhi_dx11/src/ContextDX11.cpp.o
-
-rhi_dx11/src/ContextDX11.i: rhi_dx11/src/ContextDX11.cpp.i
-.PHONY : rhi_dx11/src/ContextDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/ContextDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ContextDX11.cpp.i
-.PHONY : rhi_dx11/src/ContextDX11.cpp.i
-
-rhi_dx11/src/ContextDX11.s: rhi_dx11/src/ContextDX11.cpp.s
-.PHONY : rhi_dx11/src/ContextDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/ContextDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ContextDX11.cpp.s
-.PHONY : rhi_dx11/src/ContextDX11.cpp.s
-
-rhi_dx11/src/DeviceDX11.o: rhi_dx11/src/DeviceDX11.cpp.o
-.PHONY : rhi_dx11/src/DeviceDX11.o
-
-# target to build an object file
-rhi_dx11/src/DeviceDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/DeviceDX11.cpp.o
-.PHONY : rhi_dx11/src/DeviceDX11.cpp.o
-
-rhi_dx11/src/DeviceDX11.i: rhi_dx11/src/DeviceDX11.cpp.i
-.PHONY : rhi_dx11/src/DeviceDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/DeviceDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/DeviceDX11.cpp.i
-.PHONY : rhi_dx11/src/DeviceDX11.cpp.i
-
-rhi_dx11/src/DeviceDX11.s: rhi_dx11/src/DeviceDX11.cpp.s
-.PHONY : rhi_dx11/src/DeviceDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/DeviceDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/DeviceDX11.cpp.s
-.PHONY : rhi_dx11/src/DeviceDX11.cpp.s
-
-rhi_dx11/src/PipelineStateDX11.o: rhi_dx11/src/PipelineStateDX11.cpp.o
-.PHONY : rhi_dx11/src/PipelineStateDX11.o
-
-# target to build an object file
-rhi_dx11/src/PipelineStateDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/PipelineStateDX11.cpp.o
-.PHONY : rhi_dx11/src/PipelineStateDX11.cpp.o
-
-rhi_dx11/src/PipelineStateDX11.i: rhi_dx11/src/PipelineStateDX11.cpp.i
-.PHONY : rhi_dx11/src/PipelineStateDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/PipelineStateDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/PipelineStateDX11.cpp.i
-.PHONY : rhi_dx11/src/PipelineStateDX11.cpp.i
-
-rhi_dx11/src/PipelineStateDX11.s: rhi_dx11/src/PipelineStateDX11.cpp.s
-.PHONY : rhi_dx11/src/PipelineStateDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/PipelineStateDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/PipelineStateDX11.cpp.s
-.PHONY : rhi_dx11/src/PipelineStateDX11.cpp.s
-
-rhi_dx11/src/RingBufferDX11.o: rhi_dx11/src/RingBufferDX11.cpp.o
-.PHONY : rhi_dx11/src/RingBufferDX11.o
-
-# target to build an object file
-rhi_dx11/src/RingBufferDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/RingBufferDX11.cpp.o
-.PHONY : rhi_dx11/src/RingBufferDX11.cpp.o
-
-rhi_dx11/src/RingBufferDX11.i: rhi_dx11/src/RingBufferDX11.cpp.i
-.PHONY : rhi_dx11/src/RingBufferDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/RingBufferDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/RingBufferDX11.cpp.i
-.PHONY : rhi_dx11/src/RingBufferDX11.cpp.i
-
-rhi_dx11/src/RingBufferDX11.s: rhi_dx11/src/RingBufferDX11.cpp.s
-.PHONY : rhi_dx11/src/RingBufferDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/RingBufferDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/RingBufferDX11.cpp.s
-.PHONY : rhi_dx11/src/RingBufferDX11.cpp.s
-
-rhi_dx11/src/SamplerDX11.o: rhi_dx11/src/SamplerDX11.cpp.o
-.PHONY : rhi_dx11/src/SamplerDX11.o
-
-# target to build an object file
-rhi_dx11/src/SamplerDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SamplerDX11.cpp.o
-.PHONY : rhi_dx11/src/SamplerDX11.cpp.o
-
-rhi_dx11/src/SamplerDX11.i: rhi_dx11/src/SamplerDX11.cpp.i
-.PHONY : rhi_dx11/src/SamplerDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/SamplerDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SamplerDX11.cpp.i
-.PHONY : rhi_dx11/src/SamplerDX11.cpp.i
-
-rhi_dx11/src/SamplerDX11.s: rhi_dx11/src/SamplerDX11.cpp.s
-.PHONY : rhi_dx11/src/SamplerDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/SamplerDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SamplerDX11.cpp.s
-.PHONY : rhi_dx11/src/SamplerDX11.cpp.s
-
-rhi_dx11/src/ShaderDX11.o: rhi_dx11/src/ShaderDX11.cpp.o
-.PHONY : rhi_dx11/src/ShaderDX11.o
-
-# target to build an object file
-rhi_dx11/src/ShaderDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ShaderDX11.cpp.o
-.PHONY : rhi_dx11/src/ShaderDX11.cpp.o
-
-rhi_dx11/src/ShaderDX11.i: rhi_dx11/src/ShaderDX11.cpp.i
-.PHONY : rhi_dx11/src/ShaderDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/ShaderDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ShaderDX11.cpp.i
-.PHONY : rhi_dx11/src/ShaderDX11.cpp.i
-
-rhi_dx11/src/ShaderDX11.s: rhi_dx11/src/ShaderDX11.cpp.s
-.PHONY : rhi_dx11/src/ShaderDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/ShaderDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ShaderDX11.cpp.s
-.PHONY : rhi_dx11/src/ShaderDX11.cpp.s
-
-rhi_dx11/src/SwapChainDX11.o: rhi_dx11/src/SwapChainDX11.cpp.o
-.PHONY : rhi_dx11/src/SwapChainDX11.o
-
-# target to build an object file
-rhi_dx11/src/SwapChainDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SwapChainDX11.cpp.o
-.PHONY : rhi_dx11/src/SwapChainDX11.cpp.o
-
-rhi_dx11/src/SwapChainDX11.i: rhi_dx11/src/SwapChainDX11.cpp.i
-.PHONY : rhi_dx11/src/SwapChainDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/SwapChainDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SwapChainDX11.cpp.i
-.PHONY : rhi_dx11/src/SwapChainDX11.cpp.i
-
-rhi_dx11/src/SwapChainDX11.s: rhi_dx11/src/SwapChainDX11.cpp.s
-.PHONY : rhi_dx11/src/SwapChainDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/SwapChainDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SwapChainDX11.cpp.s
-.PHONY : rhi_dx11/src/SwapChainDX11.cpp.s
-
-rhi_dx11/src/TextureDX11.o: rhi_dx11/src/TextureDX11.cpp.o
-.PHONY : rhi_dx11/src/TextureDX11.o
-
-# target to build an object file
-rhi_dx11/src/TextureDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/TextureDX11.cpp.o
-.PHONY : rhi_dx11/src/TextureDX11.cpp.o
-
-rhi_dx11/src/TextureDX11.i: rhi_dx11/src/TextureDX11.cpp.i
-.PHONY : rhi_dx11/src/TextureDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/TextureDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/TextureDX11.cpp.i
-.PHONY : rhi_dx11/src/TextureDX11.cpp.i
-
-rhi_dx11/src/TextureDX11.s: rhi_dx11/src/TextureDX11.cpp.s
-.PHONY : rhi_dx11/src/TextureDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/TextureDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/TextureDX11.cpp.s
-.PHONY : rhi_dx11/src/TextureDX11.cpp.s
-
-rhi_dx11/src/UIBatcherDX11.o: rhi_dx11/src/UIBatcherDX11.cpp.o
-.PHONY : rhi_dx11/src/UIBatcherDX11.o
-
-# target to build an object file
-rhi_dx11/src/UIBatcherDX11.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.o
-.PHONY : rhi_dx11/src/UIBatcherDX11.cpp.o
-
-rhi_dx11/src/UIBatcherDX11.i: rhi_dx11/src/UIBatcherDX11.cpp.i
-.PHONY : rhi_dx11/src/UIBatcherDX11.i
-
-# target to preprocess a source file
-rhi_dx11/src/UIBatcherDX11.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.i
-.PHONY : rhi_dx11/src/UIBatcherDX11.cpp.i
-
-rhi_dx11/src/UIBatcherDX11.s: rhi_dx11/src/UIBatcherDX11.cpp.s
-.PHONY : rhi_dx11/src/UIBatcherDX11.s
-
-# target to generate assembly for a file
-rhi_dx11/src/UIBatcherDX11.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.s
-.PHONY : rhi_dx11/src/UIBatcherDX11.cpp.s
 
 ui/src/EventBus.o: ui/src/EventBus.cpp.o
 .PHONY : ui/src/EventBus.o
@@ -779,7 +549,6 @@ help:
 	@echo "... DriftCore"
 	@echo "... DriftEngine"
 	@echo "... DriftRHI"
-	@echo "... DriftRHI_DX11"
 	@echo "... DriftRenderer"
 	@echo "... DriftUI"
 	@echo "... app/main.o"
@@ -800,39 +569,12 @@ help:
 	@echo "... renderer/src/TerrainPass.o"
 	@echo "... renderer/src/TerrainPass.i"
 	@echo "... renderer/src/TerrainPass.s"
+	@echo "... rhi/src/ContextStub.o"
+	@echo "... rhi/src/ContextStub.i"
+	@echo "... rhi/src/ContextStub.s"
 	@echo "... rhi/src/DeviceStub.o"
 	@echo "... rhi/src/DeviceStub.i"
 	@echo "... rhi/src/DeviceStub.s"
-	@echo "... rhi_dx11/src/BufferDX11.o"
-	@echo "... rhi_dx11/src/BufferDX11.i"
-	@echo "... rhi_dx11/src/BufferDX11.s"
-	@echo "... rhi_dx11/src/ContextDX11.o"
-	@echo "... rhi_dx11/src/ContextDX11.i"
-	@echo "... rhi_dx11/src/ContextDX11.s"
-	@echo "... rhi_dx11/src/DeviceDX11.o"
-	@echo "... rhi_dx11/src/DeviceDX11.i"
-	@echo "... rhi_dx11/src/DeviceDX11.s"
-	@echo "... rhi_dx11/src/PipelineStateDX11.o"
-	@echo "... rhi_dx11/src/PipelineStateDX11.i"
-	@echo "... rhi_dx11/src/PipelineStateDX11.s"
-	@echo "... rhi_dx11/src/RingBufferDX11.o"
-	@echo "... rhi_dx11/src/RingBufferDX11.i"
-	@echo "... rhi_dx11/src/RingBufferDX11.s"
-	@echo "... rhi_dx11/src/SamplerDX11.o"
-	@echo "... rhi_dx11/src/SamplerDX11.i"
-	@echo "... rhi_dx11/src/SamplerDX11.s"
-	@echo "... rhi_dx11/src/ShaderDX11.o"
-	@echo "... rhi_dx11/src/ShaderDX11.i"
-	@echo "... rhi_dx11/src/ShaderDX11.s"
-	@echo "... rhi_dx11/src/SwapChainDX11.o"
-	@echo "... rhi_dx11/src/SwapChainDX11.i"
-	@echo "... rhi_dx11/src/SwapChainDX11.s"
-	@echo "... rhi_dx11/src/TextureDX11.o"
-	@echo "... rhi_dx11/src/TextureDX11.i"
-	@echo "... rhi_dx11/src/TextureDX11.s"
-	@echo "... rhi_dx11/src/UIBatcherDX11.o"
-	@echo "... rhi_dx11/src/UIBatcherDX11.i"
-	@echo "... rhi_dx11/src/UIBatcherDX11.s"
 	@echo "... ui/src/EventBus.o"
 	@echo "... ui/src/EventBus.i"
 	@echo "... ui/src/EventBus.s"

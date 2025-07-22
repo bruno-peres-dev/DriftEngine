@@ -6,5 +6,5 @@ C_DEFINES = -D_GLFW_USE_CONFIG_H
 
 C_INCLUDES = -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src
 
-C_FLAGS = -std=gnu99 -fPIC -Wall
+C_FLAGS = -g -std=gnu99 -fPIC -Wall
 

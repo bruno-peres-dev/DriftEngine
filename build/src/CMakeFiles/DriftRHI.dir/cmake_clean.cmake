@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o"
+  "CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o.d"
   "CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o"
   "CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o.d"
   "libDriftRHI.a"

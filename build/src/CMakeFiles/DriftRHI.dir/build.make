@@ -86,17 +86,33 @@ src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.s"
 	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/rhi/src/DeviceStub.cpp -o CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.s
 
+src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o: src/CMakeFiles/DriftRHI.dir/flags.make
+src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o: /workspace/src/rhi/src/ContextStub.cpp
+src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o: src/CMakeFiles/DriftRHI.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o -MF CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o.d -o CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o -c /workspace/src/rhi/src/ContextStub.cpp
+
+src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.i"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspace/src/rhi/src/ContextStub.cpp > CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.i
+
+src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.s"
+	cd /workspace/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/src/rhi/src/ContextStub.cpp -o CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.s
+
 # Object files for target DriftRHI
 DriftRHI_OBJECTS = \
-"CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o"
+"CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o" \
+"CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o"
 
 # External object files for target DriftRHI
 DriftRHI_EXTERNAL_OBJECTS =
 
 src/libDriftRHI.a: src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o
+src/libDriftRHI.a: src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o
 src/libDriftRHI.a: src/CMakeFiles/DriftRHI.dir/build.make
 src/libDriftRHI.a: src/CMakeFiles/DriftRHI.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libDriftRHI.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libDriftRHI.a"
 	cd /workspace/build/src && $(CMAKE_COMMAND) -P CMakeFiles/DriftRHI.dir/cmake_clean_target.cmake
 	cd /workspace/build/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/DriftRHI.dir/link.txt --verbose=$(VERBOSE)
 

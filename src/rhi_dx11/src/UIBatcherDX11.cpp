@@ -13,6 +13,8 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {}
 
 void UIBatcherDX11::Begin() {
+    Drift::Core::Log("[UIBatcher] Begin() - Screen size: " + std::to_string(_screenW) + "x" + std::to_string(_screenH));
+    
     // Garante que estamos renderizando no back-buffer atual
     _ctx->BindBackBufferRTV();
 
@@ -44,7 +46,9 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     _indices.push_back(base + 3);
     _indices.push_back(base + 0);
 
-    // Log de depuração removido para melhor performance
+    Drift::Core::Log("[UIBatcher] AddRect: pos=(" + std::to_string(x) + "," + std::to_string(y) + 
+                     ") size=(" + std::to_string(w) + "," + std::to_string(h) + 
+                     ") color=0x" + std::to_string(color) + " screen=" + std::to_string(_screenW) + "x" + std::to_string(_screenH));
 }
 
 // Stub: integração futura com sistema de fontes/texto
@@ -54,7 +58,12 @@ void UIBatcherDX11::AddText(float, float, const char*, unsigned) {
 
 // Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
-    if (_vertices.empty() || _indices.empty()) return;
+    if (_vertices.empty() || _indices.empty()) {
+        Drift::Core::Log("[UIBatcher] End() called but no vertices/indices to render");
+        return;
+    }
+
+    Drift::Core::Log("[UIBatcher] End() - Drawing " + std::to_string(_vertices.size()) + " vertices, " + std::to_string(_indices.size()) + " indices");
 
     EnsurePipeline();
 
@@ -77,7 +86,7 @@ void UIBatcherDX11::End() {
     _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
     _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
 
-    // Log removido para performance - DrawIndexed count=" + std::to_string(_indices.size())
+    Drift::Core::Log("[UIBatcher] DrawIndexed called with " + std::to_string(_indices.size()) + " indices");
 }
 
 void UIBatcherDX11::EnsurePipeline() {

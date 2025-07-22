@@ -65,6 +65,9 @@ namespace Drift::RHI {
         // Dimensões da tela (pode ser ignorado por implementações que usam matriz proj)
         virtual void SetScreenSize(float /*w*/, float /*h*/) {}
     };
+
+    // Factory function para implementação stub (Linux)
+    std::unique_ptr<IUIBatcher> CreateUIBatcherStub();
 }
 
 namespace std {

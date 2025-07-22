@@ -43,6 +43,10 @@ void UIElement::RecalculateLayout()
 
 void UIElement::Render(Drift::RHI::IUIBatcher& batch)
 {
+    Drift::Core::Log("[UIElement] Rendering element - pos=(" + std::to_string(m_Position.x) + "," + 
+                     std::to_string(m_Position.y) + ") size=(" + std::to_string(m_Size.x) + "," + 
+                     std::to_string(m_Size.y) + ") color=0x" + std::to_string(m_Color));
+    
     batch.AddRect(m_Position.x, m_Position.y, m_Size.x, m_Size.y, m_Color);
 
     // Desenha filhos

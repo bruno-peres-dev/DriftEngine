@@ -7,7 +7,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Drift/Math/Math.h"
 #include <iostream>
+#ifdef _WIN32
 #include "Drift/RHI/DX11/RingBufferDX11.h"
+#endif
 
 using namespace Drift::Renderer;
 using namespace Drift::RHI;
@@ -144,12 +146,18 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
     
     // Inicializa RingBuffer na primeira execução (lazy initialization)
     if (!_ringBuffer) {
+#ifdef _WIN32
         _ringBuffer = Drift::RHI::DX11::CreateRingBufferDX11(
             static_cast<ID3D11Device*>(_device.GetNativeDevice()),
             static_cast<ID3D11DeviceContext*>(context.GetNativeContext()),
             4 * 1024 * 1024 // 4MB
         );
         Drift::Core::Log("[TerrainPass] RingBuffer inicializado com sucesso");
+#else
+        // No Linux, usar implementação stub
+        _ringBuffer = nullptr; // Stub não precisa de ring buffer
+        Drift::Core::Log("[TerrainPass] RingBuffer stub (Linux)");
+#endif
     }
     
     // Atualiza constant buffer com matriz da câmera
@@ -164,6 +172,7 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
         pipeline->Apply(context);
         
         // Upload dinâmico via RingBuffer (preferível) ou buffers estáticos (fallback)
+#ifdef _WIN32
          if (_ringBuffer) {
              _ringBuffer->NextFrame();
              size_t vtxSize = _verts.size() * sizeof(Vertex);
@@ -175,6 +184,14 @@ void TerrainPass::Execute(RHI::IContext& context, const Engine::Camera::ICamera&
              IBuffer* idxBuf = _ib.get(); // buffer de índices estático
              context.IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
              context.IASetIndexBuffer(idxBuf->GetBackendHandle(), _indexFormat, 0);
+#else
+         // No Linux, usar buffers estáticos
+         if (true) {
+             IBuffer* vtxBuf = _vb.get(); // buffer de vértices estático
+             IBuffer* idxBuf = _ib.get(); // buffer de índices estático
+             context.IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), 0);
+             context.IASetIndexBuffer(idxBuf->GetBackendHandle(), _indexFormat, 0);
+#endif
          } else {
              // Fallback para buffers estáticos
              context.IASetVertexBuffer(_vb->GetBackendHandle(), sizeof(Vertex), 0);

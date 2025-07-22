@@ -64,4 +64,8 @@ namespace Drift::RHI {
         virtual void Resize(unsigned width, unsigned height) = 0;
     };
 
+    // Factory functions para implementações stub (Linux)
+    std::unique_ptr<IContext> CreateContextStub();
+    std::unique_ptr<ISwapChain> CreateSwapChainStub();
+
 } // namespace Drift::RHI

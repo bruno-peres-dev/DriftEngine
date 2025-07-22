@@ -2,7 +2,14 @@
 // Demo da nova arquitetura AAA do DriftEngine
 
 #include "Drift/Core/Log.h"
+#ifdef _WIN32
 #include "Drift/RHI/DX11/DeviceDX11.h"
+#include "Drift/RHI/DX11/RingBufferDX11.h"
+#include "Drift/RHI/DX11/UIBatcherDX11.h"
+#endif
+#include "Drift/RHI/Device.h" // Para CreateDeviceStub
+#include "Drift/RHI/Context.h" // Para CreateContextStub
+#include "Drift/RHI/Buffer.h" // Para CreateUIBatcherStub
 #include "Drift/Renderer/RenderManager.h"
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/Engine/Input/Input.h"
@@ -10,15 +17,19 @@
 #include "Drift/Engine/Viewport/Viewport.h"
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/UIElement.h"
-#include "Drift/RHI/DX11/RingBufferDX11.h"
-#include "Drift/RHI/DX11/UIBatcherDX11.h"
+#ifdef _WIN32
 #include <d3d11.h>
+#endif
 
 #include <GLFW/glfw3.h>
+#ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+#endif
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <filesystem>
 #include <string>
 #include <memory>
@@ -70,11 +81,12 @@ int main() {
         GLFWwindow* window = glfwCreateWindow(1280, 720, "DriftEngine", nullptr, nullptr);
         if (!window) throw std::runtime_error("Falha ao criar janela GLFW");
 
+#ifdef _WIN32
         HWND hwnd = glfwGetWin32Window(window);
         if (!hwnd) throw std::runtime_error("Falha ao obter HWND");
 
         // ================================
-        // 2. CRIAÇÃO DO RHI
+        // 2. CRIAÇÃO DO RHI (Windows - DirectX11)
         // ================================
         
         // Cria Device DX11
@@ -84,6 +96,19 @@ int main() {
         // Cria SwapChain e Context
         auto swapChain = device->CreateSwapChain(hwnd);
         auto context = device->CreateContext();
+#else
+        // ================================
+        // 2. CRIAÇÃO DO RHI (Linux - Stub)
+        // ================================
+        Core::Log("[App] Detectado Linux - usando implementação stub");
+        
+        RHI::DeviceDesc desc{ 1280, 720, /* vsync */ false };
+        auto device = RHI::CreateDeviceStub(desc);
+        
+        // Cria SwapChain e Context stub
+        auto swapChain = RHI::CreateSwapChainStub();
+        auto context = RHI::CreateContextStub();
+#endif
         
         // ================================
         // 3. SISTEMA DE INPUT ABSTRATO
@@ -204,6 +229,7 @@ int main() {
         // 4.c UI BATCHER E RING BUFFER
         // ================================
 
+#ifdef _WIN32
         {
             ID3D11Device*       nativeDev  = static_cast<ID3D11Device*>(device->GetNativeDevice());
             ID3D11DeviceContext* nativeCtx = static_cast<ID3D11DeviceContext*>(appData.context->GetNativeContext());
@@ -211,6 +237,14 @@ int main() {
             appData.uiRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 2 * 1024 * 1024);
             appData.uiBatcher    = Drift::RHI::DX11::CreateUIBatcherDX11(appData.uiRingBuffer, appData.context.get());
         }
+#else
+        {
+            // No Linux, usar implementação stub do UI batcher
+            Core::Log("[App] Criando UI batcher stub para Linux");
+            appData.uiRingBuffer = nullptr; // Stub não precisa de ring buffer
+            appData.uiBatcher = RHI::CreateUIBatcherStub();
+        }
+#endif
 
         // Configura callback de resize
         glfwSetWindowUserPointer(window, &appData);
@@ -305,9 +339,11 @@ int main() {
                 appData.context->SetViewport(0, 0, fbw2, fbh2);
                 appData.uiBatcher->SetScreenSize((float)fbw2, (float)fbh2);
 
+                Core::Log("[UI] Starting UI render - Screen size: " + std::to_string(fbw2) + "x" + std::to_string(fbh2));
                 appData.uiBatcher->Begin();
                 appData.uiContext->Render(*appData.uiBatcher);
                 appData.uiBatcher->End();
+                Core::Log("[UI] UI render completed");
             }
 
             // ---- PRESENT ----
@@ -345,10 +381,13 @@ int main() {
         
     }
     catch (const std::exception& e) {
+        Core::Log("Erro fatal: " + std::string(e.what()));
+#ifdef _WIN32
         MessageBoxA(nullptr,
             ("Erro fatal: " + std::string(e.what())).c_str(),
             "DriftEngine AAA Error",
             MB_ICONERROR);
+#endif
         return -1;
     }
 } 

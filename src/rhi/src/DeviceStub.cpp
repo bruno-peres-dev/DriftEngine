@@ -7,7 +7,7 @@
 #include "Drift/RHI/Shader.h"
 #include "Drift/RHI/Texture.h"    // <-- necess�rio para ITexture e ISampler
 
-using namespace Drift::RHI;
+namespace Drift::RHI {
 
 class DeviceStub : public IDevice {
 public:
@@ -52,3 +52,5 @@ public:
 std::shared_ptr<IDevice> CreateDeviceStub(const DeviceDesc& desc) {
     return std::make_shared<DeviceStub>(desc);
 }
+
+} // namespace Drift::RHI

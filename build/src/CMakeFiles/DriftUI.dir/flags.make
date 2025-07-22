@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src
 
-CXX_FLAGS = -std=gnu++17
+CXX_FLAGS = -g -std=gnu++17
 

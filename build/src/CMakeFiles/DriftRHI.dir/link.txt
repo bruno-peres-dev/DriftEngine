@@ -1,2 +1,2 @@
-/usr/bin/ar qc libDriftRHI.a CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o
+/usr/bin/ar qc libDriftRHI.a CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o
 /usr/bin/ranlib libDriftRHI.a

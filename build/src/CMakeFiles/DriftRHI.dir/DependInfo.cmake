@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/workspace/src/rhi/src/ContextStub.cpp" "src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o" "gcc" "src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o.d"
   "/workspace/src/rhi/src/DeviceStub.cpp" "src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o" "gcc" "src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o.d"
   )
 

@@ -1,938 +1,596 @@
 [
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/core/include -std=gnu++17 -o CMakeFiles/DriftCore.dir/core/src/Log.cpp.o -c /workspace/src/core/src/Log.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/core/include -g -std=gnu++17 -o CMakeFiles/DriftCore.dir/core/src/Log.cpp.o -c /workspace/src/core/src/Log.cpp",
   "file": "/workspace/src/core/src/Log.cpp",
   "output": "src/CMakeFiles/DriftCore.dir/core/src/Log.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/core/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.o -c /workspace/src/engine/src/Input/GLFWInputManager.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/core/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.o -c /workspace/src/engine/src/Input/GLFWInputManager.cpp",
   "file": "/workspace/src/engine/src/Input/GLFWInputManager.cpp",
   "output": "src/CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi/include -I/workspace/src/core/include -std=gnu++17 -o CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o -c /workspace/src/rhi/src/DeviceStub.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/rhi/include -I/workspace/src/core/include -g -std=gnu++17 -o CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o -c /workspace/src/rhi/src/DeviceStub.cpp",
   "file": "/workspace/src/rhi/src/DeviceStub.cpp",
   "output": "src/CMakeFiles/DriftRHI.dir/rhi/src/DeviceStub.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/DeviceDX11.cpp.o -c /workspace/src/rhi_dx11/src/DeviceDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/DeviceDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/DeviceDX11.cpp.o"
+  "command": "/usr/bin/c++  -I/workspace/src/rhi/include -I/workspace/src/core/include -g -std=gnu++17 -o CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o -c /workspace/src/rhi/src/ContextStub.cpp",
+  "file": "/workspace/src/rhi/src/ContextStub.cpp",
+  "output": "src/CMakeFiles/DriftRHI.dir/rhi/src/ContextStub.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ContextDX11.cpp.o -c /workspace/src/rhi_dx11/src/ContextDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/ContextDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ContextDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/BufferDX11.cpp.o -c /workspace/src/rhi_dx11/src/BufferDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/BufferDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/BufferDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/PipelineStateDX11.cpp.o -c /workspace/src/rhi_dx11/src/PipelineStateDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/PipelineStateDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/PipelineStateDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ShaderDX11.cpp.o -c /workspace/src/rhi_dx11/src/ShaderDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/ShaderDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/ShaderDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/TextureDX11.cpp.o -c /workspace/src/rhi_dx11/src/TextureDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/TextureDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/TextureDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SamplerDX11.cpp.o -c /workspace/src/rhi_dx11/src/SamplerDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/SamplerDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SamplerDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SwapChainDX11.cpp.o -c /workspace/src/rhi_dx11/src/SwapChainDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/SwapChainDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/SwapChainDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/RingBufferDX11.cpp.o -c /workspace/src/rhi_dx11/src/RingBufferDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/RingBufferDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/RingBufferDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -std=gnu++17 -o CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.o -c /workspace/src/rhi_dx11/src/UIBatcherDX11.cpp",
-  "file": "/workspace/src/rhi_dx11/src/UIBatcherDX11.cpp",
-  "output": "src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.o"
-},
-{
-  "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.o -c /workspace/src/renderer/src/IRenderPass.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.o -c /workspace/src/renderer/src/IRenderPass.cpp",
   "file": "/workspace/src/renderer/src/IRenderPass.cpp",
   "output": "src/CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o -c /workspace/src/renderer/src/TerrainPass.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o -c /workspace/src/renderer/src/TerrainPass.cpp",
   "file": "/workspace/src/renderer/src/TerrainPass.cpp",
   "output": "src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/rhi_dx11/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/extern/DirectXTK/Inc -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o -c /workspace/src/renderer/src/RenderManager.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/renderer/include -I/workspace/build/_deps/glfw-src/include -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o -c /workspace/src/renderer/src/RenderManager.cpp",
   "file": "/workspace/src/renderer/src/RenderManager.cpp",
   "output": "src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.o -c /workspace/src/ui/src/UIContext.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.o -c /workspace/src/ui/src/UIContext.cpp",
   "file": "/workspace/src/ui/src/UIContext.cpp",
   "output": "src/CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.o -c /workspace/src/ui/src/EventBus.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.o -c /workspace/src/ui/src/EventBus.cpp",
   "file": "/workspace/src/ui/src/EventBus.cpp",
   "output": "src/CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.o -c /workspace/src/ui/src/UIElement.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.o -c /workspace/src/ui/src/UIElement.cpp",
   "file": "/workspace/src/ui/src/UIElement.cpp",
   "output": "src/CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.o -c /workspace/src/ui/src/LayoutEngine.cpp",
+  "command": "/usr/bin/c++  -I/workspace/src/ui/include -I/workspace/src/rhi/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/build/_deps/glm-src -g -std=gnu++17 -o CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.o -c /workspace/src/ui/src/LayoutEngine.cpp",
   "file": "/workspace/src/ui/src/LayoutEngine.cpp",
   "output": "src/CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.o"
 },
 {
   "directory": "/workspace/build/src",
-  "command": "/usr/bin/c++  -I/workspace/build/_deps/glfw-src/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/renderer/include -I/workspace/build/_deps/glm-src -I/workspace/src/rhi_dx11/include -I/workspace/extern/DirectXTK/Inc -I/workspace/src/ui/include -std=gnu++17 -o CMakeFiles/DriftApp.dir/app/main.cpp.o -c /workspace/src/app/main.cpp",
+  "command": "/usr/bin/c++  -I/workspace/build/_deps/glfw-src/include -I/workspace/src/core/include -I/workspace/src/engine/include -I/workspace/src/rhi/include -I/workspace/src/renderer/include -I/workspace/build/_deps/glm-src -I/workspace/src/ui/include -g -std=gnu++17 -o CMakeFiles/DriftApp.dir/app/main.cpp.o -c /workspace/src/app/main.cpp",
   "file": "/workspace/src/app/main.cpp",
   "output": "src/CMakeFiles/DriftApp.dir/app/main.cpp.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/context.c.o -c /workspace/build/_deps/glfw-src/src/context.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/context.c.o -c /workspace/build/_deps/glfw-src/src/context.c",
   "file": "/workspace/build/_deps/glfw-src/src/context.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/context.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/init.c.o -c /workspace/build/_deps/glfw-src/src/init.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/init.c.o -c /workspace/build/_deps/glfw-src/src/init.c",
   "file": "/workspace/build/_deps/glfw-src/src/init.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/init.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/input.c.o -c /workspace/build/_deps/glfw-src/src/input.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/input.c.o -c /workspace/build/_deps/glfw-src/src/input.c",
   "file": "/workspace/build/_deps/glfw-src/src/input.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/input.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/monitor.c.o -c /workspace/build/_deps/glfw-src/src/monitor.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/monitor.c.o -c /workspace/build/_deps/glfw-src/src/monitor.c",
   "file": "/workspace/build/_deps/glfw-src/src/monitor.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/monitor.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/vulkan.c.o -c /workspace/build/_deps/glfw-src/src/vulkan.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/vulkan.c.o -c /workspace/build/_deps/glfw-src/src/vulkan.c",
   "file": "/workspace/build/_deps/glfw-src/src/vulkan.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/vulkan.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/window.c.o -c /workspace/build/_deps/glfw-src/src/window.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/window.c.o -c /workspace/build/_deps/glfw-src/src/window.c",
   "file": "/workspace/build/_deps/glfw-src/src/window.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/window.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_init.c.o -c /workspace/build/_deps/glfw-src/src/x11_init.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_init.c.o -c /workspace/build/_deps/glfw-src/src/x11_init.c",
   "file": "/workspace/build/_deps/glfw-src/src/x11_init.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/x11_init.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_monitor.c.o -c /workspace/build/_deps/glfw-src/src/x11_monitor.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_monitor.c.o -c /workspace/build/_deps/glfw-src/src/x11_monitor.c",
   "file": "/workspace/build/_deps/glfw-src/src/x11_monitor.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/x11_monitor.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_window.c.o -c /workspace/build/_deps/glfw-src/src/x11_window.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/x11_window.c.o -c /workspace/build/_deps/glfw-src/src/x11_window.c",
   "file": "/workspace/build/_deps/glfw-src/src/x11_window.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/x11_window.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/xkb_unicode.c.o -c /workspace/build/_deps/glfw-src/src/xkb_unicode.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/xkb_unicode.c.o -c /workspace/build/_deps/glfw-src/src/xkb_unicode.c",
   "file": "/workspace/build/_deps/glfw-src/src/xkb_unicode.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/xkb_unicode.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/posix_time.c.o -c /workspace/build/_deps/glfw-src/src/posix_time.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/posix_time.c.o -c /workspace/build/_deps/glfw-src/src/posix_time.c",
   "file": "/workspace/build/_deps/glfw-src/src/posix_time.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/posix_time.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/posix_thread.c.o -c /workspace/build/_deps/glfw-src/src/posix_thread.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/posix_thread.c.o -c /workspace/build/_deps/glfw-src/src/posix_thread.c",
   "file": "/workspace/build/_deps/glfw-src/src/posix_thread.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/posix_thread.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/glx_context.c.o -c /workspace/build/_deps/glfw-src/src/glx_context.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/glx_context.c.o -c /workspace/build/_deps/glfw-src/src/glx_context.c",
   "file": "/workspace/build/_deps/glfw-src/src/glx_context.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/glx_context.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/egl_context.c.o -c /workspace/build/_deps/glfw-src/src/egl_context.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/egl_context.c.o -c /workspace/build/_deps/glfw-src/src/egl_context.c",
   "file": "/workspace/build/_deps/glfw-src/src/egl_context.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/egl_context.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/osmesa_context.c.o -c /workspace/build/_deps/glfw-src/src/osmesa_context.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/osmesa_context.c.o -c /workspace/build/_deps/glfw-src/src/osmesa_context.c",
   "file": "/workspace/build/_deps/glfw-src/src/osmesa_context.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/osmesa_context.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/src",
-  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/linux_joystick.c.o -c /workspace/build/_deps/glfw-src/src/linux_joystick.c",
+  "command": "/usr/bin/cc -D_GLFW_USE_CONFIG_H -I/workspace/build/_deps/glfw-src/include -I/workspace/build/_deps/glfw-src/src -I/workspace/build/_deps/glfw-build/src -g -std=gnu99 -fPIC -Wall -o CMakeFiles/glfw.dir/linux_joystick.c.o -c /workspace/build/_deps/glfw-src/src/linux_joystick.c",
   "file": "/workspace/build/_deps/glfw-src/src/linux_joystick.c",
   "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/linux_joystick.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/boing.dir/boing.c.o -c /workspace/build/_deps/glfw-src/examples/boing.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/boing.dir/boing.c.o -c /workspace/build/_deps/glfw-src/examples/boing.c",
   "file": "/workspace/build/_deps/glfw-src/examples/boing.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/boing.dir/boing.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/boing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/boing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/boing.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/gears.dir/gears.c.o -c /workspace/build/_deps/glfw-src/examples/gears.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/gears.dir/gears.c.o -c /workspace/build/_deps/glfw-src/examples/gears.c",
   "file": "/workspace/build/_deps/glfw-src/examples/gears.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/gears.dir/gears.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/gears.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/gears.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/gears.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/heightmap.dir/heightmap.c.o -c /workspace/build/_deps/glfw-src/examples/heightmap.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/heightmap.dir/heightmap.c.o -c /workspace/build/_deps/glfw-src/examples/heightmap.c",
   "file": "/workspace/build/_deps/glfw-src/examples/heightmap.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/heightmap.dir/heightmap.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/offscreen.dir/offscreen.c.o -c /workspace/build/_deps/glfw-src/examples/offscreen.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/offscreen.dir/offscreen.c.o -c /workspace/build/_deps/glfw-src/examples/offscreen.c",
   "file": "/workspace/build/_deps/glfw-src/examples/offscreen.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/offscreen.dir/offscreen.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/offscreen.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/offscreen.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/offscreen.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/particles.dir/particles.c.o -c /workspace/build/_deps/glfw-src/examples/particles.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/particles.dir/particles.c.o -c /workspace/build/_deps/glfw-src/examples/particles.c",
   "file": "/workspace/build/_deps/glfw-src/examples/particles.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/particles.dir/particles.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/particles.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/particles.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "file": "/workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/particles.dir/__/deps/tinycthread.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/particles.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/particles.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/particles.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/particles.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/particles.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/particles.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/sharing.dir/sharing.c.o -c /workspace/build/_deps/glfw-src/examples/sharing.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/sharing.dir/sharing.c.o -c /workspace/build/_deps/glfw-src/examples/sharing.c",
   "file": "/workspace/build/_deps/glfw-src/examples/sharing.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/sharing.dir/sharing.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/sharing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/sharing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/sharing.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/simple.dir/simple.c.o -c /workspace/build/_deps/glfw-src/examples/simple.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/simple.dir/simple.c.o -c /workspace/build/_deps/glfw-src/examples/simple.c",
   "file": "/workspace/build/_deps/glfw-src/examples/simple.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/simple.dir/simple.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/simple.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/simple.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/simple.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/splitview.dir/splitview.c.o -c /workspace/build/_deps/glfw-src/examples/splitview.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/splitview.dir/splitview.c.o -c /workspace/build/_deps/glfw-src/examples/splitview.c",
   "file": "/workspace/build/_deps/glfw-src/examples/splitview.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/splitview.dir/splitview.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/splitview.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/splitview.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/splitview.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/wave.dir/wave.c.o -c /workspace/build/_deps/glfw-src/examples/wave.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/wave.dir/wave.c.o -c /workspace/build/_deps/glfw-src/examples/wave.c",
   "file": "/workspace/build/_deps/glfw-src/examples/wave.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/wave.dir/wave.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/examples",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/wave.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/wave.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/examples/CMakeFiles/wave.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/clipboard.dir/clipboard.c.o -c /workspace/build/_deps/glfw-src/tests/clipboard.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/clipboard.dir/clipboard.c.o -c /workspace/build/_deps/glfw-src/tests/clipboard.c",
   "file": "/workspace/build/_deps/glfw-src/tests/clipboard.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/clipboard.dir/clipboard.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/clipboard.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/clipboard.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/clipboard.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/clipboard.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/clipboard.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/clipboard.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/events.dir/events.c.o -c /workspace/build/_deps/glfw-src/tests/events.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/events.dir/events.c.o -c /workspace/build/_deps/glfw-src/tests/events.c",
   "file": "/workspace/build/_deps/glfw-src/tests/events.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/events.dir/events.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/events.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/events.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/events.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/events.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/events.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/events.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/msaa.dir/msaa.c.o -c /workspace/build/_deps/glfw-src/tests/msaa.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/msaa.dir/msaa.c.o -c /workspace/build/_deps/glfw-src/tests/msaa.c",
   "file": "/workspace/build/_deps/glfw-src/tests/msaa.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/msaa.dir/msaa.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/msaa.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/msaa.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/msaa.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/msaa.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/msaa.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/msaa.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/glfwinfo.dir/glfwinfo.c.o -c /workspace/build/_deps/glfw-src/tests/glfwinfo.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/glfwinfo.dir/glfwinfo.c.o -c /workspace/build/_deps/glfw-src/tests/glfwinfo.c",
   "file": "/workspace/build/_deps/glfw-src/tests/glfwinfo.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/glfwinfo.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/glfwinfo.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o -c /workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o -c /workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/iconify.dir/iconify.c.o -c /workspace/build/_deps/glfw-src/tests/iconify.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/iconify.dir/iconify.c.o -c /workspace/build/_deps/glfw-src/tests/iconify.c",
   "file": "/workspace/build/_deps/glfw-src/tests/iconify.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/iconify.dir/iconify.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/iconify.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/iconify.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/iconify.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/iconify.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/iconify.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/iconify.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/monitors.dir/monitors.c.o -c /workspace/build/_deps/glfw-src/tests/monitors.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/monitors.dir/monitors.c.o -c /workspace/build/_deps/glfw-src/tests/monitors.c",
   "file": "/workspace/build/_deps/glfw-src/tests/monitors.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/monitors.dir/monitors.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/monitors.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/monitors.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/monitors.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/monitors.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/monitors.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/monitors.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/reopen.dir/reopen.c.o -c /workspace/build/_deps/glfw-src/tests/reopen.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/reopen.dir/reopen.c.o -c /workspace/build/_deps/glfw-src/tests/reopen.c",
   "file": "/workspace/build/_deps/glfw-src/tests/reopen.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/reopen.dir/reopen.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/reopen.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/reopen.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/reopen.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/cursor.dir/cursor.c.o -c /workspace/build/_deps/glfw-src/tests/cursor.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/cursor.dir/cursor.c.o -c /workspace/build/_deps/glfw-src/tests/cursor.c",
   "file": "/workspace/build/_deps/glfw-src/tests/cursor.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/cursor.dir/cursor.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/cursor.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/cursor.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/cursor.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/empty.dir/empty.c.o -c /workspace/build/_deps/glfw-src/tests/empty.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/empty.dir/empty.c.o -c /workspace/build/_deps/glfw-src/tests/empty.c",
   "file": "/workspace/build/_deps/glfw-src/tests/empty.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/empty.dir/empty.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/empty.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/empty.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "file": "/workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/empty.dir/__/deps/tinycthread.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/empty.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/empty.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/empty.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/gamma.dir/gamma.c.o -c /workspace/build/_deps/glfw-src/tests/gamma.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/gamma.dir/gamma.c.o -c /workspace/build/_deps/glfw-src/tests/gamma.c",
   "file": "/workspace/build/_deps/glfw-src/tests/gamma.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/gamma.dir/gamma.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/gamma.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/gamma.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/gamma.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/icon.dir/icon.c.o -c /workspace/build/_deps/glfw-src/tests/icon.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/icon.dir/icon.c.o -c /workspace/build/_deps/glfw-src/tests/icon.c",
   "file": "/workspace/build/_deps/glfw-src/tests/icon.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/icon.dir/icon.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/icon.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/icon.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/icon.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/inputlag.dir/inputlag.c.o -c /workspace/build/_deps/glfw-src/tests/inputlag.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/inputlag.dir/inputlag.c.o -c /workspace/build/_deps/glfw-src/tests/inputlag.c",
   "file": "/workspace/build/_deps/glfw-src/tests/inputlag.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/inputlag.dir/inputlag.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/inputlag.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/inputlag.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/inputlag.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/inputlag.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/inputlag.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/inputlag.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/joysticks.dir/joysticks.c.o -c /workspace/build/_deps/glfw-src/tests/joysticks.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/joysticks.dir/joysticks.c.o -c /workspace/build/_deps/glfw-src/tests/joysticks.c",
   "file": "/workspace/build/_deps/glfw-src/tests/joysticks.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/joysticks.dir/joysticks.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/joysticks.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/joysticks.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/joysticks.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/opacity.dir/opacity.c.o -c /workspace/build/_deps/glfw-src/tests/opacity.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/opacity.dir/opacity.c.o -c /workspace/build/_deps/glfw-src/tests/opacity.c",
   "file": "/workspace/build/_deps/glfw-src/tests/opacity.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/opacity.dir/opacity.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/opacity.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/opacity.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/opacity.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/tearing.dir/tearing.c.o -c /workspace/build/_deps/glfw-src/tests/tearing.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/tearing.dir/tearing.c.o -c /workspace/build/_deps/glfw-src/tests/tearing.c",
   "file": "/workspace/build/_deps/glfw-src/tests/tearing.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/tearing.dir/tearing.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/tearing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/tearing.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/tearing.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/threads.dir/threads.c.o -c /workspace/build/_deps/glfw-src/tests/threads.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/threads.dir/threads.c.o -c /workspace/build/_deps/glfw-src/tests/threads.c",
   "file": "/workspace/build/_deps/glfw-src/tests/threads.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/threads.dir/threads.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/threads.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/threads.dir/__/deps/tinycthread.c.o -c /workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "file": "/workspace/build/_deps/glfw-src/deps/tinycthread.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/threads.dir/__/deps/tinycthread.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/threads.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/threads.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/threads.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/timeout.dir/timeout.c.o -c /workspace/build/_deps/glfw-src/tests/timeout.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/timeout.dir/timeout.c.o -c /workspace/build/_deps/glfw-src/tests/timeout.c",
   "file": "/workspace/build/_deps/glfw-src/tests/timeout.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/timeout.dir/timeout.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/timeout.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/timeout.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/timeout.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/title.dir/title.c.o -c /workspace/build/_deps/glfw-src/tests/title.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/title.dir/title.c.o -c /workspace/build/_deps/glfw-src/tests/title.c",
   "file": "/workspace/build/_deps/glfw-src/tests/title.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/title.dir/title.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/title.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/title.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/title.dir/__/deps/glad_gl.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o -c /workspace/build/_deps/glfw-src/tests/triangle-vulkan.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o -c /workspace/build/_deps/glfw-src/tests/triangle-vulkan.c",
   "file": "/workspace/build/_deps/glfw-src/tests/triangle-vulkan.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o -c /workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o -c /workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_vulkan.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/windows.dir/windows.c.o -c /workspace/build/_deps/glfw-src/tests/windows.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/windows.dir/windows.c.o -c /workspace/build/_deps/glfw-src/tests/windows.c",
   "file": "/workspace/build/_deps/glfw-src/tests/windows.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/windows.dir/windows.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/windows.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/windows.dir/__/deps/getopt.c.o -c /workspace/build/_deps/glfw-src/deps/getopt.c",
   "file": "/workspace/build/_deps/glfw-src/deps/getopt.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/windows.dir/__/deps/getopt.c.o"
 },
 {
   "directory": "/workspace/build/_deps/glfw-build/tests",
-  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -std=gnu99 -o CMakeFiles/windows.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
+  "command": "/usr/bin/cc  -I/workspace/build/_deps/glfw-src/deps -I/workspace/build/_deps/glfw-src/include -g -std=gnu99 -o CMakeFiles/windows.dir/__/deps/glad_gl.c.o -c /workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "file": "/workspace/build/_deps/glfw-src/deps/glad_gl.c",
   "output": "_deps/glfw-build/tests/CMakeFiles/windows.dir/__/deps/glad_gl.c.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -fpch-instantiate-templates -Xclang -emit-pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -x c++-header -o CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -c /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.cxx",
-  "file": "/workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.cxx",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/AlphaTestEffect.cpp.o -c /workspace/extern/DirectXTK/Src/AlphaTestEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/AlphaTestEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/AlphaTestEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/BasicEffect.cpp.o -c /workspace/extern/DirectXTK/Src/BasicEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/BasicEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/BasicEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/BasicPostProcess.cpp.o -c /workspace/extern/DirectXTK/Src/BasicPostProcess.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/BasicPostProcess.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/BasicPostProcess.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/BufferHelpers.cpp.o -c /workspace/extern/DirectXTK/Src/BufferHelpers.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/BufferHelpers.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/BufferHelpers.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/CommonStates.cpp.o -c /workspace/extern/DirectXTK/Src/CommonStates.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/CommonStates.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/CommonStates.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DDSTextureLoader.cpp.o -c /workspace/extern/DirectXTK/Src/DDSTextureLoader.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DDSTextureLoader.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DDSTextureLoader.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DebugEffect.cpp.o -c /workspace/extern/DirectXTK/Src/DebugEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DebugEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DebugEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DGSLEffect.cpp.o -c /workspace/extern/DirectXTK/Src/DGSLEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DGSLEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DGSLEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DGSLEffectFactory.cpp.o -c /workspace/extern/DirectXTK/Src/DGSLEffectFactory.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DGSLEffectFactory.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DGSLEffectFactory.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DirectXHelpers.cpp.o -c /workspace/extern/DirectXTK/Src/DirectXHelpers.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DirectXHelpers.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DirectXHelpers.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DualPostProcess.cpp.o -c /workspace/extern/DirectXTK/Src/DualPostProcess.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DualPostProcess.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DualPostProcess.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/DualTextureEffect.cpp.o -c /workspace/extern/DirectXTK/Src/DualTextureEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/DualTextureEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/DualTextureEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/EffectCommon.cpp.o -c /workspace/extern/DirectXTK/Src/EffectCommon.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/EffectCommon.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/EffectCommon.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/EffectFactory.cpp.o -c /workspace/extern/DirectXTK/Src/EffectFactory.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/EffectFactory.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/EffectFactory.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/EnvironmentMapEffect.cpp.o -c /workspace/extern/DirectXTK/Src/EnvironmentMapEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/EnvironmentMapEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/EnvironmentMapEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/GeometricPrimitive.cpp.o -c /workspace/extern/DirectXTK/Src/GeometricPrimitive.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/GeometricPrimitive.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/GeometricPrimitive.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/GraphicsMemory.cpp.o -c /workspace/extern/DirectXTK/Src/GraphicsMemory.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/GraphicsMemory.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/GraphicsMemory.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/Model.cpp.o -c /workspace/extern/DirectXTK/Src/Model.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/Model.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/Model.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/ModelLoadCMO.cpp.o -c /workspace/extern/DirectXTK/Src/ModelLoadCMO.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/ModelLoadCMO.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/ModelLoadCMO.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/ModelLoadSDKMESH.cpp.o -c /workspace/extern/DirectXTK/Src/ModelLoadSDKMESH.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/ModelLoadSDKMESH.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/ModelLoadSDKMESH.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/ModelLoadVBO.cpp.o -c /workspace/extern/DirectXTK/Src/ModelLoadVBO.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/ModelLoadVBO.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/ModelLoadVBO.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/NormalMapEffect.cpp.o -c /workspace/extern/DirectXTK/Src/NormalMapEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/NormalMapEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/NormalMapEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/PBREffect.cpp.o -c /workspace/extern/DirectXTK/Src/PBREffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/PBREffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/PBREffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/PBREffectFactory.cpp.o -c /workspace/extern/DirectXTK/Src/PBREffectFactory.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/PBREffectFactory.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/PBREffectFactory.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/PrimitiveBatch.cpp.o -c /workspace/extern/DirectXTK/Src/PrimitiveBatch.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/PrimitiveBatch.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/PrimitiveBatch.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/ScreenGrab.cpp.o -c /workspace/extern/DirectXTK/Src/ScreenGrab.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/ScreenGrab.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/ScreenGrab.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/SkinnedEffect.cpp.o -c /workspace/extern/DirectXTK/Src/SkinnedEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/SkinnedEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/SkinnedEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/SpriteBatch.cpp.o -c /workspace/extern/DirectXTK/Src/SpriteBatch.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/SpriteBatch.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/SpriteBatch.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/SpriteFont.cpp.o -c /workspace/extern/DirectXTK/Src/SpriteFont.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/SpriteFont.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/SpriteFont.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/ToneMapPostProcess.cpp.o -c /workspace/extern/DirectXTK/Src/ToneMapPostProcess.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/ToneMapPostProcess.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/ToneMapPostProcess.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/VertexTypes.cpp.o -c /workspace/extern/DirectXTK/Src/VertexTypes.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/VertexTypes.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/VertexTypes.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/WICTextureLoader.cpp.o -c /workspace/extern/DirectXTK/Src/WICTextureLoader.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/WICTextureLoader.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/WICTextureLoader.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/BinaryReader.cpp.o -c /workspace/extern/DirectXTK/Src/BinaryReader.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/BinaryReader.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/BinaryReader.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/GamePad.cpp.o -c /workspace/extern/DirectXTK/Src/GamePad.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/GamePad.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/GamePad.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/Geometry.cpp.o -c /workspace/extern/DirectXTK/Src/Geometry.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/Geometry.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/Geometry.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/Keyboard.cpp.o -c /workspace/extern/DirectXTK/Src/Keyboard.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/Keyboard.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/Keyboard.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/Mouse.cpp.o -c /workspace/extern/DirectXTK/Src/Mouse.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/Mouse.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/Mouse.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Src/SimpleMath.cpp.o -c /workspace/extern/DirectXTK/Src/SimpleMath.cpp",
-  "file": "/workspace/extern/DirectXTK/Src/SimpleMath.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Src/SimpleMath.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/AudioEngine.cpp.o -c /workspace/extern/DirectXTK/Audio/AudioEngine.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/AudioEngine.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/AudioEngine.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/DynamicSoundEffectInstance.cpp.o -c /workspace/extern/DirectXTK/Audio/DynamicSoundEffectInstance.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/DynamicSoundEffectInstance.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/DynamicSoundEffectInstance.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/SoundCommon.cpp.o -c /workspace/extern/DirectXTK/Audio/SoundCommon.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/SoundCommon.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/SoundCommon.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/SoundEffect.cpp.o -c /workspace/extern/DirectXTK/Audio/SoundEffect.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/SoundEffect.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/SoundEffect.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/SoundEffectInstance.cpp.o -c /workspace/extern/DirectXTK/Audio/SoundEffectInstance.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/SoundEffectInstance.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/SoundEffectInstance.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/SoundStreamInstance.cpp.o -c /workspace/extern/DirectXTK/Audio/SoundStreamInstance.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/SoundStreamInstance.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/SoundStreamInstance.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/WaveBank.cpp.o -c /workspace/extern/DirectXTK/Audio/WaveBank.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/WaveBank.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/WaveBank.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/WaveBankReader.cpp.o -c /workspace/extern/DirectXTK/Audio/WaveBankReader.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/WaveBankReader.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/WaveBankReader.cpp.o"
-},
-{
-  "directory": "/workspace/build/src/extern/DirectXTK-build",
-  "command": "/usr/bin/c++ -DNDEBUG -I/workspace/build/src/extern/DirectXTK-build/Shaders/Compiled -I/workspace/extern/DirectXTK/Src -I/workspace/extern/DirectXTK/Inc -I/workspace/extern/DirectXTK/Audio -std=c++17 -msse2 -Wc++20-compat -Wc++23-compat -Wall -Wpedantic -Wextra -Wno-unsafe-buffer-usage -Winvalid-pch -Xclang -include-pch -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx.pch -Xclang -include -Xclang /workspace/build/src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/cmake_pch.hxx -o CMakeFiles/DirectXTK.dir/Audio/WAVFileReader.cpp.o -c /workspace/extern/DirectXTK/Audio/WAVFileReader.cpp",
-  "file": "/workspace/extern/DirectXTK/Audio/WAVFileReader.cpp",
-  "output": "src/extern/DirectXTK-build/CMakeFiles/DirectXTK.dir/Audio/WAVFileReader.cpp.o"
 }
 ]
