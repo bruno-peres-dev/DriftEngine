@@ -162,6 +162,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named DriftEngine
+
+# Build rule for target.
+DriftEngine: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 DriftEngine
+.PHONY : DriftEngine
+
+# fast build rule for target.
+DriftEngine/fast:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftEngine.dir/build.make src/CMakeFiles/DriftEngine.dir/build
+.PHONY : DriftEngine/fast
+
+#=============================================================================
 # Target rules for targets named DriftCore
 
 # Build rule for target.
@@ -212,6 +225,19 @@ DriftRenderer: cmake_check_build_system
 DriftRenderer/fast:
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/build
 .PHONY : DriftRenderer/fast
+
+#=============================================================================
+# Target rules for targets named DriftUI
+
+# Build rule for target.
+DriftUI: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 DriftUI
+.PHONY : DriftUI
+
+# fast build rule for target.
+DriftUI/fast:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/build
+.PHONY : DriftUI/fast
 
 #=============================================================================
 # Target rules for targets named DriftApp
@@ -672,9 +698,11 @@ help:
 	@echo "... DirectXTK"
 	@echo "... DriftApp"
 	@echo "... DriftCore"
+	@echo "... DriftEngine"
 	@echo "... DriftRHI"
 	@echo "... DriftRHI_DX11"
 	@echo "... DriftRenderer"
+	@echo "... DriftUI"
 	@echo "... boing"
 	@echo "... clipboard"
 	@echo "... cursor"

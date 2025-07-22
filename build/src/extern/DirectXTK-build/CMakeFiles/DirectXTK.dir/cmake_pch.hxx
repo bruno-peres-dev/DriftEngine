@@ -2,5 +2,5 @@
 
 #pragma clang system_header
 #ifdef __cplusplus
-#include "/workspace/src/extern/DirectXTK/Src/pch.h"
+#include "/workspace/extern/DirectXTK/Src/pch.h"
 #endif // __cplusplus

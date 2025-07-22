@@ -44,8 +44,7 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     _indices.push_back(base + 3);
     _indices.push_back(base + 0);
 
-    // Log de depuração (mostra total de vértices após inserção)
-    Drift::Core::Log("[UIBatcher] AddRect - total vertices: " + std::to_string(_vertices.size()));
+    // Log de depuração removido para melhor performance
 }
 
 // Stub: integração futura com sistema de fontes/texto
@@ -78,7 +77,7 @@ void UIBatcherDX11::End() {
     _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
     _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
 
-    Drift::Core::Log("[UIBatcher] DrawIndexed count=" + std::to_string(_indices.size()));
+    // Log removido para performance - DrawIndexed count=" + std::to_string(_indices.size())
 }
 
 void UIBatcherDX11::EnsurePipeline() {
@@ -110,7 +109,7 @@ void UIBatcherDX11::EnsurePipeline() {
 
     _pipeline = Drift::RHI::DX11::CreatePipelineDX11(device, desc);
 
-    Drift::Core::Log("[UIBatcher] Pipeline UI criado com sucesso");
+    // Log removido para performance: Pipeline UI criado com sucesso
 }
 
 // Fábrica de UIBatcherDX11

@@ -162,6 +162,20 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+src/CMakeFiles/DriftEngine.dir/rule:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/DriftEngine.dir/rule
+.PHONY : src/CMakeFiles/DriftEngine.dir/rule
+
+# Convenience name for target.
+DriftEngine: src/CMakeFiles/DriftEngine.dir/rule
+.PHONY : DriftEngine
+
+# fast build rule for target.
+DriftEngine/fast:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftEngine.dir/build.make src/CMakeFiles/DriftEngine.dir/build
+.PHONY : DriftEngine/fast
+
+# Convenience name for target.
 src/CMakeFiles/DriftCore.dir/rule:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/DriftCore.dir/rule
 .PHONY : src/CMakeFiles/DriftCore.dir/rule
@@ -216,6 +230,20 @@ DriftRenderer: src/CMakeFiles/DriftRenderer.dir/rule
 DriftRenderer/fast:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/build
 .PHONY : DriftRenderer/fast
+
+# Convenience name for target.
+src/CMakeFiles/DriftUI.dir/rule:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/DriftUI.dir/rule
+.PHONY : src/CMakeFiles/DriftUI.dir/rule
+
+# Convenience name for target.
+DriftUI: src/CMakeFiles/DriftUI.dir/rule
+.PHONY : DriftUI
+
+# fast build rule for target.
+DriftUI/fast:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/build
+.PHONY : DriftUI/fast
 
 # Convenience name for target.
 src/CMakeFiles/DriftApp.dir/rule:
@@ -279,6 +307,30 @@ core/src/Log.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftCore.dir/build.make src/CMakeFiles/DriftCore.dir/core/src/Log.cpp.s
 .PHONY : core/src/Log.cpp.s
 
+engine/src/Input/GLFWInputManager.o: engine/src/Input/GLFWInputManager.cpp.o
+.PHONY : engine/src/Input/GLFWInputManager.o
+
+# target to build an object file
+engine/src/Input/GLFWInputManager.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftEngine.dir/build.make src/CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.o
+.PHONY : engine/src/Input/GLFWInputManager.cpp.o
+
+engine/src/Input/GLFWInputManager.i: engine/src/Input/GLFWInputManager.cpp.i
+.PHONY : engine/src/Input/GLFWInputManager.i
+
+# target to preprocess a source file
+engine/src/Input/GLFWInputManager.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftEngine.dir/build.make src/CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.i
+.PHONY : engine/src/Input/GLFWInputManager.cpp.i
+
+engine/src/Input/GLFWInputManager.s: engine/src/Input/GLFWInputManager.cpp.s
+.PHONY : engine/src/Input/GLFWInputManager.s
+
+# target to generate assembly for a file
+engine/src/Input/GLFWInputManager.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftEngine.dir/build.make src/CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.s
+.PHONY : engine/src/Input/GLFWInputManager.cpp.s
+
 renderer/src/IRenderPass.o: renderer/src/IRenderPass.cpp.o
 .PHONY : renderer/src/IRenderPass.o
 
@@ -303,6 +355,30 @@ renderer/src/IRenderPass.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/IRenderPass.cpp.s
 .PHONY : renderer/src/IRenderPass.cpp.s
 
+renderer/src/RenderManager.o: renderer/src/RenderManager.cpp.o
+.PHONY : renderer/src/RenderManager.o
+
+# target to build an object file
+renderer/src/RenderManager.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.o
+.PHONY : renderer/src/RenderManager.cpp.o
+
+renderer/src/RenderManager.i: renderer/src/RenderManager.cpp.i
+.PHONY : renderer/src/RenderManager.i
+
+# target to preprocess a source file
+renderer/src/RenderManager.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.i
+.PHONY : renderer/src/RenderManager.cpp.i
+
+renderer/src/RenderManager.s: renderer/src/RenderManager.cpp.s
+.PHONY : renderer/src/RenderManager.s
+
+# target to generate assembly for a file
+renderer/src/RenderManager.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/RenderManager.cpp.s
+.PHONY : renderer/src/RenderManager.cpp.s
+
 renderer/src/TerrainPass.o: renderer/src/TerrainPass.cpp.o
 .PHONY : renderer/src/TerrainPass.o
 
@@ -326,30 +402,6 @@ renderer/src/TerrainPass.s: renderer/src/TerrainPass.cpp.s
 renderer/src/TerrainPass.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/TerrainPass.cpp.s
 .PHONY : renderer/src/TerrainPass.cpp.s
-
-renderer/src/TrianglePass.o: renderer/src/TrianglePass.cpp.o
-.PHONY : renderer/src/TrianglePass.o
-
-# target to build an object file
-renderer/src/TrianglePass.cpp.o:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.o
-.PHONY : renderer/src/TrianglePass.cpp.o
-
-renderer/src/TrianglePass.i: renderer/src/TrianglePass.cpp.i
-.PHONY : renderer/src/TrianglePass.i
-
-# target to preprocess a source file
-renderer/src/TrianglePass.cpp.i:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.i
-.PHONY : renderer/src/TrianglePass.cpp.i
-
-renderer/src/TrianglePass.s: renderer/src/TrianglePass.cpp.s
-.PHONY : renderer/src/TrianglePass.s
-
-# target to generate assembly for a file
-renderer/src/TrianglePass.cpp.s:
-	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRenderer.dir/build.make src/CMakeFiles/DriftRenderer.dir/renderer/src/TrianglePass.cpp.s
-.PHONY : renderer/src/TrianglePass.cpp.s
 
 rhi/src/DeviceStub.o: rhi/src/DeviceStub.cpp.o
 .PHONY : rhi/src/DeviceStub.o
@@ -615,6 +667,102 @@ rhi_dx11/src/UIBatcherDX11.cpp.s:
 	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftRHI_DX11.dir/build.make src/CMakeFiles/DriftRHI_DX11.dir/rhi_dx11/src/UIBatcherDX11.cpp.s
 .PHONY : rhi_dx11/src/UIBatcherDX11.cpp.s
 
+ui/src/EventBus.o: ui/src/EventBus.cpp.o
+.PHONY : ui/src/EventBus.o
+
+# target to build an object file
+ui/src/EventBus.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.o
+.PHONY : ui/src/EventBus.cpp.o
+
+ui/src/EventBus.i: ui/src/EventBus.cpp.i
+.PHONY : ui/src/EventBus.i
+
+# target to preprocess a source file
+ui/src/EventBus.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.i
+.PHONY : ui/src/EventBus.cpp.i
+
+ui/src/EventBus.s: ui/src/EventBus.cpp.s
+.PHONY : ui/src/EventBus.s
+
+# target to generate assembly for a file
+ui/src/EventBus.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.s
+.PHONY : ui/src/EventBus.cpp.s
+
+ui/src/LayoutEngine.o: ui/src/LayoutEngine.cpp.o
+.PHONY : ui/src/LayoutEngine.o
+
+# target to build an object file
+ui/src/LayoutEngine.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.o
+.PHONY : ui/src/LayoutEngine.cpp.o
+
+ui/src/LayoutEngine.i: ui/src/LayoutEngine.cpp.i
+.PHONY : ui/src/LayoutEngine.i
+
+# target to preprocess a source file
+ui/src/LayoutEngine.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.i
+.PHONY : ui/src/LayoutEngine.cpp.i
+
+ui/src/LayoutEngine.s: ui/src/LayoutEngine.cpp.s
+.PHONY : ui/src/LayoutEngine.s
+
+# target to generate assembly for a file
+ui/src/LayoutEngine.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.s
+.PHONY : ui/src/LayoutEngine.cpp.s
+
+ui/src/UIContext.o: ui/src/UIContext.cpp.o
+.PHONY : ui/src/UIContext.o
+
+# target to build an object file
+ui/src/UIContext.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.o
+.PHONY : ui/src/UIContext.cpp.o
+
+ui/src/UIContext.i: ui/src/UIContext.cpp.i
+.PHONY : ui/src/UIContext.i
+
+# target to preprocess a source file
+ui/src/UIContext.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.i
+.PHONY : ui/src/UIContext.cpp.i
+
+ui/src/UIContext.s: ui/src/UIContext.cpp.s
+.PHONY : ui/src/UIContext.s
+
+# target to generate assembly for a file
+ui/src/UIContext.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.s
+.PHONY : ui/src/UIContext.cpp.s
+
+ui/src/UIElement.o: ui/src/UIElement.cpp.o
+.PHONY : ui/src/UIElement.o
+
+# target to build an object file
+ui/src/UIElement.cpp.o:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.o
+.PHONY : ui/src/UIElement.cpp.o
+
+ui/src/UIElement.i: ui/src/UIElement.cpp.i
+.PHONY : ui/src/UIElement.i
+
+# target to preprocess a source file
+ui/src/UIElement.cpp.i:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.i
+.PHONY : ui/src/UIElement.cpp.i
+
+ui/src/UIElement.s: ui/src/UIElement.cpp.s
+.PHONY : ui/src/UIElement.s
+
+# target to generate assembly for a file
+ui/src/UIElement.cpp.s:
+	cd /workspace/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/DriftUI.dir/build.make src/CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.s
+.PHONY : ui/src/UIElement.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -629,24 +777,29 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... DriftApp"
 	@echo "... DriftCore"
+	@echo "... DriftEngine"
 	@echo "... DriftRHI"
 	@echo "... DriftRHI_DX11"
 	@echo "... DriftRenderer"
+	@echo "... DriftUI"
 	@echo "... app/main.o"
 	@echo "... app/main.i"
 	@echo "... app/main.s"
 	@echo "... core/src/Log.o"
 	@echo "... core/src/Log.i"
 	@echo "... core/src/Log.s"
+	@echo "... engine/src/Input/GLFWInputManager.o"
+	@echo "... engine/src/Input/GLFWInputManager.i"
+	@echo "... engine/src/Input/GLFWInputManager.s"
 	@echo "... renderer/src/IRenderPass.o"
 	@echo "... renderer/src/IRenderPass.i"
 	@echo "... renderer/src/IRenderPass.s"
+	@echo "... renderer/src/RenderManager.o"
+	@echo "... renderer/src/RenderManager.i"
+	@echo "... renderer/src/RenderManager.s"
 	@echo "... renderer/src/TerrainPass.o"
 	@echo "... renderer/src/TerrainPass.i"
 	@echo "... renderer/src/TerrainPass.s"
-	@echo "... renderer/src/TrianglePass.o"
-	@echo "... renderer/src/TrianglePass.i"
-	@echo "... renderer/src/TrianglePass.s"
 	@echo "... rhi/src/DeviceStub.o"
 	@echo "... rhi/src/DeviceStub.i"
 	@echo "... rhi/src/DeviceStub.s"
@@ -680,6 +833,18 @@ help:
 	@echo "... rhi_dx11/src/UIBatcherDX11.o"
 	@echo "... rhi_dx11/src/UIBatcherDX11.i"
 	@echo "... rhi_dx11/src/UIBatcherDX11.s"
+	@echo "... ui/src/EventBus.o"
+	@echo "... ui/src/EventBus.i"
+	@echo "... ui/src/EventBus.s"
+	@echo "... ui/src/LayoutEngine.o"
+	@echo "... ui/src/LayoutEngine.i"
+	@echo "... ui/src/LayoutEngine.s"
+	@echo "... ui/src/UIContext.o"
+	@echo "... ui/src/UIContext.i"
+	@echo "... ui/src/UIContext.s"
+	@echo "... ui/src/UIElement.o"
+	@echo "... ui/src/UIElement.i"
+	@echo "... ui/src/UIElement.s"
 .PHONY : help
 
 
