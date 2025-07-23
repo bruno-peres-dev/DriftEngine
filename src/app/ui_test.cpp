@@ -92,62 +92,6 @@ int main() {
             Core::Log("[UI Test] Botão vermelho clicado!");
         });
         root->AddChild(redButton);
-        Core::Log("[UI Test] Botão vermelho criado na posição (50, 50)");
-        
-        // Debug: Verificar se o botão foi adicionado corretamente
-        Core::Log("[UI Test] Verificando botão após AddChild:");
-        Core::Log("[UI Test] - Posição local: (" + std::to_string(redButton->GetPosition().x) + ", " + std::to_string(redButton->GetPosition().y) + ")");
-        Core::Log("[UI Test] - Posição absoluta: (" + std::to_string(redButton->GetAbsolutePosition().x) + ", " + std::to_string(redButton->GetAbsolutePosition().y) + ")");
-        Core::Log("[UI Test] - Tamanho: (" + std::to_string(redButton->GetSize().x) + ", " + std::to_string(redButton->GetSize().y) + ")");
-        Core::Log("[UI Test] - Cor: 0x" + std::to_string(redButton->GetCurrentColor()));
-        
-        // Debug: Verificar o elemento raiz
-        Core::Log("[UI Test] Verificando elemento raiz:");
-        Core::Log("[UI Test] - Posição: (" + std::to_string(root->GetPosition().x) + ", " + std::to_string(root->GetPosition().y) + ")");
-        Core::Log("[UI Test] - Tamanho: (" + std::to_string(root->GetSize().x) + ", " + std::to_string(root->GetSize().y) + ")");
-        Core::Log("[UI Test] - Cor: 0x" + std::to_string(root->GetColor()));
-        Core::Log("[UI Test] - Número de filhos: " + std::to_string(root->GetChildren().size()));
-        
-        // Debug: Verificar posição absoluta
-        auto absPos = redButton->GetAbsolutePosition();
-        Core::Log("[UI Test] Posição absoluta do botão vermelho: (" + 
-                 std::to_string(absPos.x) + ", " + std::to_string(absPos.y) + ")");
-        
-        // Debug: Verificar posição local
-        auto localPos = redButton->GetPosition();
-        Core::Log("[UI Test] Posição local do botão vermelho: (" + 
-                 std::to_string(localPos.x) + ", " + std::to_string(localPos.y) + ")");
-        
-        // Debug: Verificar se o botão tem pai
-        auto parent = redButton->GetParent();
-        Core::Log("[UI Test] Botão vermelho tem pai: " + std::string(parent ? "SIM" : "NÃO"));
-        if (parent) {
-            auto parentPos = parent->GetPosition();
-            Core::Log("[UI Test] Posição do pai: (" + 
-                     std::to_string(parentPos.x) + ", " + std::to_string(parentPos.y) + ")");
-        }
-        
-        // Debug: Testar GetAbsolutePosition diretamente
-        Core::Log("[UI Test] Testando GetAbsolutePosition diretamente:");
-        Core::Log("[UI Test] - Posição local: (" + std::to_string(redButton->GetPosition().x) + ", " + std::to_string(redButton->GetPosition().y) + ")");
-        Core::Log("[UI Test] - Posição absoluta: (" + std::to_string(redButton->GetAbsolutePosition().x) + ", " + std::to_string(redButton->GetAbsolutePosition().y) + ")");
-        
-        // Debug: Verificar hierarquia completa
-        Drift::UI::UIElement* current = redButton->GetParent();
-        int level = 1;
-        while (current) {
-            Core::Log("[UI Test] - Nível " + std::to_string(level) + " pai: (" + 
-                     std::to_string(current->GetPosition().x) + ", " + std::to_string(current->GetPosition().y) + ")");
-            current = current->GetParent();
-            level++;
-        }
-        
-        // Debug: Verificar se o botão está sendo renderizado corretamente
-        Core::Log("[UI Test] Verificando se o botão vermelho está sendo renderizado:");
-        Core::Log("[UI Test] - Posição local: (" + std::to_string(redButton->GetPosition().x) + ", " + std::to_string(redButton->GetPosition().y) + ")");
-        Core::Log("[UI Test] - Posição absoluta: (" + std::to_string(redButton->GetAbsolutePosition().x) + ", " + std::to_string(redButton->GetAbsolutePosition().y) + ")");
-        Core::Log("[UI Test] - Tamanho: (" + std::to_string(redButton->GetSize().x) + ", " + std::to_string(redButton->GetSize().y) + ")");
-        Core::Log("[UI Test] - Cor: 0x" + std::to_string(redButton->GetCurrentColor()));
         
         // Botão verde
         auto greenButton = std::make_shared<UI::Button>(uiContext.get());
@@ -161,12 +105,6 @@ int main() {
             Core::Log("[UI Test] Botão verde clicado!");
         });
         root->AddChild(greenButton);
-        Core::Log("[UI Test] Botão verde criado na posição (50, 120)");
-        
-        // Debug: Verificar posição absoluta
-        auto absPosGreen = greenButton->GetAbsolutePosition();
-        Core::Log("[UI Test] Posição absoluta do botão verde: (" + 
-                 std::to_string(absPosGreen.x) + ", " + std::to_string(absPosGreen.y) + ")");
         
         // Botão azul
         auto blueButton = std::make_shared<UI::Button>(uiContext.get());
@@ -180,12 +118,6 @@ int main() {
             Core::Log("[UI Test] Botão azul clicado!");
         });
         root->AddChild(blueButton);
-        Core::Log("[UI Test] Botão azul criado na posição (50, 190)");
-        
-        // Debug: Verificar posição absoluta
-        auto absPosBlue = blueButton->GetAbsolutePosition();
-        Core::Log("[UI Test] Posição absoluta do botão azul: (" + 
-                 std::to_string(absPosBlue.x) + ", " + std::to_string(absPosBlue.y) + ")");
         
         // Botão Quit
         auto quitButton = std::make_shared<UI::Button>(uiContext.get());
@@ -200,25 +132,8 @@ int main() {
             glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
         });
         root->AddChild(quitButton);
-        Core::Log("[UI Test] Botão Sair criado na posição (50, 260)");
-        
-        // Debug: Verificar posição absoluta
-        auto absPosQuit = quitButton->GetAbsolutePosition();
-        Core::Log("[UI Test] Posição absoluta do botão Sair: (" + 
-                 std::to_string(absPosQuit.x) + ", " + std::to_string(absPosQuit.y) + ")");
         
         Core::Log("[UI Test] Botões criados. Teste movendo o mouse e clicando!");
-        
-        // Debug: Verificar cores dos botões
-        Core::Log("[UI Test] Cores dos botões:");
-        Core::Log("[UI Test] - Vermelho: 0x" + std::to_string(redButton->GetCurrentColor()) + 
-                 " (esperado: 0xFFFF0000)");
-        Core::Log("[UI Test] - Verde: 0x" + std::to_string(greenButton->GetCurrentColor()) + 
-                 " (esperado: 0xFF00FF00)");
-        Core::Log("[UI Test] - Azul: 0x" + std::to_string(blueButton->GetCurrentColor()) + 
-                 " (esperado: 0xFF0000FF)");
-        Core::Log("[UI Test] - Sair: 0x" + std::to_string(quitButton->GetCurrentColor()) + 
-                 " (esperado: 0xFF666666)");
         
         // ================================
         // 7. LOOP PRINCIPAL
@@ -247,13 +162,6 @@ int main() {
             uiBatcher->Begin();
             uiContext->Render(*uiBatcher);
             uiBatcher->End();
-            
-            // Debug: Log a cada 60 frames (1 segundo a 60fps)
-            static int frameCount = 0;
-            frameCount++;
-            if (frameCount % 60 == 0) {
-                Core::Log("[UI Test] Frame " + std::to_string(frameCount) + " - Renderizando UI...");
-            }
             
             // Present
             context->Present();

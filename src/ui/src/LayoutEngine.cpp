@@ -20,6 +20,16 @@ void LayoutEngine::CalculateLayout(UIElement& element, const LayoutRect& availab
     // Configuração padrão de layout
     LayoutConfig config;
     
+    // Se o tipo de layout é None, preserva a posição e tamanho atuais do elemento
+    if (config.type == LayoutType::None) {
+        // Apenas processa os filhos recursivamente, mas não altera este elemento
+        auto& children = element.GetChildren();
+        for (auto& child : children) {
+            CalculateLayout(*child, availableSpace);
+        }
+        return;
+    }
+    
     // Aplica margens ao espaço disponível
     LayoutRect contentSpace = availableSpace;
     contentSpace.x += config.margin.left;

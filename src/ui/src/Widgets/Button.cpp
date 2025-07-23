@@ -13,13 +13,6 @@ Button::Button(UIContext* context)
 {
     // Tamanho padrão do botão
     SetSize(glm::vec2(120.0f, 40.0f));
-    
-    // Debug: Log cores padrão
-    Core::Log("[Button] Construtor - Cores padrão:");
-    Core::Log("[Button] - Normal: 0x" + std::to_string(m_NormalColor));
-    Core::Log("[Button] - Hover: 0x" + std::to_string(m_HoverColor));
-    Core::Log("[Button] - Pressed: 0x" + std::to_string(m_PressedColor));
-    Core::Log("[Button] - Disabled: 0x" + std::to_string(m_DisabledColor));
 }
 
 void Button::Update(float deltaSeconds)
@@ -135,14 +128,6 @@ unsigned Button::GetCurrentColor() const
         default:
             color = m_NormalColor;
             break;
-    }
-    
-    // Debug: Log a cor sendo retornada
-    static int colorLogCount = 0;
-    colorLogCount++;
-    if (colorLogCount % 60 == 0) { // Log a cada segundo
-        Core::Log("[Button] GetCurrentColor - Estado: " + std::to_string((int)m_CurrentState) + 
-                 " -> Cor: 0x" + std::to_string(color));
     }
     
     return color;

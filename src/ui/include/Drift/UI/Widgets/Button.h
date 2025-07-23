@@ -49,22 +49,18 @@ public:
     // Estados visuais
     void SetNormalColor(unsigned color) { 
         m_NormalColor = color & 0xFFFFFFFF; // Garantir 32 bits
-        Core::Log("[Button] SetNormalColor: 0x" + std::to_string(color) + " -> 0x" + std::to_string(m_NormalColor));
         UpdateState(); 
     }
     void SetHoverColor(unsigned color) { 
         m_HoverColor = color & 0xFFFFFFFF; // Garantir 32 bits
-        Core::Log("[Button] SetHoverColor: 0x" + std::to_string(color) + " -> 0x" + std::to_string(m_HoverColor));
         UpdateState(); 
     }
     void SetPressedColor(unsigned color) { 
         m_PressedColor = color & 0xFFFFFFFF; // Garantir 32 bits
-        Core::Log("[Button] SetPressedColor: 0x" + std::to_string(color) + " -> 0x" + std::to_string(m_PressedColor));
         UpdateState(); 
     }
     void SetDisabledColor(unsigned color) { 
         m_DisabledColor = color & 0xFFFFFFFF; // Garantir 32 bits
-        Core::Log("[Button] SetDisabledColor: 0x" + std::to_string(color) + " -> 0x" + std::to_string(m_DisabledColor));
         UpdateState(); 
     }
 
