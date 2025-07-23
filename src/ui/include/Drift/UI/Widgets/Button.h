@@ -48,19 +48,19 @@ public:
 
     // Estados visuais
     void SetNormalColor(unsigned color) { 
-        m_NormalColor = color & 0xFFFFFFFF; // Garantir 32 bits
+        m_NormalColor = color;
         UpdateState(); 
     }
     void SetHoverColor(unsigned color) { 
-        m_HoverColor = color & 0xFFFFFFFF; // Garantir 32 bits
+        m_HoverColor = color;
         UpdateState(); 
     }
     void SetPressedColor(unsigned color) { 
-        m_PressedColor = color & 0xFFFFFFFF; // Garantir 32 bits
+        m_PressedColor = color;
         UpdateState(); 
     }
     void SetDisabledColor(unsigned color) { 
-        m_DisabledColor = color & 0xFFFFFFFF; // Garantir 32 bits
+        m_DisabledColor = color;
         UpdateState(); 
     }
 
@@ -97,6 +97,15 @@ private:
     unsigned m_HoverColor{0xFF357ABD};    // Azul escuro
     unsigned m_PressedColor{0xFF2E6DA4};  // Azul mais escuro
     unsigned m_DisabledColor{0xFFCCCCCC}; // Cinza
+
+    // Constantes de cor comuns (ARGB format)
+    static constexpr unsigned COLOR_RED = 0xFFFF0000;
+    static constexpr unsigned COLOR_GREEN = 0xFF00FF00;
+    static constexpr unsigned COLOR_BLUE = 0xFF0000FF;
+    static constexpr unsigned COLOR_WHITE = 0xFFFFFFFF;
+    static constexpr unsigned COLOR_BLACK = 0xFF000000;
+    static constexpr unsigned COLOR_GRAY = 0xFF808080;
+    static constexpr unsigned COLOR_TRANSPARENT = 0x00000000;
 };
 
 } // namespace Drift::UI 

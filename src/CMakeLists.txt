@@ -134,9 +134,14 @@ add_library(DriftUI STATIC
   ui/src/UIContext.cpp
   ui/src/UIElement.cpp
   ui/src/LayoutEngine.cpp
+  ui/src/LayoutEngine/FlexLayout.cpp
+  ui/src/LayoutEngine/DirtyFlagSystem.cpp
   ui/src/UIInputHandler.cpp
   ui/src/DataDriven/UIComponentRegistry.cpp
   ui/src/Widgets/Button.cpp
+  ui/src/Widgets/Label.cpp
+  ui/src/Widgets/Panel.cpp
+  ui/src/Widgets/Image.cpp
 )
 
 # Corrigir problema de PDB no Visual Studio
@@ -166,6 +171,29 @@ target_link_libraries(DriftUI PUBLIC
 # ------------------------------------------------
 add_executable(DriftUITest
   app/ui_test.cpp
+)
+
+add_executable(FlexboxTest
+  app/flexbox_test.cpp
+)
+
+target_include_directories(FlexboxTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+)
+
+target_link_libraries(FlexboxTest PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
 )
 
 add_custom_command(TARGET DriftUITest PRE_BUILD

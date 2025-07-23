@@ -1,0 +1,59 @@
+#pragma once
+
+#include "Drift/UI/UIElement.h"
+#include <string>
+#include <glm/vec2.hpp>
+
+namespace Drift::UI {
+
+class Label : public UIElement {
+public:
+    explicit Label(UIContext* context);
+    ~Label() override = default;
+
+    // Propriedades do texto
+    void SetText(const std::string& text) { m_Text = text; MarkDirty(); }
+    const std::string& GetText() const { return m_Text; }
+
+    // Propriedades de fonte
+    void SetFontSize(float size) { m_FontSize = size; MarkDirty(); }
+    float GetFontSize() const { return m_FontSize; }
+
+    void SetFontFamily(const std::string& family) { m_FontFamily = family; MarkDirty(); }
+    const std::string& GetFontFamily() const { return m_FontFamily; }
+
+    // Alinhamento de texto
+    enum class TextAlign {
+        Left,
+        Center,
+        Right
+    };
+    
+    void SetTextAlign(TextAlign align) { m_TextAlign = align; MarkDirty(); }
+    TextAlign GetTextAlign() const { return m_TextAlign; }
+
+    // Cor do texto
+    void SetTextColor(unsigned color) { m_TextColor = color; }
+    unsigned GetTextColor() const { return m_TextColor; }
+
+    // Overrides
+    void Update(float deltaSeconds) override;
+    void Render(Drift::RHI::IUIBatcher& batch) override;
+
+    // Cálculo de tamanho baseado no texto
+    glm::vec2 CalculateTextSize() const;
+
+private:
+    std::string m_Text;
+    float m_FontSize{16.0f};
+    std::string m_FontFamily{"Arial"};
+    TextAlign m_TextAlign{TextAlign::Left};
+    unsigned m_TextColor{0xFFFFFFFF}; // Branco por padrão
+
+    // Constantes de cor para texto
+    static constexpr unsigned COLOR_WHITE = 0xFFFFFFFF;
+    static constexpr unsigned COLOR_BLACK = 0xFF000000;
+    static constexpr unsigned COLOR_GRAY = 0xFF808080;
+};
+
+} // namespace Drift::UI 

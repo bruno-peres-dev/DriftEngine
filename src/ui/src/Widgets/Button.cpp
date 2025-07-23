@@ -1,6 +1,9 @@
 #include "Drift/UI/Widgets/Button.h"
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
+#include "Drift/UI/Widgets/Label.h"
+#include "Drift/UI/Widgets/Panel.h"
+#include "Drift/UI/Widgets/Image.h"
 #include "Drift/Core/Log.h"
 
 using namespace Drift::UI;
@@ -137,3 +140,8 @@ unsigned Button::GetRenderColor() const
 {
     return GetCurrentColor();
 } 
+
+// Registra os widgets no registry (apenas uma vez)
+REGISTER_UI_WIDGET("label", Label);
+REGISTER_UI_WIDGET("panel", Panel);
+REGISTER_UI_WIDGET("image", Image);

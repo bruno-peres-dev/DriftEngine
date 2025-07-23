@@ -8,6 +8,17 @@
 using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
 
+// Conversão ARGB para BGRA otimizada (inline para performance)
+inline unsigned ConvertARGBtoBGRA(unsigned argb) {
+    return ((argb & 0xFF) << 16) |        // B -> posição 16
+           ((argb >> 8) & 0xFF) |         // G -> posição 8  
+           ((argb >> 16) & 0xFF) |        // R -> posição 0
+           ((argb >> 24) & 0xFF);         // A -> posição 24
+}
+
+// TODO: Para otimização futura, considerar lookup table para cores comuns
+// static const unsigned COLOR_LOOKUP_TABLE[256] = { ... };
+
 // Construtor: armazena ring buffer e contexto
 UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* ctx)
     : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {}
@@ -29,17 +40,8 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
         return 1.0f - (py / _screenH) * 2.0f;
     };
 
-    // Verificar se a cor é válida (32 bits)
-    if (color > 0xFFFFFFFF) {
-        color = color & 0xFFFFFFFF; // Trunca para 32 bits
-    }
-    
-    // Converte ARGB para BGRA (DirectX espera BGRA para R8G8B8A8_UNORM)
-    unsigned a = (color >> 24) & 0xFF;
-    unsigned r = (color >> 16) & 0xFF;
-    unsigned g = (color >> 8) & 0xFF;
-    unsigned b = color & 0xFF;
-    unsigned bgra = (b) | (g << 8) | (r << 16) | (a << 24);
+    // Conversão ARGB para BGRA otimizada
+    unsigned bgra = ConvertARGBtoBGRA(color);
 
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({toClipX(x),       toClipY(y),       bgra});

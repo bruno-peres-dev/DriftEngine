@@ -49,21 +49,40 @@ public:
 
 protected:
     void MarkDirty() { m_Dirty = true; }
+    
+    // Membros protegidos para acesso pelos widgets
+    UIContext* m_Context{nullptr};
+    UIElement* m_Parent{nullptr};
+    std::vector<std::shared_ptr<UIElement>> m_Children;
+    glm::vec2 m_Position{0.0f};
+    glm::vec2 m_Size{0.0f};
+    bool m_Dirty{true};
+    unsigned m_Color{0xFF00FFFF}; // ciano por padrão
+
+public:
+    // Sistema de layout avançado
+    void SetLayoutDirty() { m_LayoutDirty = true; }
+    bool IsLayoutDirty() const { return m_LayoutDirty; }
+    void ClearLayoutDirty() { m_LayoutDirty = false; }
+    
+    // Propriedades de layout
+    enum class LayoutType {
+        None,       // Layout manual
+        Flex,       // Flexbox
+        Grid,       // CSS Grid (futuro)
+        Stack       // Stack layout (futuro)
+    };
+    
+    void SetLayoutType(LayoutType type) { m_LayoutType = type; SetLayoutDirty(); }
+    LayoutType GetLayoutType() const { return m_LayoutType; }
 
 private:
     // Layout interno simples (placeholder)
     void RecalculateLayout();
-
-    UIContext* m_Context{nullptr};
-    UIElement* m_Parent{nullptr};
-    std::vector<std::shared_ptr<UIElement>> m_Children;
-
-    glm::vec2 m_Position{0.0f};
-    glm::vec2 m_Size{0.0f};
-
-    bool m_Dirty{true};
-
-    unsigned m_Color{0xFF00FFFF}; // ciano por padrão
+    
+protected:
+    bool m_LayoutDirty{true};
+    LayoutType m_LayoutType{LayoutType::None};
 };
 
 } // namespace Drift::UI 

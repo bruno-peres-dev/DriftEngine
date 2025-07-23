@@ -6,7 +6,6 @@
 // Core UI
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/UIElement.h"
-#include "Drift/UI/EventBus.h"
 #include "Drift/UI/LayoutEngine.h"
 #include "Drift/UI/LayoutTypes.h"
 
@@ -15,13 +14,12 @@
 
 // Widgets
 #include "Drift/UI/Widgets/Button.h"
+#include "Drift/UI/Widgets/Label.h"
+#include "Drift/UI/Widgets/Panel.h"
+#include "Drift/UI/Widgets/Image.h"
 
 // Data-Driven
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
-#include "Drift/UI/DataDriven/UIXMLParser.h"
-
-// Styling
-#include "Drift/UI/Styling/StyleSheet.h"
 
 namespace Drift::UI {
     // Namespace principal para todos os componentes de UI

@@ -1,6 +1,8 @@
 #include "Drift/UI/LayoutEngine.h"
 #include "Drift/UI/UIElement.h"
 #include "Drift/UI/LayoutTypes.h"
+#include "Drift/UI/LayoutEngine/FlexLayout.h"
+#include "Drift/UI/LayoutEngine/DirtyFlagSystem.h"
 #include "Drift/Core/Log.h"
 #include <algorithm>
 #include <vector>
@@ -10,9 +12,16 @@ using namespace Drift::UI;
 
 void LayoutEngine::Layout(UIElement& root)
 {
-    // Calcula o layout recursivamente começando pela raiz
-    LayoutRect availableSpace = {0.0f, 0.0f, 800.0f, 600.0f}; // TODO: obter do viewport
-    CalculateLayout(root, availableSpace);
+    // Usa o sistema de dirty flags para otimização
+    if (DirtyFlagSystem::IsDirty(&root) || root.IsLayoutDirty()) {
+        // Recalcula apenas elementos "sujos"
+        DirtyFlagSystem::RecalculateOnlyDirty(&root);
+        root.ClearLayoutDirty();
+    } else {
+        // Layout tradicional para compatibilidade
+        LayoutRect availableSpace = {0.0f, 0.0f, 800.0f, 600.0f}; // TODO: obter do viewport
+        CalculateLayout(root, availableSpace);
+    }
 }
 
 void LayoutEngine::CalculateLayout(UIElement& element, const LayoutRect& availableSpace)
