@@ -136,6 +136,7 @@ add_library(DriftUI STATIC
   ui/src/LayoutEngine.cpp
   ui/src/LayoutEngine/FlexLayout.cpp
   ui/src/LayoutEngine/DirtyFlagSystem.cpp
+  ui/src/Transform2D.cpp
   ui/src/UIInputHandler.cpp
   ui/src/DataDriven/UIComponentRegistry.cpp
   ui/src/Widgets/Button.cpp

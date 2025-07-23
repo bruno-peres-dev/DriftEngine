@@ -4,6 +4,7 @@
 #include "Drift/UI/UIElement.h"
 #include "Drift/UI/UIInputHandler.h"
 #include "Drift/Engine/Input/InputManager.h"
+#include <glm/mat4x4.hpp>
 
 using namespace Drift::UI;
 
@@ -36,18 +37,22 @@ void UIContext::Update(float deltaSeconds)
         m_InputHandler->Update(deltaSeconds);
     }
     
-    // Processa layout (placeholder)
+    // Processa layout usando engine
     if (m_LayoutEngine && m_Root)
         m_LayoutEngine->Layout(*m_Root);
 
-    // Futuramente: animações e render queue
+    if (m_Root)
+        m_Root->PreRender(glm::mat4(1.0f));
+
     (void)deltaSeconds;
 }
 
 void UIContext::Render(Drift::RHI::IUIBatcher& batch)
 {
-    if (m_Root)
+    if (m_Root) {
         m_Root->Render(batch);
+        m_Root->PostRender();
+    }
 }
 
 void UIContext::Shutdown()
