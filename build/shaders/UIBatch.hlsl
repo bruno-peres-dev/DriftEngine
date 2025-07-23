@@ -11,9 +11,9 @@ struct PSIn {
 
 PSIn VSMain(VSIn v) {
     PSIn o;
-    o.pos = float4(v.pos, 0.0, 1.0); // Z = 0 para UI overlay
+    o.pos = float4(v.pos, 0.1, 1.0);
     o.col = v.col;
     return o;
 }
 
-float4 PSMain(PSIn i) : SV_TARGET { return i.col; } 
+float4 PSMain(PSIn i) : SV_TARGET { return float4(1,1,0,1); } 

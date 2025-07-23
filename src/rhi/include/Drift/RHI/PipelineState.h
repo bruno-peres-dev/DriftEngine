@@ -1,24 +1,15 @@
 // src/rhi/include/Drift/RHI/PipelineState.h
 #pragma once
+
+#include "Drift/RHI/Format.h"
+#include "Drift/RHI/DepthStencilState.h"
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace Drift::RHI {
 
-// Descrição de um elemento de input layout (vertex)
-struct InputElementDesc {
-    std::string semanticName; // Nome semântico (ex: POSITION)
-    unsigned semanticIndex;   // Índice do semântico
-    unsigned offset;          // Offset em bytes
-    std::string format;       // Formato (ex: "R32G32B32_FLOAT")
-    bool operator==(const InputElementDesc& o) const {
-        return semanticName == o.semanticName &&
-               semanticIndex == o.semanticIndex &&
-               offset == o.offset &&
-               format == o.format;
-    }
-};
+// Usa InputElementDesc do Format.h (já definido lá)
 
 // Descrição completa de um pipeline gráfico
 struct PipelineDesc {
@@ -60,13 +51,8 @@ struct PipelineDesc {
             return cullMode == o.cullMode && wireframe == o.wireframe;
         }
     } rasterizer;
-    struct DepthStencilDesc {
-        bool depthEnable = true; // Ativa teste de profundidade
-        bool depthWrite = true;  // Ativa escrita no depth
-        bool operator==(const DepthStencilDesc& o) const {
-            return depthEnable == o.depthEnable && depthWrite == o.depthWrite;
-        }
-    } depthStencil;
+    // Usa o DepthStencilDesc unificado do DepthStencilState.h
+    DepthStencilDesc depthStencil;
     bool operator==(const PipelineDesc& o) const {
         return vsFile == o.vsFile &&
                psFile == o.psFile &&

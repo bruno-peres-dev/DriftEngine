@@ -1,4 +1,5 @@
 #include "Drift/RHI/DX11/ContextDX11.h"
+#include "Drift/RHI/DX11/DepthStencilStateDX11.h"
 #include <stdexcept>
 #include <wrl/client.h>
 #include <cstring> // memcpy
@@ -189,51 +190,24 @@ void ContextDX11::PSSetSampler(UINT slot, ISampler* samp) {
     _context->PSSetSamplers(slot, 1, &s);
 }
 
-// Habilita/desabilita depth test
-namespace std {
-    template<>
-    struct equal_to<D3D11_DEPTH_STENCIL_DESC> {
-        bool operator()(const D3D11_DEPTH_STENCIL_DESC& a, const D3D11_DEPTH_STENCIL_DESC& b) const noexcept {
-            return std::memcmp(&a, &b, sizeof(D3D11_DEPTH_STENCIL_DESC)) == 0;
-        }
-    };
-}
-
-namespace std {
-    template<>
-    struct hash<D3D11_DEPTH_STENCIL_DESC> {
-        size_t operator()(const D3D11_DEPTH_STENCIL_DESC& desc) const noexcept {
-            const std::uint64_t* p = reinterpret_cast<const std::uint64_t*>(&desc);
-            size_t h = 0;
-            for (size_t i = 0; i < sizeof(D3D11_DEPTH_STENCIL_DESC) / sizeof(std::uint64_t); ++i)
-                h ^= std::hash<std::uint64_t>{}(p[i]) + 0x9e3779b9 + (h << 6) + (h >> 2);
-            return h;
-        }
-    };
-}
-
-static std::unordered_map<D3D11_DEPTH_STENCIL_DESC, Microsoft::WRL::ComPtr<ID3D11DepthStencilState>> g_depthStencilCache;
-static std::mutex g_depthStencilCacheMutex;
+// Cache global removido - agora usa a interface unificada IDepthStencilState
 
 void ContextDX11::SetDepthTestEnabled(bool enabled) {
-    D3D11_DEPTH_STENCIL_DESC dsDesc = {};
-    dsDesc.DepthEnable = enabled ? TRUE : FALSE;
-    dsDesc.DepthWriteMask = enabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-    dsDesc.StencilEnable = FALSE;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> dsState;
-    {
-        std::lock_guard<std::mutex> lock(g_depthStencilCacheMutex);
-        auto it = g_depthStencilCache.find(dsDesc);
-        if (it != g_depthStencilCache.end()) {
-            dsState = it->second;
-        } else {
-            _device->CreateDepthStencilState(&dsDesc, dsState.GetAddressOf());
-            g_depthStencilCache[dsDesc] = dsState;
-        }
+    // Usa a nova interface unificada de Depth/Stencil
+    DepthStencilDesc dsDesc;
+    dsDesc.depthEnable = enabled;
+    dsDesc.depthWrite = enabled;
+    dsDesc.depthFunc = ComparisonFunc::Less;
+    dsDesc.stencilEnable = false;
+    
+    auto dsState = CreateDepthStencilStateDX11(_device.Get(), dsDesc);
+    if (!dsState) {
+        Drift::Core::Log("[DX11] ERRO: Falha ao criar DepthStencilState para SetDepthTestEnabled");
+        return;
     }
-    if (!_currentDepthStencilState || _currentDepthStencilState.Get() != dsState.Get()) {
-        _context->OMSetDepthStencilState(dsState.Get(), 0);
+    
+    if (!_currentDepthStencilState || _currentDepthStencilState != dsState) {
+        dsState->Apply(_context.Get());
         _currentDepthStencilState = dsState;
     }
 }

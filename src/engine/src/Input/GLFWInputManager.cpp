@@ -115,6 +115,9 @@ namespace Drift::Engine::Input {
             // Swap frames (previous <- current)
             _previousFrame = _currentFrame;
             
+            // Reset scroll for next frame
+            ResetScrollForNextFrame();
+            
             // Update mouse position and delta
             double mouseX, mouseY;
             glfwGetCursorPos(_window, &mouseX, &mouseY);

@@ -2,9 +2,11 @@
 
 #include "Drift/RHI/Context.h"     // IContext, ISwapChain
 #include "Drift/RHI/Types.h"       // Format, PrimitiveTopology
+#include "Drift/RHI/DepthStencilState.h"
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <memory>
 
 namespace Drift::RHI::DX11 {
 
@@ -86,7 +88,7 @@ namespace Drift::RHI::DX11 {
         // Cache de estados
         ID3D11BlendState*      _currentBlendState = nullptr;
         ID3D11RasterizerState* _currentRasterizerState = nullptr;
-        Microsoft::WRL::ComPtr<ID3D11DepthStencilState> _currentDepthStencilState;
+        std::shared_ptr<Drift::RHI::DepthStencilState> _currentDepthStencilState;
 
         void CreateRTVandDSV();
 

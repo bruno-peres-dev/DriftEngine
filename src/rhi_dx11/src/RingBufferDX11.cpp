@@ -14,9 +14,7 @@ public:
     RingBufferDX11Impl(ID3D11Device* device, ID3D11DeviceContext* context, size_t sizeBytes, int numBuffers)
         : RingBufferDX11(device, context, sizeBytes, numBuffers), _context(context) {
         _mappedPtr.resize(_numBuffers, nullptr);
-        // Base construtor já chamou NextFrame(), mas _basePtr foi resetado para nullptr
-        // durante a inicialização padrão deste membro. Chamamos novamente para garantir
-        // mapeamento válido agora que o objeto derivado está totalmente construído.
+        
         RingBufferDX11::NextFrame();
     }
     void* _basePtr = nullptr;

@@ -2,6 +2,8 @@
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include "Drift/RHI/DX11/ShaderDX11.h"
 #include "Drift/RHI/DX11/ContextDX11.h"
+#include "Drift/RHI/DX11/DepthStencilStateDX11.h"
+#include "Drift/RHI/Format.h"
 #include "Drift/Core/Log.h"
 
 #include <stdexcept>
@@ -12,17 +14,27 @@ using Microsoft::WRL::ComPtr;
 using namespace Drift::RHI;
 using namespace Drift::RHI::DX11;
 
-// Converte string de formato para DXGI_FORMAT
-static DXGI_FORMAT StringToDXGIFormat(const std::string& fmt) {
-    static const std::unordered_map<std::string, DXGI_FORMAT> lut = {
-        {"R32G32B32_FLOAT", DXGI_FORMAT_R32G32B32_FLOAT},
-        {"R32G32_FLOAT", DXGI_FORMAT_R32G32_FLOAT},
-        {"R32_UINT", DXGI_FORMAT_R32_UINT},
-        {"R8G8B8A8_UNORM", DXGI_FORMAT_R8G8B8A8_UNORM},
-    };
-    auto it = lut.find(fmt);
-    if (it != lut.end()) return it->second;
-    return DXGI_FORMAT_UNKNOWN;
+// Converte VertexFormat para DXGI_FORMAT usando o novo sistema tipado
+static DXGI_FORMAT VertexFormatToDXGIFormat(VertexFormat format) {
+    switch (format) {
+        case VertexFormat::R32G32B32_FLOAT: return DXGI_FORMAT_R32G32B32_FLOAT;
+        case VertexFormat::R32G32_FLOAT: return DXGI_FORMAT_R32G32_FLOAT;
+        case VertexFormat::R32_UINT: return DXGI_FORMAT_R32_UINT;
+        case VertexFormat::R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case VertexFormat::R32_FLOAT: return DXGI_FORMAT_R32_FLOAT;
+        case VertexFormat::R32G32B32A32_FLOAT: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+        case VertexFormat::R32G32_UINT: return DXGI_FORMAT_R32G32_UINT;
+        case VertexFormat::R32G32B32_UINT: return DXGI_FORMAT_R32G32B32_UINT;
+        case VertexFormat::R32G32B32A32_UINT: return DXGI_FORMAT_R32G32B32A32_UINT;
+        case VertexFormat::R8G8B8A8_SNORM: return DXGI_FORMAT_R8G8B8A8_SNORM;
+        case VertexFormat::R16G16_UNORM: return DXGI_FORMAT_R16G16_UNORM;
+        case VertexFormat::R16G16B16A16_UNORM: return DXGI_FORMAT_R16G16B16A16_UNORM;
+        case VertexFormat::R10G10B10A2_UNORM: return DXGI_FORMAT_R10G10B10A2_UNORM;
+        case VertexFormat::R11G11B10_FLOAT: return DXGI_FORMAT_R11G11B10_FLOAT;
+        default:
+            Drift::Core::Log("[DX11] WARNING: VertexFormat não suportado, usando UNKNOWN");
+            return DXGI_FORMAT_UNKNOWN;
+    }
 }
 
 // Cria e configura todos os estados fixos do pipeline (shaders, input layout, rasterizer, blend)
@@ -61,17 +73,17 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         Drift::Core::Log("[DX11] GeometryShader created successfully: " + desc.gsFile);
     }
 
-    // Cria input layout
+    // Cria input layout usando o novo sistema VertexFormat
     std::vector<D3D11_INPUT_ELEMENT_DESC> dxLayout;
     for (const auto& elem : desc.inputLayout) {
         dxLayout.push_back({
-            elem.semanticName.c_str(),
-            elem.semanticIndex,
-            StringToDXGIFormat(elem.format),
-            0,
-            elem.offset,
-            D3D11_INPUT_PER_VERTEX_DATA,
-            0
+            elem.semanticName,                                    // const char* (já é o tipo correto)
+            elem.semanticIndex,                                   // uint32_t (já é o tipo correto)
+            static_cast<DXGI_FORMAT>(VertexFormatToDXGIFormat(elem.format)), // Cast explícito
+            0,                                                    // uint32_t InputSlot
+            elem.offset,                                          // uint32_t (já é o tipo correto)
+            static_cast<D3D11_INPUT_CLASSIFICATION>(D3D11_INPUT_PER_VERTEX_DATA), // Cast explícito
+            0                                                     // uint32_t InstanceDataStepRate
         });
     }
     HRESULT hr = device->CreateInputLayout(
@@ -178,27 +190,10 @@ PipelineStateDX11::PipelineStateDX11(ID3D11Device* device, const PipelineDesc& d
         throw std::runtime_error("Failed to create BlendState");
     }
 
-    // Configura depth stencil state
-    D3D11_DEPTH_STENCIL_DESC dsDesc = {};
-    const auto& d = desc.depthStencil;
-    dsDesc.DepthEnable = d.depthEnable ? TRUE : FALSE;
-    dsDesc.DepthWriteMask = d.depthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-    dsDesc.StencilEnable = FALSE;
-    dsDesc.StencilReadMask = 0xFF;
-    dsDesc.StencilWriteMask = 0xFF;
-    dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-    dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-    dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-    hr = device->CreateDepthStencilState(&dsDesc, &_depthStencilState);
-    if (FAILED(hr)) {
-        Drift::Core::Log("[DX11] Failed to create DepthStencilState! HRESULT = " + std::to_string(hr));
+    // Configura depth stencil state usando a nova interface unificada
+    _depthStencilState = CreateDepthStencilStateDX11(device, desc.depthStencil);
+    if (!_depthStencilState) {
+        Drift::Core::Log("[DX11] Failed to create DepthStencilState!");
         throw std::runtime_error("Failed to create DepthStencilState");
     }
 }
@@ -224,9 +219,9 @@ void PipelineStateDX11::Apply(IContext& ctx) {
         d3dCtx->OMSetBlendState(_blendState.Get(), blendFactor, 0xFFFFFFFF);
         dxCtx._currentBlendState = _blendState.Get();
     }
-    // Cache de depth stencil
-    if (dxCtx._currentDepthStencilState.Get() != _depthStencilState.Get()) {
-        d3dCtx->OMSetDepthStencilState(_depthStencilState.Get(), 0);
+    // Cache de depth stencil usando nova interface
+    if (dxCtx._currentDepthStencilState != _depthStencilState) {
+        _depthStencilState->Apply(d3dCtx);
         dxCtx._currentDepthStencilState = _depthStencilState;
     }
 }

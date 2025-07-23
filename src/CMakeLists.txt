@@ -77,6 +77,7 @@ target_include_directories(DriftCore PUBLIC
 # 3.3) DriftRHI (interfaces)
 add_library(DriftRHI STATIC
   rhi/src/DeviceStub.cpp
+  rhi/src/Format.cpp
 )
 target_include_directories(DriftRHI PUBLIC
   rhi/include
@@ -97,6 +98,7 @@ add_library(DriftRHI_DX11 STATIC
   rhi_dx11/src/SwapChainDX11.cpp
   rhi_dx11/src/RingBufferDX11.cpp
   rhi_dx11/src/UIBatcherDX11.cpp
+  rhi_dx11/src/DepthStencilStateDX11.cpp
 )
 target_include_directories(DriftRHI_DX11 PUBLIC
   rhi_dx11/include

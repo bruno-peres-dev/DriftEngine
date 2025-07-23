@@ -98,8 +98,8 @@ void UIBatcherDX11::EnsurePipeline() {
     desc.vsEntry = "VSMain";
     desc.psEntry = "PSMain";
     desc.inputLayout = {
-        {"POSITION", 0, 0, "R32G32_FLOAT"},
-        {"COLOR",   0, 8, "R8G8B8A8_UNORM"}
+        {"POSITION", 0, VertexFormat::R32G32_FLOAT, 0},
+        {"COLOR",   0, VertexFormat::R8G8B8A8_UNORM, 8}
     };
 
     // Sem defines de debug por padrão

@@ -2,6 +2,7 @@
 
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/RHI/Types.h"
+#include "Drift/RHI/Format.h"
 #include "Drift/Core/Log.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -28,9 +29,9 @@ TerrainPass::TerrainPass(Drift::RHI::IDevice& device,
     pd.vsFile = "shaders/TerrainVS.hlsl";
     pd.psFile = "shaders/TerrainPS.hlsl";
     pd.inputLayout = {
-        { "POSITION", 0, 0,  "R32G32B32_FLOAT" },
-        { "NORMAL",   0, 12, "R32G32B32_FLOAT" },
-        { "TEXCOORD", 0, 24, "R32G32_FLOAT" }
+        { "POSITION", 0, VertexFormat::R32G32B32_FLOAT, 0 },
+        { "NORMAL",   0, VertexFormat::R32G32B32_FLOAT, 12 },
+        { "TEXCOORD", 0, VertexFormat::R32G32_FLOAT, 24 }
     };
     pd.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
     pd.rasterizer.wireframe = false;

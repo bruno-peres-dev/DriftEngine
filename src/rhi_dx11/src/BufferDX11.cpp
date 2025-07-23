@@ -16,7 +16,7 @@ namespace Drift::RHI::DX11 {
         D3D11_BUFFER_DESC bd{};
         bd.ByteWidth = static_cast<UINT>(desc.sizeBytes);
         if (desc.type == BufferType::Vertex) {
-            bd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+            bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         } else {
             bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
         }
