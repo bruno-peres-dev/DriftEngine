@@ -112,6 +112,15 @@ Este documento descreve as etapas planejadas para a reformulação do sistema de
 ### Máscaras de Opacidade e Stencil
 - Painéis de recorte não‑retangulares e composições avançadas (máscara circular, gradiente de opacidade).
 
+## Fase 6.5 – Layout Avançado e Docking (Média Prioridade)
+
+### DockPanel e Splitters
+- Implementar `DockPanel` para ancorar elementos a Top/Bottom/Left/Right/Fill.  
+- `SplitContainer` com barras divisoras ajustáveis e redimensionáveis.
+
+### Gerenciamento de Janelas & Painéis Flutuantes
+- Sistema de “docking manager” com painéis acopláveis, auto-hide e layout salvo.
+
 ## Fase 7 – Input, Eventos e Foco (Média Prioridade)
 
 ### Roteamento de Eventos
@@ -142,6 +151,37 @@ Este documento descreve as etapas planejadas para a reformulação do sistema de
 ### Localização / RTL
 - Carregamento de strings e assets por cultura; suporte a right‑to‑left.
 
+## Fase 7.3 – Drag & Drop e Gestos (Média Prioridade)
+
+### Drag & Drop
+- Implementar arrastar/soltar de UIElements e transferência de dados.
+
+### Touch & Multi-Touch
+- Eventos de toque, gestos (pinch, swipe), suporte a touch‑capture.
+
+## Fase 7.4 – Flow‑Graph Editor (Média Prioridade)
+
+### Graph Core
+- Definir `GraphNode`, `GraphPin` e `GraphEdge` como UIElements especializados.  
+- Propriedades de layout: grid snapping, alinhamento automático (auto‑layout opcional).
+
+### Interação
+- Drag‑n‑drop de nodos, criação e remoção de conexões via “ports”.  
+- Zoom & pan da área de grafos, com inertia e limites.  
+- Seleção múltipla e transformação em lote (move, copy/paste).
+
+### Renderização
+- Batch de linhas curvas/retas para arestas, retângulos arredondados para nodos.  
+- Clipping e layer de conteúdos.
+
+### Estilização e Theming
+- Estilos para estados de nodo (normal, selecionado, hovered, erro).  
+- Templates de nodos customizáveis via USS/DataTemplates.
+
+### Integração
+- Data Binding a backend genérico (material editor VM, animation VM, AI VM).  
+- Serialização/deserialização do grafo (XML/JSON).
+
 ## Fase 8 – Data Binding / MVVM (Menor Prioridade)
 
 ### INotifyPropertyChanged
@@ -153,6 +193,22 @@ Este documento descreve as etapas planejadas para a reformulação do sistema de
 ### Conversores
 - Funções para conversão de valor (bool→Visibility, número→string).
 
+## Fase 8.1 – Dependency Property & Visual State Manager (Menor Prioridade)
+
+### Dependency Property System
+- Sistema de propriedades de dependência: metadados, coerção, valores padrão, callbacks e herança.
+
+### Visual State Manager & Triggers
+- Definição de VisualStates, Storyboards, PropertyTrigger, EventTrigger e DataTrigger.
+
+## Fase 8.2 – ResourceDictionary & DynamicResource (Menor Prioridade)
+
+### ResourceDictionary
+- Dicionários de recursos estáticos e dinâmicos; merged dictionaries.
+
+### StaticResource vs DynamicResource
+- Binding de recursos em tempo de compilação e em runtime.
+
 ## Fase 9 – Sistema de Animações (Menor Prioridade)
 
 ### Key‑frames & Interpoladores
@@ -163,6 +219,14 @@ Este documento descreve as etapas planejadas para a reformulação do sistema de
 
 ### Atuação em Propriedades
 - Animação de transform, opacidade, cores, margens, etc.
+
+## Fase 9.1 – Efeitos & Shaders Personalizados (Menor Prioridade)
+
+### Pixel Shader Effects
+- Integração de HLSL/GLSL para blur, drop shadow, glow, etc.
+
+### Visual Effects API
+- Interface para aplicar `Effect` a UIElements.
 
 ## Fase 10 – Ferramentas Editor & Hot-Reload (Menor Prioridade)
 
