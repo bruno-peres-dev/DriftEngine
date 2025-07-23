@@ -11,6 +11,7 @@
 #include "Drift/Engine/Viewport/Viewport.h"
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/UIElement.h"
+#include "Drift/UI/Widgets/Button.h"
 #include "Drift/RHI/DX11/RingBufferDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include <d3d11.h>
@@ -102,15 +103,46 @@ int main() {
 
         auto uiContext = std::make_unique<UI::UIContext>();
         uiContext->Initialize();
+        
+        // Conecta o sistema de input
+        uiContext->SetInputManager(inputManager.get());
 
-        // Cria painel simples como demo
+        // Cria botões de teste
         {
             auto root = uiContext->GetRoot();
-            auto panel = std::make_shared<UI::UIElement>(uiContext.get());
-            panel->SetPosition({50.0f, 50.0f});
-            panel->SetSize({200.0f, 100.0f});
-            panel->SetColor(0xFF0000FF); // Vermelho sólido para teste
-            root->AddChild(panel);
+            
+            // Botão Play
+            auto playButton = std::make_shared<UI::Button>(uiContext.get());
+            playButton->SetText("Play Game");
+            playButton->SetPosition({100.0f, 100.0f});
+            playButton->SetSize({200.0f, 50.0f});
+            playButton->SetOnClick([](const UI::ButtonClickEvent& event) {
+                Core::Log("[UI] Play button clicked at: " + 
+                    std::to_string(event.clickPosition.x) + ", " + 
+                    std::to_string(event.clickPosition.y));
+            });
+            root->AddChild(playButton);
+            
+            // Botão Settings
+            auto settingsButton = std::make_shared<UI::Button>(uiContext.get());
+            settingsButton->SetText("Settings");
+            settingsButton->SetPosition({100.0f, 170.0f});
+            settingsButton->SetSize({200.0f, 50.0f});
+            settingsButton->SetOnClick([](const UI::ButtonClickEvent& event) {
+                Core::Log("[UI] Settings button clicked!");
+            });
+            root->AddChild(settingsButton);
+            
+            // Botão Quit
+            auto quitButton = std::make_shared<UI::Button>(uiContext.get());
+            quitButton->SetText("Quit");
+            quitButton->SetPosition({100.0f, 240.0f});
+            quitButton->SetSize({200.0f, 50.0f});
+            quitButton->SetOnClick([](const UI::ButtonClickEvent& event) {
+                Core::Log("[UI] Quit button clicked!");
+                glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
+            });
+            root->AddChild(quitButton);
         }
         
         // --------------------------------
@@ -281,14 +313,9 @@ int main() {
             appData.uiContext->Update(deltaTime);
 
             // ---- CURSOR LOCK ----
+            // Por enquanto, desabilita o lock do cursor para permitir interação com UI
+            // TODO: Implementar sistema de foco para alternar entre viewport e UI
             bool lockCursor = false;
-            const std::string& activeName = appData.renderManager->GetActiveViewport();
-            if (!activeName.empty()) {
-                auto* activeVP = appData.renderManager->GetViewport(activeName);
-                if (activeVP && activeVP->GetDesc().acceptsInput) {
-                    lockCursor = true;
-                }
-            }
             appData.inputManager->SetMouseLocked(lockCursor);
             appData.inputManager->SetMouseVisible(!lockCursor);
 

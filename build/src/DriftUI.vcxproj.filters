@@ -4,13 +4,19 @@
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\EventBus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\LayoutEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIInputHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\DataDriven\UIComponentRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

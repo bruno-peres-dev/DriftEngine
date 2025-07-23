@@ -16,4 +16,4 @@ PSIn VSMain(VSIn v) {
     return o;
 }
 
-float4 PSMain(PSIn i) : SV_TARGET { return float4(1,1,0,1); } 
+float4 PSMain(PSIn i) : SV_TARGET { return i.col; } 

@@ -6,11 +6,20 @@
 
 namespace Drift::RHI { class IUIBatcher; }
 
+// Forward declaration para evitar include circular
+namespace Drift::Engine::Input {
+    class IInputManager;
+}
+
+namespace Drift::Engine {
+    class EventBus;
+}
+
 namespace Drift::UI {
 
 class LayoutEngine;
 class UIElement;
-class EventBus;
+class UIInputHandler;
 
 class UIContext {
 public:
@@ -30,15 +39,25 @@ public:
     void Shutdown();
 
     // Acesso global ao EventBus
-    std::shared_ptr<EventBus> GetEventBus() const { return m_EventBus; }
+    std::shared_ptr<Drift::Engine::EventBus> GetEventBus() const { return m_EventBus; }
 
     // Raiz da árvore de elementos
     std::shared_ptr<UIElement> GetRoot() const { return m_Root; }
 
+    // Acesso ao sistema de input
+    UIInputHandler* GetInputHandler() const { return m_InputHandler.get(); }
+
+    // Conecta ao sistema de input da Engine
+    void SetInputManager(Drift::Engine::Input::IInputManager* inputManager);
+    
+    // Ajusta o tamanho da tela
+    void SetScreenSize(float width, float height);
+
 private:
-    std::shared_ptr<EventBus> m_EventBus;
+    std::shared_ptr<Drift::Engine::EventBus> m_EventBus;
 
     std::unique_ptr<LayoutEngine> m_LayoutEngine;
+    std::unique_ptr<UIInputHandler> m_InputHandler;
     std::shared_ptr<UIElement> m_Root;
 };
 

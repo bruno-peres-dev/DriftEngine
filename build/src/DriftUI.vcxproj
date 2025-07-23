@@ -78,7 +78,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -98,10 +99,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -114,7 +115,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -135,10 +137,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -151,7 +153,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -172,10 +175,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -188,7 +191,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /FS</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -208,10 +212,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Bruno\Desktop\DriftEngine\src\ui\include;C:\Users\Bruno\Desktop\DriftEngine\src\rhi\include;C:\Users\Bruno\Desktop\DriftEngine\src\engine\include;C:\Users\Bruno\Desktop\DriftEngine\src\core\include;C:\Users\Bruno\Desktop\DriftEngine\src\renderer\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-src\include;C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glm-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -281,9 +285,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIContext.cpp" />
-    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\EventBus.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIElement.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\LayoutEngine.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIInputHandler.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\DataDriven\UIComponentRegistry.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Button.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -296,6 +302,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftCore.vcxproj">
       <Project>{9671B9B0-4077-385F-84B4-28912EE48407}</Project>
       <Name>DriftCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Bruno\Desktop\DriftEngine\build\src\DriftEngine.vcxproj">
+      <Project>{DDF8A54A-4C70-36E6-A833-3026F240180D}</Project>
+      <Name>DriftEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Bruno\Desktop\DriftEngine\build\_deps\glfw-build\src\glfw.vcxproj">
+      <Project>{FDB1EF09-1E2C-33E5-BD14-FDD9B224BEFA}</Project>
+      <Name>glfw</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

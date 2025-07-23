@@ -52,11 +52,13 @@ target_include_directories(DriftMath INTERFACE
 # 3.1.1) DriftEngine (engine systems)
 add_library(DriftEngine STATIC
   engine/src/Input/GLFWInputManager.cpp
+  engine/src/EventBus.cpp
 )
 target_include_directories(DriftEngine PUBLIC
   engine/include
   rhi/include
   renderer/include
+  ui/include
   ${glfw_SOURCE_DIR}/include
 )
 target_link_libraries(DriftEngine PUBLIC
@@ -130,19 +132,29 @@ target_link_libraries(DriftRenderer PUBLIC
 # 3.6) DriftUI (sistema de interface)
 add_library(DriftUI STATIC
   ui/src/UIContext.cpp
-  ui/src/EventBus.cpp
   ui/src/UIElement.cpp
   ui/src/LayoutEngine.cpp
+  ui/src/UIInputHandler.cpp
+  ui/src/DataDriven/UIComponentRegistry.cpp
+  ui/src/Widgets/Button.cpp
 )
+
+# Corrigir problema de PDB no Visual Studio
+if(MSVC)
+    target_compile_options(DriftUI PRIVATE /FS)
+endif()
 
 target_include_directories(DriftUI PUBLIC
   ui/include
   rhi/include
+  engine/include
+  core/include
 )
 
 target_link_libraries(DriftUI PUBLIC
   DriftCore
   DriftMath
+  DriftEngine
   glm
 )
 
@@ -150,35 +162,37 @@ target_link_libraries(DriftUI PUBLIC
 # (se necessário futura integração)
 
 # ------------------------------------------------
-# 4) Executável DriftApp
+# 4) Executáveis
 # ------------------------------------------------
-add_executable(DriftApp
-  app/main.cpp
+add_executable(DriftUITest
+  app/ui_test.cpp
 )
 
-add_custom_command(TARGET DriftApp PRE_BUILD
+add_custom_command(TARGET DriftUITest PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/shaders"
-    "$<TARGET_FILE_DIR:DriftApp>/shaders"
+    "$<TARGET_FILE_DIR:DriftUITest>/shaders"
 )
-# Garantir que NormalLineGS.hlsl está incluso
+
+# Garantir que os shaders estão disponíveis
 file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
 foreach(SHADER ${SHADERS})
   get_filename_component(SHADER_NAME ${SHADER} NAME)
   configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
 
-target_include_directories(DriftApp PRIVATE
+target_include_directories(DriftUITest PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
-target_link_libraries(DriftApp PRIVATE
+target_link_libraries(DriftUITest PRIVATE
   DriftCore
   DriftEngine
   DriftRHI_DX11
-  DriftRenderer
   DriftUI
   glfw
 )
+
+
 
 # ------------------------------------------------
 # Instruções:

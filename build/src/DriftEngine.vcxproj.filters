@@ -4,6 +4,9 @@
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\engine\src\Input\GLFWInputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\engine\src\EventBus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\Bruno\Desktop\DriftEngine\src\CMakeLists.txt" />

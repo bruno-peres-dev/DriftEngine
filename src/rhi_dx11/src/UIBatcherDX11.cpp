@@ -22,6 +22,13 @@ void UIBatcherDX11::Begin() {
 
 // Adiciona um retângulo ao batch de UI
 void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) {
+    // Debug: Log a cor recebida
+    static int addRectLogCount = 0;
+    addRectLogCount++;
+    if (addRectLogCount % 10 == 0) { // Log a cada 10 retângulos
+        Core::Log("[UIBatcher] AddRect - Posição: (" + std::to_string(x) + ", " + std::to_string(y) + 
+                 ") - Cor recebida: 0x" + std::to_string(color));
+    }
     auto toClipX = [this](float px) {
         return (px / _screenW) * 2.0f - 1.0f;
     };
@@ -29,12 +36,52 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
         return 1.0f - (py / _screenH) * 2.0f;
     };
 
-    // Converte ARGB para BGRA (DirectX espera BGRA para R8G8B8A8_UNORM)
-    unsigned a = (color >> 24) & 0xFF;
-    unsigned r = (color >> 16) & 0xFF;
-    unsigned g = (color >> 8) & 0xFF;
-    unsigned b = color & 0xFF;
-    unsigned bgra = (b) | (g << 8) | (r << 16) | (a << 24);
+    // Debug: Log as coordenadas de clip calculadas
+    static int clipLogCount = 0;
+    clipLogCount++;
+    if (clipLogCount % 10 == 0) { // Log a cada 10 retângulos
+        float clipX = toClipX(x);
+        float clipY = toClipY(y);
+        float clipX2 = toClipX(x + w);
+        float clipY2 = toClipY(y + h);
+        Core::Log("[UIBatcher] Coordenadas de clip - Screen: (" + std::to_string(_screenW) + ", " + std::to_string(_screenH) + 
+                 ") - Pos: (" + std::to_string(x) + ", " + std::to_string(y) + 
+                 ") -> Clip: (" + std::to_string(clipX) + ", " + std::to_string(clipY) + 
+                 ") to (" + std::to_string(clipX2) + ", " + std::to_string(clipY2) + ")");
+    }
+
+                    // Debug: Verificar se a cor é válida (32 bits)
+                if (color > 0xFFFFFFFF) {
+                    Core::Log("[UIBatcher] ERRO: Cor inválida detectada: 0x" + std::to_string(color) + 
+                              " (maior que 32 bits) - Convertendo para 32 bits");
+                    color = color & 0xFFFFFFFF; // Trunca para 32 bits
+                }
+                
+                // Converte ARGB para BGRA (DirectX espera BGRA para R8G8B8A8_UNORM)
+                unsigned a = (color >> 24) & 0xFF;
+                unsigned r = (color >> 16) & 0xFF;
+                unsigned g = (color >> 8) & 0xFF;
+                unsigned b = color & 0xFF;
+                unsigned bgra = (b) | (g << 8) | (r << 16) | (a << 24);
+    
+                    // Debug: Log cores para debug
+                static int colorCount = 0;
+                colorCount++;
+                if (colorCount % 10 == 0) { // Log mais frequente para debug
+                    Core::Log("[UIBatcher] Cor original: 0x" + std::to_string(color) + 
+                              " -> BGRA: 0x" + std::to_string(bgra) + 
+                              " (R:" + std::to_string(r) + " G:" + std::to_string(g) + 
+                              " B:" + std::to_string(b) + " A:" + std::to_string(a) + ")");
+        }
+
+    // Debug: Log a cada 10 retângulos para não spam
+    static int rectCount = 0;
+    rectCount++;
+    if (rectCount % 10 == 0) {
+        Core::Log("[UIBatcher] Adicionando retângulo " + std::to_string(rectCount) + 
+                  " na posição (" + std::to_string(x) + ", " + std::to_string(y) + 
+                  ") com cor 0x" + std::to_string(color) + " -> 0x" + std::to_string(bgra));
+    }
 
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({toClipX(x),       toClipY(y),       bgra});

@@ -30,6 +30,9 @@ public:
     void SetSize(const glm::vec2& size) { m_Size = size; MarkDirty(); }
     glm::vec2 GetPosition() const { return m_Position; }
     glm::vec2 GetSize() const { return m_Size; }
+    
+    // Posicionamento absoluto (considera hierarquia)
+    glm::vec2 GetAbsolutePosition() const;
 
     // Ciclo de vida
     virtual void Update(float deltaSeconds);
@@ -40,6 +43,9 @@ public:
     // Cor (ARGB)
     void SetColor(unsigned col) { m_Color = col; }
     unsigned GetColor() const { return m_Color; }
+    
+    // Método virtual para permitir que subclasses retornem cores baseadas em seu estado
+    virtual unsigned GetRenderColor() const { return m_Color; }
 
 protected:
     void MarkDirty() { m_Dirty = true; }
