@@ -28,4 +28,10 @@ std::shared_ptr<Drift::RHI::ISampler> CreateSamplerDX11(
     return std::make_shared<SamplerDX11>(s.Get());
 }
 
+// Retorna o uso de memória do sampler (geralmente pequeno)
+size_t SamplerDX11::GetMemoryUsage() const {
+    // Samplers são pequenos objetos de estado, estimativa conservadora
+    return sizeof(D3D11_SAMPLER_DESC) + sizeof(ID3D11SamplerState*);
+}
+
 } // namespace Drift::RHI::DX11

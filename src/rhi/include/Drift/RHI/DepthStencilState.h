@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include "Drift/RHI/Resource.h"
 
 namespace Drift::RHI {
 
@@ -52,12 +53,11 @@ namespace Drift::RHI {
         }
     };
 
-    class DepthStencilState {
+    class DepthStencilState : public IResource {
     public:
         virtual ~DepthStencilState() = default;
         virtual void Apply(void* context) = 0;
         virtual const DepthStencilDesc& GetDesc() const = 0;
-        virtual void* GetBackendHandle() const = 0;
     };
 
     std::shared_ptr<DepthStencilState> CreateDepthStencilState(const DepthStencilDesc& desc);

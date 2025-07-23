@@ -2,6 +2,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include "Drift/RHI/Resource.h"
 
 namespace Drift::RHI {
 
@@ -18,7 +19,7 @@ namespace Drift::RHI {
     };
 
     // Interface para shader compilado
-    class IShader {
+    class IShader : public IResource {
     public:
         virtual ~IShader() = default;
         virtual const void* GetBytecode() const = 0;
@@ -27,8 +28,6 @@ namespace Drift::RHI {
         using ReloadCallback = void(*)(IShader*);
         virtual void SetReloadCallback(ReloadCallback cb) = 0;
     };
-
-    // (Removido) std::shared_ptr<IShader> CreateShader(const ShaderDesc&);
 
 } // namespace Drift::RHI
 

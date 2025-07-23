@@ -11,7 +11,8 @@ namespace Drift::RHI::DX11 {
     class SamplerDX11 : public ISampler {
     public:
         explicit SamplerDX11(ID3D11SamplerState* s) : _s(s) {}
-        BackendHandle GetBackendHandle() const override { return _s.Get(); }
+        void* GetBackendHandle() const override { return _s.Get(); }
+        size_t GetMemoryUsage() const override;
     private:
         Microsoft::WRL::ComPtr<ID3D11SamplerState> _s;
     };

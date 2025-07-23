@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Drift/RHI/DepthStencilState.h"
+#include "Drift/RHI/ResourceManager.h"
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <memory>
@@ -11,10 +12,10 @@ namespace Drift::RHI::DX11 {
     public:
         explicit DepthStencilStateDX11(ID3D11Device* device, const Drift::RHI::DepthStencilDesc& desc);
         void Apply(void* context) override;
-        const Drift::RHI::DepthStencilDesc& GetDesc() const override { return _desc; }
-        void* GetBackendHandle() const override { return _state.Get(); }
+        const Drift::RHI::DepthStencilDesc& GetDesc() const override;
+        void* GetBackendHandle() const override;
+        size_t GetMemoryUsage() const override;
 
-        // Torna públicos para uso no cache
         static D3D11_COMPARISON_FUNC ToD3D11Comparison(Drift::RHI::ComparisonFunc func);
         static D3D11_STENCIL_OP ToD3D11StencilOp(Drift::RHI::StencilOp op);
     private:

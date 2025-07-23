@@ -131,3 +131,30 @@ void TextureDX11::UpdateSubresource(unsigned mipLevel, unsigned arraySlice, cons
     UINT subresource = D3D11CalcSubresource(mipLevel, arraySlice, 1);
     _context->UpdateSubresource(_resource.Get(), subresource, nullptr, data, (UINT)rowPitch, (UINT)slicePitch);
 }
+
+// Retorna o uso de memória da textura
+size_t TextureDX11::GetMemoryUsage() const {
+    if (!_resource) return 0;
+    
+    // Para texturas 2D, calcula o tamanho baseado nas dimensões e formato
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> tex2D;
+    if (SUCCEEDED(_resource.As(&tex2D))) {
+        D3D11_TEXTURE2D_DESC desc;
+        tex2D->GetDesc(&desc);
+        
+        // Cálculo aproximado do tamanho da textura
+        size_t bytesPerPixel = 4; // Assumindo RGBA8 como padrão
+        switch (desc.Format) {
+            case DXGI_FORMAT_R8_UNORM: bytesPerPixel = 1; break;
+            case DXGI_FORMAT_R8G8_UNORM: bytesPerPixel = 2; break;
+            case DXGI_FORMAT_R8G8B8A8_UNORM: bytesPerPixel = 4; break;
+            case DXGI_FORMAT_BC1_UNORM: bytesPerPixel = 8; break; // Compressed
+            case DXGI_FORMAT_BC3_UNORM: bytesPerPixel = 16; break; // Compressed
+            default: bytesPerPixel = 4; break;
+        }
+        
+        return desc.Width * desc.Height * desc.ArraySize * bytesPerPixel;
+    }
+    
+    return 0;
+}

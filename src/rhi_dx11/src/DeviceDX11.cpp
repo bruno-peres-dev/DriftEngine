@@ -1,4 +1,5 @@
 #include "Drift/RHI/DX11/DeviceDX11.h"
+#include "Drift/RHI/ResourceManager.h"
 #include "Drift/Core/Log.h"
 
 #include "Drift/RHI/DX11/ContextDX11.h"
@@ -39,7 +40,10 @@ DeviceDX11::DeviceDX11(const DeviceDesc& desc)
     }
 }
 
-DeviceDX11::~DeviceDX11() = default;
+DeviceDX11::~DeviceDX11() {
+    // Remove este dispositivo do Resource Manager
+    g_resourceManager.RemoveDevice(_device.Get());
+}
 
 // Cria contexto de renderização associado ao swapchain
 std::shared_ptr<Drift::RHI::IContext> DeviceDX11::CreateContext() {
@@ -90,28 +94,47 @@ std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
     return std::make_shared<SwapChainDX11>(_swapChain.Get());
 }
 
-// Criação e cache de recursos (buffer, pipeline, shader, textura, sampler)
+// Criação e cache de recursos usando o Resource Manager
 std::shared_ptr<IBuffer> DeviceDX11::CreateBuffer(const BufferDesc& d) {
-    return _bufferCache.GetOrCreate(d,
-        [this](auto const& key) { return CreateBufferDX11(_device.Get(), _context.Get(), key); });
+    auto& cache = g_resourceManager.GetCache<BufferDesc, IBuffer>(_device.Get());
+    return cache.GetOrCreate(d, [this, &d]() {
+        return CreateBufferDX11(_device.Get(), _context.Get(), d);
+    });
 }
 
 std::shared_ptr<IPipelineState> DeviceDX11::CreatePipeline(const PipelineDesc& d) {
-    return _pipelineCache.GetOrCreate(d,
-        [this](auto const& key) { return CreatePipelineDX11(_device.Get(), key); });
+    auto& cache = g_resourceManager.GetCache<PipelineDesc, IPipelineState>(_device.Get());
+    return cache.GetOrCreate(d, [this, &d]() {
+        return CreatePipelineDX11(_device.Get(), d);
+    });
 }
 
 std::shared_ptr<IShader> DeviceDX11::CreateShader(const ShaderDesc& d) {
-    return _shaderCache.GetOrCreate(d,
-        [](auto const& key) { return CreateShaderDX11(key); });
+    auto& cache = g_resourceManager.GetCache<ShaderDesc, IShader>(_device.Get());
+    return cache.GetOrCreate(d, [&d]() {
+        return CreateShaderDX11(d);
+    });
 }
 
 std::shared_ptr<ITexture> DeviceDX11::CreateTexture(const TextureDesc& d) {
-    return _textureCache.GetOrCreate(d,
-        [this](auto const& key) { return CreateTextureDX11(_device.Get(), _context.Get(), key); });
+    auto& cache = g_resourceManager.GetCache<TextureDesc, ITexture>(_device.Get());
+    return cache.GetOrCreate(d, [this, &d]() {
+        return CreateTextureDX11(_device.Get(), _context.Get(), d);
+    });
 }
 
 std::shared_ptr<ISampler> DeviceDX11::CreateSampler(const SamplerDesc& d) {
-    return _samplerCache.GetOrCreate(d,
-        [this](auto const& key) { return CreateSamplerDX11(_device.Get(), key); });
+    auto& cache = g_resourceManager.GetCache<SamplerDesc, ISampler>(_device.Get());
+    return cache.GetOrCreate(d, [this, &d]() {
+        return CreateSamplerDX11(_device.Get(), d);
+    });
+}
+
+// Métodos para gerenciamento de recursos
+void DeviceDX11::ClearResourceCaches() {
+    g_resourceManager.RemoveDevice(_device.Get());
+}
+
+ResourceManager::GlobalStats DeviceDX11::GetResourceStats() const {
+    return g_resourceManager.GetGlobalStats();
 }

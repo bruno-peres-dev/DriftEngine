@@ -6,7 +6,7 @@
 #include <dxgi.h>
 
 #include "Drift/RHI/Device.h"         // IDevice, DeviceDesc
-#include "Drift/RHI/ResourceCache.h"  // ResourceCache<>
+#include "Drift/RHI/ResourceManager.h" // Novo Resource Manager
 #include "Drift/RHI/DX11/RingBufferDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 
@@ -44,17 +44,15 @@ namespace Drift::RHI::DX11 {
         std::shared_ptr<Drift::RHI::ISampler>       CreateSampler(const Drift::RHI::SamplerDesc& d) override;
         void* GetNativeDevice() const override { return _device.Get(); }
 
+        // Métodos para gerenciamento de recursos
+        void ClearResourceCaches();
+        ResourceManager::GlobalStats GetResourceStats() const;
+
     private:
         Microsoft::WRL::ComPtr<ID3D11Device>        _device;
         Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
         Microsoft::WRL::ComPtr<IDXGISwapChain>      _swapChain;
         Drift::RHI::DeviceDesc                      _desc;
-
-        ResourceCache<Drift::RHI::ShaderDesc, Drift::RHI::IShader>        _shaderCache;
-        ResourceCache<Drift::RHI::BufferDesc, Drift::RHI::IBuffer>        _bufferCache;
-        ResourceCache<Drift::RHI::PipelineDesc, Drift::RHI::IPipelineState> _pipelineCache;
-        ResourceCache<Drift::RHI::TextureDesc, Drift::RHI::ITexture>       _textureCache;
-        ResourceCache<Drift::RHI::SamplerDesc, Drift::RHI::ISampler>       _samplerCache;
     };
 
     // Fábrica inline para criar DeviceDX11

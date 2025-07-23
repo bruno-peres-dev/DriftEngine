@@ -78,6 +78,7 @@ target_include_directories(DriftCore PUBLIC
 add_library(DriftRHI STATIC
   rhi/src/DeviceStub.cpp
   rhi/src/Format.cpp
+  rhi/src/ResourceManager.cpp
 )
 target_include_directories(DriftRHI PUBLIC
   rhi/include

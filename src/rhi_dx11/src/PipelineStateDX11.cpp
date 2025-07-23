@@ -232,3 +232,29 @@ namespace Drift::RHI::DX11 {
         return std::make_shared<PipelineStateDX11>(device, desc);
     }
 }
+
+// Retorna o handle do backend (não aplicável para pipeline state)
+void* PipelineStateDX11::GetBackendHandle() const {
+    // Pipeline state é uma combinação de vários objetos, não tem um único handle
+    return nullptr;
+}
+
+// Retorna o uso de memória do pipeline state
+size_t PipelineStateDX11::GetMemoryUsage() const {
+    size_t totalSize = 0;
+    
+    // Estimativa do tamanho dos objetos DX11
+    totalSize += sizeof(ID3D11InputLayout*);
+    totalSize += sizeof(ID3D11VertexShader*);
+    totalSize += sizeof(ID3D11PixelShader*);
+    totalSize += sizeof(ID3D11GeometryShader*);
+    totalSize += sizeof(ID3D11RasterizerState*);
+    totalSize += sizeof(ID3D11BlendState*);
+    
+    // Adiciona o tamanho do depth stencil state
+    if (_depthStencilState) {
+        totalSize += _depthStencilState->GetMemoryUsage();
+    }
+    
+    return totalSize;
+}

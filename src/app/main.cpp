@@ -3,6 +3,7 @@
 
 #include "Drift/Core/Log.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
+#include "Drift/RHI/ResourceManager.h"
 #include "Drift/Renderer/RenderManager.h"
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/Engine/Input/Input.h"
@@ -310,6 +311,30 @@ int main() {
         // ================================
         
         Core::Log("[App] Finalizando aplicação...");
+        
+        // ================================
+        // 7.a DEMONSTRAÇÃO DO RESOURCE MANAGER
+        // ================================
+        
+        // Obtém estatísticas do Resource Manager
+        auto resourceStats = RHI::g_resourceManager.GetGlobalStats();
+        Core::Log("[ResourceManager] Estatísticas finais:");
+        Core::Log("[ResourceManager] - Dispositivos: " + std::to_string(resourceStats.deviceCount));
+        Core::Log("[ResourceManager] - Total de recursos: " + std::to_string(resourceStats.totalResources));
+        Core::Log("[ResourceManager] - Uso de memória: " + std::to_string(resourceStats.totalMemoryUsage / (1024 * 1024)) + " MB");
+        
+        // Exemplo de configuração de limites
+        auto deviceDX11 = static_cast<RHI::DX11::DeviceDX11*>(device.get());
+        auto& shaderCache = RHI::g_resourceManager.GetCache<RHI::ShaderDesc, RHI::IShader>(device->GetNativeDevice());
+        shaderCache.SetMaxSize(500);  // Máximo 500 shaders
+        shaderCache.SetMaxMemoryUsage(256 * 1024 * 1024);  // 256MB para shaders
+        
+        auto& textureCache = RHI::g_resourceManager.GetCache<RHI::TextureDesc, RHI::ITexture>(device->GetNativeDevice());
+        textureCache.SetMaxMemoryUsage(1024 * 1024 * 1024);  // 1GB para texturas
+        
+        Core::Log("[ResourceManager] Limites configurados:");
+        Core::Log("[ResourceManager] - Shaders: max " + std::to_string(shaderCache.GetStats().maxSize) + " recursos");
+        Core::Log("[ResourceManager] - Texturas: max " + std::to_string(textureCache.GetStats().maxMemoryUsage / (1024 * 1024)) + " MB");
         
         appData.uiContext->Shutdown();
 

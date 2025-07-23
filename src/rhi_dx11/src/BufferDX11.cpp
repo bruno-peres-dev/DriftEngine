@@ -90,4 +90,13 @@ namespace Drift::RHI::DX11 {
         _mappedPtr = nullptr;
     }
 
+    // Retorna o uso de memória do buffer
+    size_t BufferDX11::GetMemoryUsage() const {
+        if (!_buffer) return 0;
+        
+        D3D11_BUFFER_DESC desc;
+        _buffer->GetDesc(&desc);
+        return desc.ByteWidth;
+    }
+
 } // namespace Drift::RHI::DX11

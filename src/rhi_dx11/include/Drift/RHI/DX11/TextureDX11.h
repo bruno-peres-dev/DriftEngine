@@ -11,7 +11,8 @@ namespace Drift::RHI::DX11 {
     class TextureDX11 : public ITexture {
     public:
         TextureDX11(ID3D11ShaderResourceView* srv, ID3D11Resource* resource, ID3D11DeviceContext* context);
-        BackendHandle GetBackendHandle() const override { return _srv.Get(); }
+        void* GetBackendHandle() const override { return _srv.Get(); }
+        size_t GetMemoryUsage() const override;
         void UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) override;
     private:
         Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _srv;

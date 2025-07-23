@@ -13,7 +13,8 @@ namespace Drift::RHI::DX11 {
         BufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc);
         explicit BufferDX11(Microsoft::WRL::ComPtr<ID3D11Buffer> buffer, ID3D11DeviceContext* context);
         ~BufferDX11() override = default;
-        BackendHandle GetBackendHandle() override { return _buffer.Get(); }
+        void* GetBackendHandle() const override { return _buffer.Get(); }
+        size_t GetMemoryUsage() const override;
         void* Map() override;
         void  Unmap() override;
     private:

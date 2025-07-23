@@ -2,6 +2,7 @@
 #pragma once
 #include <memory>
 #include <cstddef>
+#include "Drift/RHI/Resource.h"
 
 namespace Drift::RHI {
 
@@ -19,11 +20,9 @@ struct BufferDesc {
 };
 
 // Interface para buffers de GPU
-class IBuffer {
+class IBuffer : public IResource {
 public:
     virtual ~IBuffer() = default;
-    using BackendHandle = void*;
-    virtual BackendHandle GetBackendHandle() = 0;
     virtual void* Map() = 0;   // Mapeia o buffer para acesso CPU
     virtual void  Unmap() = 0; // Desfaz o mapeamento
 };

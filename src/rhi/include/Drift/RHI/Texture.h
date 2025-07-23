@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include "Drift/RHI/Types.h"
+#include "Drift/RHI/Resource.h"
 
 namespace Drift::RHI {
 
@@ -19,20 +20,16 @@ inline bool operator==(const TextureDesc& a, const TextureDesc& b) {
 }
 
 // Interface para textura de GPU
-class ITexture {
+class ITexture : public IResource {
 public:
     virtual ~ITexture() = default;
-    using BackendHandle = void*;
-    virtual BackendHandle GetBackendHandle() const = 0;
     virtual void UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) = 0;
 };
 
 // Interface para sampler state
-class ISampler {
+class ISampler : public IResource {
 public:
     virtual ~ISampler() = default;
-    using BackendHandle = void*;
-    virtual BackendHandle GetBackendHandle() const = 0;
 };
 
 // Descrição de um sampler state

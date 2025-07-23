@@ -3,6 +3,7 @@
 
 #include "Drift/RHI/Format.h"
 #include "Drift/RHI/DepthStencilState.h"
+#include "Drift/RHI/Resource.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -67,7 +68,7 @@ struct PipelineDesc {
 };
 
 // Interface para pipeline state (encapsula configuração de renderização)
-class IPipelineState {
+class IPipelineState : public IResource {
 public:
     virtual ~IPipelineState() = default;
     virtual void Apply(class IContext& ctx) = 0;

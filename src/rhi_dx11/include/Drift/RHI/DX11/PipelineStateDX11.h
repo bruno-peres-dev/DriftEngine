@@ -17,6 +17,10 @@ namespace Drift::RHI::DX11 {
         ~PipelineStateDX11() override = default;
 
         void Apply(IContext& ctx) override;
+        
+        // Métodos da interface IResource
+        void* GetBackendHandle() const override;
+        size_t GetMemoryUsage() const override;
 
     private:
         Microsoft::WRL::ComPtr<ID3D11InputLayout>  _inputLayout;

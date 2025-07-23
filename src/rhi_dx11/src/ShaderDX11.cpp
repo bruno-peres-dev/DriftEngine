@@ -71,4 +71,10 @@ namespace Drift::RHI::DX11 {
         return std::make_shared<ShaderDX11>(compiled.Get());
     }
 
+    // Retorna o uso de memória do shader
+    size_t ShaderDX11::GetMemoryUsage() const {
+        if (!_blob) return 0;
+        return _blob->GetBufferSize();
+    }
+
 } // namespace Drift::RHI::DX11
