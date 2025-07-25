@@ -122,6 +122,17 @@ void UIContext::SetScreenSize(float width, float height)
         m_Root->SetSize({width, height});
         // Marca como dirty para recalcular layout
         m_Root->MarkLayoutDirty();
+        
+        // Força recálculo imediato do layout para todos os elementos
+        if (m_LayoutEngine) {
+            m_LayoutEngine->Layout(*m_Root);
+        }
+        
+        // Processa layout recursivamente em todos os elementos
+        ProcessLayoutRecursive(m_Root.get());
+        
+        // Prepara transformações para renderização
+        m_Root->PreRender(glm::mat4(1.0f));
     }
 }
 

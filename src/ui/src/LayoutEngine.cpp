@@ -271,6 +271,12 @@ void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>&
             childSize.x = parentRect.width - marginLeft - marginRight;
         }
         
+        // Verifica se o elemento ultrapassa os limites do container pai
+        if (y + childSize.y > parentRect.y + parentRect.height) {
+            // Se ultrapassa, para de adicionar elementos
+            break;
+        }
+        
         // Set child position and size
         child->SetPosition(glm::vec2(x, y));
         child->SetSize(childSize);
