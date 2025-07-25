@@ -178,6 +178,10 @@ add_executable(FlexboxTest
   app/flexbox_test.cpp
 )
 
+add_executable(LayoutTest
+  app/layout_test.cpp
+)
+
 target_include_directories(FlexboxTest PUBLIC
   core/include
   engine/include
@@ -187,6 +191,25 @@ target_include_directories(FlexboxTest PUBLIC
 )
 
 target_link_libraries(FlexboxTest PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
+)
+
+target_include_directories(LayoutTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+)
+
+target_link_libraries(LayoutTest PUBLIC
   DriftCore
   DriftMath
   DriftEngine
