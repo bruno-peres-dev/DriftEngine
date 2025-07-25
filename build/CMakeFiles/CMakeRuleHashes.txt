@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-d36139ae164b3247188c840059970320 src/extern/DirectXTK-build/Shaders/Compiled/SpriteEffect_SpriteVertexShader.inc

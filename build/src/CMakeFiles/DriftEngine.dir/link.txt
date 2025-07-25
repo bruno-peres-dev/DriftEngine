@@ -1,2 +1,0 @@
-/usr/bin/ar qc libDriftEngine.a CMakeFiles/DriftEngine.dir/engine/src/Input/GLFWInputManager.cpp.o
-/usr/bin/ranlib libDriftEngine.a

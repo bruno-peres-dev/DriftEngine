@@ -1,0 +1,8 @@
+#!/bin/sh
+# Prevent committing files in build directory
+if git diff --cached --name-only | grep -q '^build/'; then
+  echo 'Error: build directory files are staged for commit. Remove them before committing.' >&2
+  exit 1
+fi
+
+exit 0
