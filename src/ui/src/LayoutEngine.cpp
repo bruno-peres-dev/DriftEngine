@@ -223,6 +223,12 @@ void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>
             childSize.y = parentRect.height - marginTop - marginBottom;
         }
         
+        // Verifica se o elemento ultrapassa os limites do container pai (horizontal)
+        if (x + childSize.x > parentRect.x + parentRect.width) {
+            // Se ultrapassa horizontalmente, para de adicionar elementos
+            break;
+        }
+        
         // Set child position and size
         child->SetPosition(glm::vec2(x, y));
         child->SetSize(childSize);
@@ -269,6 +275,8 @@ void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>&
         } else if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Stretch) {
             x = parentRect.x + marginLeft;
             childSize.x = parentRect.width - marginLeft - marginRight;
+            // Garante que o tamanho não seja negativo
+            if (childSize.x < 0) childSize.x = 0;
         }
         
         // Verifica se o elemento ultrapassa os limites do container pai
@@ -296,21 +304,37 @@ void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>&
 // Helper functions
 LayoutRect LayoutEngine::ApplyMargins(const LayoutRect& rect, const LayoutMargins& margins)
 {
+    // Calcula as dimensões resultantes
+    float newWidth = rect.width - margins.left - margins.right;
+    float newHeight = rect.height - margins.top - margins.bottom;
+    
+    // Clampa as dimensões para evitar valores negativos
+    newWidth = std::max(0.0f, newWidth);
+    newHeight = std::max(0.0f, newHeight);
+    
     return LayoutRect(
         rect.x + margins.left,
         rect.y + margins.top,
-        rect.width - margins.left - margins.right,
-        rect.height - margins.top - margins.bottom
+        newWidth,
+        newHeight
     );
 }
 
 LayoutRect LayoutEngine::ApplyPadding(const LayoutRect& rect, const LayoutMargins& padding)
 {
+    // Calcula as dimensões resultantes
+    float newWidth = rect.width - padding.left - padding.right;
+    float newHeight = rect.height - padding.top - padding.bottom;
+    
+    // Clampa as dimensões para evitar valores negativos
+    newWidth = std::max(0.0f, newWidth);
+    newHeight = std::max(0.0f, newHeight);
+    
     return LayoutRect(
         rect.x + padding.left,
         rect.y + padding.top,
-        rect.width - padding.left - padding.right,
-        rect.height - padding.top - padding.bottom
+        newWidth,
+        newHeight
     );
 }
 

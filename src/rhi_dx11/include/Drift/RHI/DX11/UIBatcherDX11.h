@@ -44,6 +44,7 @@ private:
     void EnsurePipeline();
     bool IsRectVisible(const ScissorRect& rect) const;
     ScissorRect GetCurrentScissorRect() const;
+    ScissorRect ClipRectToScissor(const ScissorRect& rect, const ScissorRect& scissor) const;
 
     float _screenW{1280.0f};
     float _screenH{720.0f};

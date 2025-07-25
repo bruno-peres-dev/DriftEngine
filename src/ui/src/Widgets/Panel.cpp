@@ -16,6 +16,14 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
     if (!IsVisible() || GetOpacity() <= 0.0f)
         return;
 
+    // Aplica clipping se habilitado (igual ao UIElement base)
+    bool clippingApplied = false;
+    if (GetLayoutProperties().clipContent) {
+        glm::vec2 absPos = GetAbsolutePosition();
+        batch.PushScissorRect(absPos.x, absPos.y, GetSize().x, GetSize().y);
+        clippingApplied = true;
+    }
+
     // Só renderiza se tiver tamanho > 0
     if (GetSize().x > 0 && GetSize().y > 0) {
         glm::vec2 absPos = GetAbsolutePosition();
@@ -43,20 +51,31 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
                 float w = GetSize().x;
                 float h = GetSize().y;
                 
-                // Borda superior
-                batch.AddRect(x, y, w, m_BorderWidth, borderColor);
-                // Borda inferior
-                batch.AddRect(x, y + h - m_BorderWidth, w, m_BorderWidth, borderColor);
-                // Borda esquerda
-                batch.AddRect(x, y, m_BorderWidth, h, borderColor);
-                // Borda direita
-                batch.AddRect(x + w - m_BorderWidth, y, m_BorderWidth, h, borderColor);
+                // Verifica se as dimensões são válidas antes de renderizar bordas
+                if (w > 0 && h > 0) {
+                    // Usa espessura fixa para evitar mudanças durante redimensionamento
+                    float borderThickness = m_BorderWidth;
+                    
+                    // Borda superior
+                    batch.AddRect(x, y, w, borderThickness, borderColor);
+                    // Borda inferior
+                    batch.AddRect(x, y + h - borderThickness, w, borderThickness, borderColor);
+                    // Borda esquerda
+                    batch.AddRect(x, y, borderThickness, h, borderColor);
+                    // Borda direita
+                    batch.AddRect(x + w - borderThickness, y, borderThickness, h, borderColor);
+                }
             }
         }
     }
 
-    // Renderiza filhos
+    // Renderiza filhos (com clipping aplicado)
     for (auto& child : GetChildren()) {
         child->Render(batch);
+    }
+    
+    // Remove clipping se foi aplicado
+    if (clippingApplied) {
+        batch.PopScissorRect();
     }
 } 

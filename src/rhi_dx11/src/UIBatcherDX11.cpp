@@ -4,6 +4,7 @@
 #include "Drift/RHI/PipelineState.h"
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include <cstring>
+#include <algorithm>
 
 using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
@@ -37,8 +38,17 @@ void UIBatcherDX11::Begin() {
 void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) {
     // Verifica se o retângulo está visível dentro do scissor atual
     ScissorRect currentScissor = GetCurrentScissorRect();
-    if (currentScissor.IsValid() && !IsRectVisible(ScissorRect(x, y, w, h))) {
-        return; // Retângulo fora da área visível
+    if (currentScissor.IsValid()) {
+        // Se há scissor ativo, calcula a interseção
+        ScissorRect clippedRect = ClipRectToScissor(ScissorRect(x, y, w, h), currentScissor);
+        if (!clippedRect.IsValid()) {
+            return; // Retângulo completamente fora da área visível
+        }
+        // Usa as coordenadas recortadas
+        x = clippedRect.x;
+        y = clippedRect.y;
+        w = clippedRect.width;
+        h = clippedRect.height;
     }
     
     auto toClipX = [this](float px) {
@@ -170,4 +180,20 @@ ScissorRect UIBatcherDX11::GetCurrentScissorRect() const {
         return ScissorRect(); // Retorna retângulo inválido
     }
     return _scissorStack.back();
+}
+
+ScissorRect UIBatcherDX11::ClipRectToScissor(const ScissorRect& rect, const ScissorRect& scissor) const {
+    // Calcula a interseção entre o retângulo e o scissor
+    float left = (rect.x > scissor.x) ? rect.x : scissor.x;
+    float top = (rect.y > scissor.y) ? rect.y : scissor.y;
+    float right = (rect.x + rect.width < scissor.x + scissor.width) ? rect.x + rect.width : scissor.x + scissor.width;
+    float bottom = (rect.y + rect.height < scissor.y + scissor.height) ? rect.y + rect.height : scissor.y + scissor.height;
+    
+    // Se não há interseção, retorna retângulo inválido
+    if (left >= right || top >= bottom) {
+        return ScissorRect();
+    }
+    
+    // Retorna a interseção
+    return ScissorRect(left, top, right - left, bottom - top);
 } 

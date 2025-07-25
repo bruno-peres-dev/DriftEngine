@@ -178,6 +178,10 @@ add_executable(LayoutTest
   app/layout_test.cpp
 )
 
+add_executable(ClippingTest
+  app/clipping_test.cpp
+)
+
 target_include_directories(DriftEngineApp PUBLIC
   core/include
   engine/include
@@ -218,6 +222,25 @@ target_link_libraries(LayoutTest PUBLIC
   d3d11 dxgi D3DCompiler DirectXTK
 )
 
+target_include_directories(ClippingTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+)
+
+target_link_libraries(ClippingTest PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
+)
+
 # Garantir que os shaders estão disponíveis
 file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
 foreach(SHADER ${SHADERS})
@@ -229,6 +252,17 @@ target_include_directories(LayoutTest PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
 target_link_libraries(LayoutTest PRIVATE
+  DriftCore
+  DriftEngine
+  DriftRHI_DX11
+  DriftUI
+  glfw
+)
+
+target_include_directories(ClippingTest PRIVATE
+  ${glfw_SOURCE_DIR}/include
+)
+target_link_libraries(ClippingTest PRIVATE
   DriftCore
   DriftEngine
   DriftRHI_DX11
