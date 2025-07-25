@@ -6,10 +6,10 @@
 #include <stdexcept>
 #include <wrl/client.h>
 #include <filesystem>
+#include <vector>
 
-// DirectXTK headers
-#include <WICTextureLoader.h>      // CreateWICTextureFromFile
-#include <DDSTextureLoader.h>      // CreateDDSTextureFromFile
+#include <gli/gli.hpp>
+#include <gli/dx.hpp>
 
 using namespace Drift::RHI::DX11;
 
@@ -38,32 +38,75 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
         throw std::runtime_error("Arquivo de textura não encontrado: " + pathUtf8);
     }
 
-    // 1) DDS: usa DDSTextureLoader
-    if (pathUtf8.size() >= 4 &&
-        _stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".dds") == 0)
+    if (!desc.path.empty())
     {
-        hr = DirectX::CreateDDSTextureFromFile(dev, ctx,
-            desc.path.c_str(),
-            resource.GetAddressOf(),
-            srv.GetAddressOf());
-        if (FAILED(hr)) {
-            throw std::runtime_error("DDSTextureLoader falhou em '" +
-                pathUtf8 + "'");
+        gli::texture tex;
+        if (pathUtf8.size() >= 4 &&
+            _stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".dds") == 0)
+        {
+            tex = gli::load_dds(pathUtf8);
         }
-    }
-    // 2) Outros formatos: usa WICTextureLoader
-    else if (!desc.path.empty())
-    {
-        hr = DirectX::CreateWICTextureFromFile(dev, ctx,
-            desc.path.c_str(),
-            resource.GetAddressOf(),
-            srv.GetAddressOf());
-        if (FAILED(hr)) {
-            throw std::runtime_error("WICTextureLoader falhou em '" +
-                pathUtf8 + "'");
+        else if (pathUtf8.size() >= 4 &&
+                 (_stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".ktx") == 0 ||
+                  _stricmp(pathUtf8.c_str() + pathUtf8.size() - 5, ".ktx2") == 0))
+        {
+            tex = gli::load_ktx(pathUtf8);
         }
+        else
+        {
+            throw std::runtime_error("Formato de textura não suportado: " + pathUtf8);
+        }
+
+        if (tex.empty())
+            throw std::runtime_error("Falha ao carregar textura: " + pathUtf8);
+
+        gli::dx translator;
+        auto dxFmt = translator.translate(tex.format());
+        DXGI_FORMAT dxgiFmt = static_cast<DXGI_FORMAT>(dxFmt.DXGIFormat.DDS);
+
+        D3D11_TEXTURE2D_DESC td{};
+        td.Width = tex.extent().x;
+        td.Height = tex.extent().y;
+        td.MipLevels = static_cast<UINT>(tex.levels());
+        td.ArraySize = 1;
+        td.Format = dxgiFmt;
+        td.SampleDesc.Count = 1;
+        td.Usage = D3D11_USAGE_DEFAULT;
+        td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        td.CPUAccessFlags = 0;
+        td.MiscFlags = tex.target() == gli::TARGET_CUBE ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
+
+        std::vector<D3D11_SUBRESOURCE_DATA> initData(td.MipLevels);
+        for (UINT level = 0; level < td.MipLevels; ++level) {
+            auto extent = tex.extent(level);
+            initData[level].pSysMem = tex.data(0, 0, level);
+            size_t blockSize = gli::block_size(tex.format());
+            auto blockExtent = gli::block_extent(tex.format());
+            initData[level].SysMemPitch = (extent.x / blockExtent.x) * blockSize;
+            initData[level].SysMemSlicePitch = (extent.y / blockExtent.y) * initData[level].SysMemPitch;
+        }
+
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> texObj;
+        hr = dev->CreateTexture2D(&td, initData.data(), texObj.GetAddressOf());
+        if (FAILED(hr)) {
+            throw std::runtime_error("Falha ao criar textura de '" + pathUtf8 + "'");
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
+        sd.Format = td.Format;
+        sd.ViewDimension = (td.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) ?
+            D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D;
+        sd.Texture2D.MostDetailedMip = 0;
+        sd.Texture2D.MipLevels = td.MipLevels;
+
+        hr = dev->CreateShaderResourceView(texObj.Get(), &sd, srv.GetAddressOf());
+        if (FAILED(hr)) {
+            throw std::runtime_error("Falha ao criar SRV para '" + pathUtf8 + "'");
+        }
+
+        resource = texObj;
     }
-    // 3) Textura vazia em memória
+    // Textura vazia em memória
     else
     {
         D3D11_TEXTURE2D_DESC td{};
