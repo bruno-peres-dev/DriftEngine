@@ -154,22 +154,22 @@ void UIBatcherDX11::End() {
         _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
         _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
         _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
-            _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+        _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+    }
+
+    // Renderiza texto se houver renderizador de texto
+    if (_textRenderer) {
+        _textRenderer->EndTextRendering();
+    }
 }
 
 void UIBatcherDX11::SetScreenSize(float w, float h) {
     _screenW = w;
     _screenH = h;
-    
+
     // Propaga para o renderizador de texto
     if (_textRenderer) {
         _textRenderer->SetScreenSize(w, h);
-    }
-}
-    
-    // Renderiza texto se houver renderizador de texto
-    if (_textRenderer) {
-        _textRenderer->EndTextRendering();
     }
 }
 
