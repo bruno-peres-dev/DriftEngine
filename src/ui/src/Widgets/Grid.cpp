@@ -104,6 +104,10 @@ void Grid::RecalculateLayout() {
         float y = cellY + marginTop;
         float width = cellWidth - marginLeft - marginRight;
         float height = cellHeight - marginTop - marginBottom;
+
+        // Prevent negative sizes when margins exceed the cell size
+        width = std::max(width, 0.0f);
+        height = std::max(height, 0.0f);
         
         // Handle alignment
         if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Center) {
