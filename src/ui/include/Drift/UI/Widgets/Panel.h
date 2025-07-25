@@ -15,6 +15,7 @@ public:
     {
         m_BackgroundColor = color;
         SetColor(color); // Keep the render color in sync
+        MarkDirty();
     }
     unsigned GetBackgroundColor() const { return m_BackgroundColor; }
     
