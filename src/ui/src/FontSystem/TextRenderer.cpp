@@ -150,8 +150,9 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             float glyphX = currentX + glyph->offset.x;
             float glyphY = currentY - glyph->offset.y;
             
-            LOG_DEBUG("  Glyph '{}' at ({}, {}) size {}x{}", 
-                      c, glyphX, glyphY, glyph->size.x, glyph->size.y);
+            LOG_DEBUG("  Glyph '{}' at ({}, {}) size {}x{} uv ({}, {})-({}, {})",
+                      c, glyphX, glyphY, glyph->size.x, glyph->size.y,
+                      glyph->uvMin.x, glyph->uvMin.y, glyph->uvMax.x, glyph->uvMax.y);
             
             currentX += glyph->advance;
             

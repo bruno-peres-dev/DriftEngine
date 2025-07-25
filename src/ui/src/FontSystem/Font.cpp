@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include "stb_truetype.h"
+#include "Drift/UI/FontSystem/MSDFGenerator.h"
 
 namespace Drift::UI {
 
@@ -49,29 +50,38 @@ bool Font::Load() {
     m_Descender = -descent * m_Scale;
     m_LineHeight = (ascent - descent + lineGap) * m_Scale;
 
-    m_BitmapWidth = 512;
-    m_BitmapHeight = 512;
-    m_Bitmap.assign(m_BitmapWidth * m_BitmapHeight, 0);
+    // Gerar glyphs usando MSDF e armazenar no atlas
+    m_Atlas = std::make_unique<FontAtlas>();
+    MSDFGenerator generator;
+    for (uint32_t cp = 32; cp < 128; ++cp) {
+        MSDFData msdf;
+        if (!generator.GenerateFromGlyph(m_TTFBuffer.data(), cp, msdf)) {
+            continue;
+        }
 
-    std::vector<stbtt_bakedchar> baked(96);
-    int res = stbtt_BakeFontBitmap(m_TTFBuffer.data(), 0, m_Size,
-                                   m_Bitmap.data(), m_BitmapWidth, m_BitmapHeight,
-                                   32, 96, baked.data());
-    if (res <= 0) {
-        LOG_ERROR("stbtt_BakeFontBitmap failed for {}", m_FilePath);
-        return false;
-    }
+        std::vector<uint8_t> pixels;
+        generator.ConvertToRGBA8(msdf, pixels);
 
-    for (int i = 0; i < 96; ++i) {
-        const auto& bc = baked[i];
+        AtlasRegion* region = m_Atlas->AllocateRegion(msdf.width, msdf.height, cp);
+        if (!region) {
+            continue;
+        }
+        m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height);
+
+        int ax, lsb;
+        stbtt_GetCodepointHMetrics(&m_FontInfo, cp, &ax, &lsb);
+        int x0, y0, x1, y1;
+        stbtt_GetCodepointBitmapBox(&m_FontInfo, cp, m_Scale, m_Scale, &x0, &y0, &x1, &y1);
+
         Glyph g{};
-        g.codepoint = i + 32;
-        g.position = {static_cast<float>(bc.x0), static_cast<float>(bc.y0)};
-        g.size = {static_cast<float>(bc.x1 - bc.x0), static_cast<float>(bc.y1 - bc.y0)};
-        g.offset = {bc.xoff, bc.yoff};
-        g.advance = bc.xadvance;
-        g.uvMin = {bc.x0 / static_cast<float>(m_BitmapWidth), bc.y0 / static_cast<float>(m_BitmapHeight)};
-        g.uvMax = {bc.x1 / static_cast<float>(m_BitmapWidth), bc.y1 / static_cast<float>(m_BitmapHeight)};
+        g.codepoint = cp;
+        g.position = {static_cast<float>(region->x), static_cast<float>(region->y)};
+        g.size = {static_cast<float>(msdf.width), static_cast<float>(msdf.height)};
+        g.offset = {static_cast<float>(x0), static_cast<float>(y0)};
+        g.advance = static_cast<float>(ax) * m_Scale;
+        g.uvMin = {region->x / static_cast<float>(m_Atlas->GetWidth()), region->y / static_cast<float>(m_Atlas->GetHeight())};
+        g.uvMax = {(region->x + region->width) / static_cast<float>(m_Atlas->GetWidth()),
+                   (region->y + region->height) / static_cast<float>(m_Atlas->GetHeight())};
         g.isValid = true;
         m_Glyphs[g.codepoint] = g;
     }
