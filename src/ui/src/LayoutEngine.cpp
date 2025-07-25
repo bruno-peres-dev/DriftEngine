@@ -141,6 +141,10 @@ void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>&
 {
     // Respeita o tipo de layout
     switch (layoutProps.layoutType) {
+        case LayoutType::None:
+            // Para None, não aplica nenhum layout automático nos filhos
+            // Os filhos mantêm suas posições absolutas
+            break;
         case LayoutType::Stack:
             LayoutVertical(children, parentRect, layoutProps);
             break;
@@ -148,6 +152,36 @@ void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>&
             // TODO: Implementar layout de grid
             break;
         case LayoutType::Absolute:
+            // Para Absolute, processa filhos recursivamente mas não aplica layout automático
+            // Permite que elementos absolutos sejam responsivos ao redimensionamento
+            for (auto& child : children) {
+                if (IsElementVisible(*child)) {
+                    auto childProps = child->GetLayoutProperties();
+                    
+                    // Se o filho tem alinhamento stretch, aplica redimensionamento responsivo
+                    if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Stretch ||
+                        childProps.verticalAlign == LayoutProperties::VerticalAlign::Stretch) {
+                        
+                        glm::vec2 childSize = child->GetSize();
+                        glm::vec2 childPos = child->GetPosition();
+                        
+                        // Aplica stretch horizontal se configurado
+                        if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Stretch) {
+                            childSize.x = parentRect.width - childProps.margin.x - childProps.margin.z;
+                            childPos.x = parentRect.x + childProps.margin.x;
+                        }
+                        
+                        // Aplica stretch vertical se configurado
+                        if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Stretch) {
+                            childSize.y = parentRect.height - childProps.margin.y - childProps.margin.w;
+                            childPos.y = parentRect.y + childProps.margin.y;
+                        }
+                        
+                        child->SetPosition(childPos);
+                        child->SetSize(childSize);
+                    }
+                }
+            }
             break;
     }
 }

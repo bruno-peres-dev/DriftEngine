@@ -21,86 +21,100 @@ using namespace Drift;
 
 void TestLayoutSystem(UI::UIContext* uiContext)
 {
-    std::cout << "=== Teste do Sistema de Layout ===" << std::endl;
+    // Configura tamanho inicial da tela
     uiContext->SetScreenSize(800.0f, 600.0f);
     
-    // Container principal responsivo com fundo vermelho
+    // ========================================
+    // CONTAINER PRINCIPAL COM MARGEM
+    // ========================================
     auto mainContainer = std::make_shared<UI::Panel>(uiContext);
     mainContainer->SetName("MainContainer");
-    mainContainer->SetPosition({50.0f, 50.0f});
-    mainContainer->SetSize({700.0f, 500.0f});
-    mainContainer->SetColor(0xFFFF0000); // Fundo vermelho puro
+    mainContainer->SetPosition({0.0f, 0.0f}); // Posição inicial
+    mainContainer->SetSize({800.0f, 600.0f}); // Tamanho inicial
+    mainContainer->SetColor(0xFF222222); // Fundo escuro
     
-    // Layout absoluto do container principal (não interfere nos filhos)
+    // Layout responsivo que se adapta ao redimensionamento
     UI::LayoutProperties mainLayout;
-    mainLayout.padding = UI::LayoutMargins(5.0f).ToVec4();
-    mainLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
-    mainLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-    mainLayout.layoutType = UI::LayoutType::Absolute;
+    mainLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Stretch; // Responsivo
+    mainLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Stretch; // Responsivo
+    mainLayout.layoutType = UI::LayoutType::Stack;
+    mainLayout.stackDirection = UI::StackDirection::Vertical;
+    mainLayout.stackSpacing = 10.0f; // Espaçamento entre elementos
+    mainLayout.margin = UI::LayoutMargins(20.0f).ToVec4(); // Margem externa
+    mainLayout.padding = UI::LayoutMargins(15.0f).ToVec4(); // Padding interno
     mainContainer->SetLayoutProperties(mainLayout);
     
     uiContext->GetRoot()->AddChild(mainContainer);
-    Core::Log("[Layout Test] Container principal criado: fundo vermelho responsivo");
     
-    Core::Log("[Layout Test] Container principal criado: fundo vermelho responsivo");
+    // ========================================
+    // CINCO BOTÕES QUE OCUPAM TODA A LARGURA
+    // ========================================
     
-    // Lista de botões pretos
     std::vector<std::string> buttonTexts = {
-        "Botão 1",
-        "Botão 2", 
-        "Botão 3",
-        "Botão 4",
-        "Botão 5",
-        "Sair"
+        "Botão Principal",
+        "Botão Secundário", 
+        "Botão de Ação",
+        "Botão de Configuração",
+        "Botão de Sair"
+    };
+    
+    std::vector<uint32_t> buttonColors = {
+        0xFF4CAF50, // Verde
+        0xFF2196F3, // Azul
+        0xFFFF9800, // Laranja
+        0xFF9C27B0, // Roxo
+        0xFFF44336  // Vermelho
     };
     
     for (size_t i = 0; i < buttonTexts.size(); ++i) {
-        // Botão simples com cor preta
         auto button = std::make_shared<UI::Button>(uiContext);
-        button->SetName("Button" + std::to_string(i + 1));
+        button->SetName("FullWidthButton" + std::to_string(i + 1));
         button->SetText(buttonTexts[i]);
+        button->SetSize({200.0f, 40.0f}); // Tamanho base, será esticado
+        button->SetNormalColor(buttonColors[i]);
         
-        // Posicionamento absoluto dos botões
-        float buttonY = 100.0f + (i * 60.0f); // 60px de espaçamento entre botões
-        button->SetPosition({250.0f, buttonY}); // Centralizado horizontalmente
-        button->SetSize({200.0f, 40.0f});
+        // Cores de hover e pressed calculadas de forma segura
+        uint32_t baseColor = buttonColors[i];
         
-        // Define cores específicas para cada estado do botão
-        button->SetNormalColor(0xFF000000);   // Preto
-        button->SetHoverColor(0xFF333333);    // Cinza escuro
-        button->SetPressedColor(0xFF666666);  // Cinza médio
-        button->SetDisabledColor(0xFFCCCCCC); // Cinza claro
+        // Extrai componentes RGB
+        uint8_t r = (baseColor >> 16) & 0xFF;
+        uint8_t g = (baseColor >> 8) & 0xFF;
+        uint8_t b = baseColor & 0xFF;
         
-        // Layout absoluto do botão
+        // Calcula cores de hover (mais claras)
+        uint8_t hoverR = (r + 40 > 255) ? 255 : r + 40;
+        uint8_t hoverG = (g + 40 > 255) ? 255 : g + 40;
+        uint8_t hoverB = (b + 40 > 255) ? 255 : b + 40;
+        uint32_t hoverColor = 0xFF000000 | (hoverR << 16) | (hoverG << 8) | hoverB;
+        
+        // Calcula cores de pressed (mais escuras)
+        uint8_t pressedR = (r < 40) ? 0 : r - 40;
+        uint8_t pressedG = (g < 40) ? 0 : g - 40;
+        uint8_t pressedB = (b < 40) ? 0 : b - 40;
+        uint32_t pressedColor = 0xFF000000 | (pressedR << 16) | (pressedG << 8) | pressedB;
+        
+        button->SetHoverColor(hoverColor);
+        button->SetPressedColor(pressedColor);
+        
+        // Layout que ocupa toda a largura horizontal
         UI::LayoutProperties buttonLayout;
-        buttonLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
+        buttonLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Stretch;
         buttonLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
         buttonLayout.layoutType = UI::LayoutType::Absolute;
+        buttonLayout.margin = UI::LayoutMargins(0.0f, 5.0f, 0.0f, 5.0f).ToVec4(); // Espaçamento vertical entre botões
         button->SetLayoutProperties(buttonLayout);
         
-        // Callback do botão
         button->SetOnClick([buttonTexts, i](const UI::ButtonClickEvent& event) {
             Core::Log("[UI] " + buttonTexts[i] + " clicado!");
         });
         
         mainContainer->AddChild(button);
-        Core::Log("[Layout Test] " + buttonTexts[i] + " criado (preto com estados)");
     }
     
-    std::cout << "Layout criado! Lista vertical de botões pretos com fundo vermelho:" << std::endl;
-    std::cout << "- Container principal: fundo vermelho puro responsivo" << std::endl;
-    std::cout << "- StackPanel vertical com espaçamento de 10px entre botões" << std::endl;
-    std::cout << "- " << buttonTexts.size() << " botões pretos puros centralizados" << std::endl;
-    std::cout << "- Botões clicáveis com callbacks funcionais" << std::endl;
-    std::cout << "- Layout responsivo: se adapta ao redimensionamento da janela" << std::endl;
-    
-    // Processa alguns frames para garantir que o layout seja aplicado
+    // Processa alguns frames para aplicar o layout
     for (int i = 0; i < 3; ++i) {
         uiContext->Update(1.0f / 60.0f);
-        std::cout << "Frame " << (i + 1) << " processado" << std::endl;
     }
-    
-    std::cout << "\n=== Teste Concluído ===" << std::endl;
 }
 
 int main() {
