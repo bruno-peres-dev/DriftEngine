@@ -72,7 +72,9 @@ endmacro(addExternalPackageGTC)
 # Add subdirectory
 
 add_subdirectory(gli)
-add_subdirectory(test)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    add_subdirectory(test)
+endif()
 #add_subdirectory(doc)
 
 ################################
