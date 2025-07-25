@@ -196,6 +196,22 @@ add_executable(LayoutFixesTest
   app/layout_fixes_test.cpp
 )
 
+add_executable(PanelColorTest
+  app/panel_color_test.cpp
+)
+
+target_include_directories(PanelColorTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+)
+
+target_link_libraries(PanelColorTest PUBLIC
+  DriftCore
+  DriftEngine
+  DriftUI
+)
+
 add_executable(TexturePipeline
   tools/texture_pipeline.cpp
 )
