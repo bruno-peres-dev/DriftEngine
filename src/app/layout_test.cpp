@@ -164,14 +164,17 @@ int main() {
     // ================================
     // 1. INICIALIZAÇÃO DO GLFW
     // ================================
+    Core::Log("[Layout Test] 1. Inicializando GLFW...");
     if (!glfwInit()) {
         Core::Log("[Layout Test] ERRO: Falha ao inicializar GLFW!");
         return -1;
     }
+    Core::Log("[Layout Test] 1. GLFW inicializado com sucesso!");
 
     // ================================
     // 2. CRIAÇÃO DA JANELA
     // ================================
+    Core::Log("[Layout Test] 2. Criando janela...");
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(800, 600, "DriftEngine Layout Test", nullptr, nullptr);
     if (!window) {
@@ -179,6 +182,7 @@ int main() {
         glfwTerminate();
         return -1;
     }
+    Core::Log("[Layout Test] 2. Janela criada com sucesso!");
 
     HWND hwnd = glfwGetWin32Window(window);
     if (!hwnd) {
@@ -296,4 +300,10 @@ int main() {
     // 9. FINALIZAÇÃO
     // ================================
     Core::Log("[Layout Test] Finalizando...");
-    uiContext->
+    uiContext->Shutdown();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    Core::Log("[Layout Test] Teste concluído com sucesso!");
+
+    return 0;
+} 
