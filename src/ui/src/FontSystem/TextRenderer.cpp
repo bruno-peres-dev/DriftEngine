@@ -187,7 +187,7 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, unsigned
     settings.quality = FontQuality::High;
     settings.smoothing = 0.5f;
     settings.gamma = 2.2f;
-    settings.enableSubpixelRendering = true;
+    settings.enableSubpixel = true;
     
     m_TextRenderer->AddText(text, x, y, "default", 16.0f, color, settings);
 }

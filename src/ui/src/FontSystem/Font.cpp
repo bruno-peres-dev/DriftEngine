@@ -137,7 +137,7 @@ glm::vec2 Font::MeasureText(const std::string& text) const {
         
         const Glyph* glyph = GetGlyph(character);
         if (glyph) {
-            lineHeight += glyph->advance.x;
+            lineHeight += glyph->advance;
             height = std::max(height, glyph->size.y);
             
             // Aplicar kerning se não for o último caractere
