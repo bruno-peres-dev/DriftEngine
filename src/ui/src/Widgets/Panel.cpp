@@ -1,5 +1,6 @@
 #include "Drift/UI/Widgets/Panel.h"
 #include "Drift/RHI/Buffer.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Drift::UI;
 
@@ -26,7 +27,6 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
 
     // Só renderiza se tiver tamanho > 0
     if (GetSize().x > 0 && GetSize().y > 0) {
-        glm::vec2 absPos = GetAbsolutePosition();
         unsigned color = GetRenderColor();
         
         // Aplica opacidade
@@ -35,7 +35,7 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
         
         // Só renderiza se o alpha final for > 0
         if (alpha > 0) {
-            batch.AddRect(absPos.x, absPos.y, GetSize().x, GetSize().y, color);
+            batch.AddQuad(GetWorldTransform(), GetSize().x, GetSize().y, color);
         }
         
         // Renderiza borda se necessário
@@ -46,8 +46,6 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
             // Só renderiza bordas se o alpha for > 0
             if (borderAlpha > 0) {
                 // Bordas simples (pode ser melhorado com linhas)
-                float x = absPos.x;
-                float y = absPos.y;
                 float w = GetSize().x;
                 float h = GetSize().y;
                 
@@ -66,14 +64,21 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
                     // Garante um mínimo de 1 pixel
                     borderThickness = std::max(1.0f, borderThickness);
                     
+                    glm::mat4 base = GetWorldTransform();
+                    using glm::translate;
+                    glm::mat4 m;
                     // Borda superior
-                    batch.AddRect(x, y, w, borderThickness, borderColor);
+                    m = base * translate(glm::mat4(1.0f), {0.0f, 0.0f, 0.0f});
+                    batch.AddQuad(m, w, borderThickness, borderColor);
                     // Borda inferior
-                    batch.AddRect(x, y + h - borderThickness, w, borderThickness, borderColor);
+                    m = base * translate(glm::mat4(1.0f), {0.0f, h - borderThickness, 0.0f});
+                    batch.AddQuad(m, w, borderThickness, borderColor);
                     // Borda esquerda
-                    batch.AddRect(x, y, borderThickness, h, borderColor);
+                    m = base * translate(glm::mat4(1.0f), {0.0f, 0.0f, 0.0f});
+                    batch.AddQuad(m, borderThickness, h, borderColor);
                     // Borda direita
-                    batch.AddRect(x + w - borderThickness, y, borderThickness, h, borderColor);
+                    m = base * translate(glm::mat4(1.0f), {w - borderThickness, 0.0f, 0.0f});
+                    batch.AddQuad(m, borderThickness, h, borderColor);
                 }
             }
         }

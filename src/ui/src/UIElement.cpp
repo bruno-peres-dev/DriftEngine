@@ -131,16 +131,15 @@ void UIElement::Render(Drift::RHI::IUIBatcher& batch)
 
     // Só renderiza se tiver tamanho > 0
     if (m_Size.x > 0 && m_Size.y > 0) {
-        glm::vec2 absPos = GetAbsolutePosition();
         unsigned color = GetRenderColor();
-        
+
         // Aplica opacidade
         unsigned alpha = static_cast<unsigned>(((color >> 24) & 0xFF) * m_Opacity);
         color = (color & 0x00FFFFFF) | (alpha << 24);
-        
+
         // Só renderiza se o alpha final for > 0
         if (alpha > 0) {
-            batch.AddRect(absPos.x, absPos.y, m_Size.x, m_Size.y, color);
+            batch.AddQuad(m_WorldTransform, m_Size.x, m_Size.y, color);
         }
     }
 

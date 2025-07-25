@@ -84,6 +84,38 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     _indices.push_back(base + 0);
 }
 
+void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
+                            float x2, float y2, float x3, float y3,
+                            unsigned color) {
+    ScissorRect currentScissor = GetCurrentScissorRect();
+    if (currentScissor.IsValid()) {
+        float minX = std::min({x0, x1, x2, x3});
+        float minY = std::min({y0, y1, y2, y3});
+        float maxX = std::max({x0, x1, x2, x3});
+        float maxY = std::max({y0, y1, y2, y3});
+        if (maxX <= currentScissor.x || minX >= currentScissor.x + currentScissor.width ||
+            maxY <= currentScissor.y || minY >= currentScissor.y + currentScissor.height) {
+            return;
+        }
+    }
+
+    auto toClipX = [this](float px) { return (px / _screenW) * 2.0f - 1.0f; };
+    auto toClipY = [this](float py) { return 1.0f - (py / _screenH) * 2.0f; };
+
+    unsigned bgra = ConvertARGBtoBGRA(color);
+    unsigned base = (unsigned)_vertices.size();
+    _vertices.push_back({toClipX(x0), toClipY(y0), bgra});
+    _vertices.push_back({toClipX(x1), toClipY(y1), bgra});
+    _vertices.push_back({toClipX(x2), toClipY(y2), bgra});
+    _vertices.push_back({toClipX(x3), toClipY(y3), bgra});
+    _indices.push_back(base + 0);
+    _indices.push_back(base + 1);
+    _indices.push_back(base + 2);
+    _indices.push_back(base + 2);
+    _indices.push_back(base + 3);
+    _indices.push_back(base + 0);
+}
+
 // Implementação do sistema de renderização de texto com MSDF
 void UIBatcherDX11::AddText(float x, float y, const char* text, unsigned color) {
     if (!text || !_textRenderer) {
