@@ -146,14 +146,14 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         const Glyph* glyph = command.font->GetGlyph(character);
         
         if (glyph) {
-            // Simular posicionamento do glyph
-            float glyphX = currentX + glyph->bearing.x;
-            float glyphY = currentY - glyph->bearing.y;
+            // Simular posicionamento do glyph usando offsets
+            float glyphX = currentX + glyph->offset.x;
+            float glyphY = currentY - glyph->offset.y;
             
             LOG_DEBUG("  Glyph '{}' at ({}, {}) size {}x{}", 
                       c, glyphX, glyphY, glyph->size.x, glyph->size.y);
             
-            currentX += glyph->advance.x;
+            currentX += glyph->advance;
             
             // Aplicar kerning se não for o último caractere
             if (c != command.text.back()) {
@@ -187,7 +187,7 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, unsigned
     settings.quality = FontQuality::High;
     settings.smoothing = 0.5f;
     settings.gamma = 2.2f;
-    settings.enableSubpixelRendering = true;
+    settings.enableSubpixel = true;
     
     m_TextRenderer->AddText(text, x, y, "default", 16.0f, color, settings);
 }

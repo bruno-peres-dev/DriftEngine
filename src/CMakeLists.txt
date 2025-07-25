@@ -159,6 +159,7 @@ target_include_directories(DriftUI PUBLIC
   rhi/include
   engine/include
   core/include
+  ${CMAKE_SOURCE_DIR}/extern/stb
 )
 
 target_link_libraries(DriftUI PUBLIC
