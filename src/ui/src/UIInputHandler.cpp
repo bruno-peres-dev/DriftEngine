@@ -97,22 +97,28 @@ UIElement* UIInputHandler::GetElementAtPosition(const glm::vec2& position)
 UIElement* UIInputHandler::FindElementAtPosition(UIElement* element, const glm::vec2& position)
 {
     if (!element) return nullptr;
-    
-    // Verifica se o ponto está dentro deste elemento
-    if (IsPointInElement(element, position)) {
-        // Busca recursivamente nos filhos (em ordem reversa para pegar o topo primeiro)
-        auto& children = element->GetChildren();
-        for (auto it = children.rbegin(); it != children.rend(); ++it) {
-            auto* childResult = FindElementAtPosition(it->get(), position);
-            if (childResult) {
-                return childResult;
-            }
+
+    const bool pointInside = IsPointInElement(element, position);
+
+    // Se o elemento clippa seu conteúdo e o ponto está fora, ignora a busca nos filhos
+    if (element->GetLayoutProperties().clipContent && !pointInside) {
+        return nullptr;
+    }
+
+    // Busca recursivamente nos filhos (em ordem reversa para pegar o topo primeiro)
+    auto& children = element->GetChildren();
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        auto* childResult = FindElementAtPosition(it->get(), position);
+        if (childResult) {
+            return childResult;
         }
-        
-        // Se não encontrou nenhum filho, retorna este elemento
+    }
+
+    // Retorna este elemento apenas se o ponto estiver dentro dele
+    if (pointInside) {
         return element;
     }
-    
+
     return nullptr;
 }
 
