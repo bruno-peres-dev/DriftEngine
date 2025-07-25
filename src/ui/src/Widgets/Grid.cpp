@@ -156,6 +156,7 @@ std::vector<float> Grid::CalculateGridSizes(const std::vector<GridUnit>& definit
     float fixedSize = 0.0f;
     float starWeight = 0.0f;
     int autoCount = 0;
+    int starCount = 0;
     
     for (const auto& def : definitions) {
         switch (def.type) {
@@ -169,6 +170,7 @@ std::vector<float> Grid::CalculateGridSizes(const std::vector<GridUnit>& definit
                 break;
             case GridUnitType::Star:
                 starWeight += def.value;
+                starCount++;
                 sizes.push_back(0.0f); // Placeholder
                 break;
         }
@@ -193,8 +195,12 @@ std::vector<float> Grid::CalculateGridSizes(const std::vector<GridUnit>& definit
             // Auto units get equal share of remaining space
             sizes[sizeIndex] = remainingSpace / autoCount;
         } else if (def.type == GridUnitType::Star) {
-            // Star units get proportional share
-            sizes[sizeIndex] = (def.value / starWeight) * remainingSpace;
+            // Star units get proportional share. Safeguard against zero weight.
+            if (starWeight == 0.0f && starCount > 0) {
+                sizes[sizeIndex] = remainingSpace / starCount;
+            } else {
+                sizes[sizeIndex] = (def.value / starWeight) * remainingSpace;
+            }
         }
         sizeIndex++;
     }
