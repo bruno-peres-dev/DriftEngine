@@ -380,7 +380,43 @@ void TestLayoutFixes(UI::UIContext* uiContext)
         
         responsiveTestPanel->AddChild(button);
     }
-    
+
+    // ========================================
+    // TESTE 5B: MARGENS EXTREMAS
+    // Elemento com margens verticais maiores que o container
+    // ========================================
+    auto negativeMarginPanel = std::make_shared<UI::Panel>(uiContext);
+    negativeMarginPanel->SetName("NegativeMarginPanel");
+    negativeMarginPanel->SetColor(0xFF444444);
+    negativeMarginPanel->SetSize({300.0f, 30.0f});
+
+    UI::LayoutProperties negativeLayout;
+    negativeLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Stretch;
+    negativeLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Stretch;
+    negativeLayout.layoutType = UI::LayoutType::Stack;
+    negativeLayout.stackDirection = UI::StackDirection::Horizontal;
+    negativeLayout.stackSpacing = 5.0f;
+    negativeLayout.margin = UI::LayoutMargins(5.0f).ToVec4();
+    negativeMarginPanel->SetLayoutProperties(negativeLayout);
+
+    testContainer->AddChild(negativeMarginPanel);
+
+    // Botão que antes gerava altura negativa
+    auto negativeButton = std::make_shared<UI::Button>(uiContext);
+    negativeButton->SetName("NegativeMarginButton");
+    negativeButton->SetText("Margens Grandes");
+    negativeButton->SetSize({80.0f, 20.0f});
+    negativeButton->SetNormalColor(0xFF607D8B);
+
+    UI::LayoutProperties negativeButtonLayout;
+    negativeButtonLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
+    negativeButtonLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Stretch;
+    negativeButtonLayout.layoutType = UI::LayoutType::None;
+    negativeButtonLayout.margin = UI::LayoutMargins(0.0f, 25.0f, 0.0f, 25.0f).ToVec4();
+    negativeButton->SetLayoutProperties(negativeButtonLayout);
+
+    negativeMarginPanel->AddChild(negativeButton);
+
     // ========================================
     // TESTE 6: CONTROLES
     // ========================================
