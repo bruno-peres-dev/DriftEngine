@@ -199,6 +199,10 @@ add_executable(PanelColorTest
   app/panel_color_test.cpp
 )
 
+add_executable(LayoutPropagationTest
+  app/layout_propagation_test.cpp
+)
+
 target_include_directories(PanelColorTest PUBLIC
   core/include
   engine/include
@@ -206,6 +210,18 @@ target_include_directories(PanelColorTest PUBLIC
 )
 
 target_link_libraries(PanelColorTest PUBLIC
+  DriftCore
+  DriftEngine
+  DriftUI
+)
+
+target_include_directories(LayoutPropagationTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+)
+
+target_link_libraries(LayoutPropagationTest PUBLIC
   DriftCore
   DriftEngine
   DriftUI

@@ -75,7 +75,12 @@ public:
     
     // === DIRTY FLAGS ===
     void MarkDirty() { m_Dirty = true; }
-    void MarkLayoutDirty() { m_LayoutDirty = true; }
+    void MarkLayoutDirty() {
+        m_LayoutDirty = true;
+        if (m_Parent) {
+            m_Parent->MarkLayoutDirty();
+        }
+    }
     bool IsDirty() const { return m_Dirty; }
     bool IsLayoutDirty() const { return m_LayoutDirty; }
     void ClearDirty() { m_Dirty = false; }
