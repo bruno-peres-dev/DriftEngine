@@ -90,46 +90,6 @@ UIElement* UIInputHandler::GetElementAtPosition(const glm::vec2& position)
 {
     auto* root = m_Context->GetRoot().get();
     if (!root) return nullptr;
-    
-    return FindElementAtPosition(root, position);
+
+    return m_Context->FindElementAtPosition(root, position);
 }
-
-UIElement* UIInputHandler::FindElementAtPosition(UIElement* element, const glm::vec2& position)
-{
-    if (!element) return nullptr;
-
-    const bool pointInside = IsPointInElement(element, position);
-
-    // Se o elemento clippa seu conteúdo e o ponto está fora, ignora a busca nos filhos
-    if (element->GetLayoutProperties().clipContent && !pointInside) {
-        return nullptr;
-    }
-
-    // Busca recursivamente nos filhos (em ordem reversa para pegar o topo primeiro)
-    auto& children = element->GetChildren();
-    for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        auto* childResult = FindElementAtPosition(it->get(), position);
-        if (childResult) {
-            return childResult;
-        }
-    }
-
-    // Retorna este elemento apenas se o ponto estiver dentro dele
-    if (pointInside) {
-        return element;
-    }
-
-    return nullptr;
-}
-
-bool UIInputHandler::IsPointInElement(const UIElement* element, const glm::vec2& point) const
-{
-    if (!element) return false;
-    
-    // Usa posição absoluta para considerar a hierarquia de elementos
-    glm::vec2 absPos = element->GetAbsolutePosition();
-    glm::vec2 size = element->GetSize();
-    
-    return point.x >= absPos.x && point.x <= absPos.x + size.x &&
-           point.y >= absPos.y && point.y <= absPos.y + size.y;
-} 

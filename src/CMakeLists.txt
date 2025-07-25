@@ -203,6 +203,10 @@ add_executable(LayoutPropagationTest
   app/layout_propagation_test.cpp
 )
 
+add_executable(HitTestClippingTest
+  app/hittest_clipping_test.cpp
+)
+
 target_include_directories(PanelColorTest PUBLIC
   core/include
   engine/include
@@ -222,6 +226,18 @@ target_include_directories(LayoutPropagationTest PUBLIC
 )
 
 target_link_libraries(LayoutPropagationTest PUBLIC
+  DriftCore
+  DriftEngine
+  DriftUI
+)
+
+target_include_directories(HitTestClippingTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+)
+
+target_link_libraries(HitTestClippingTest PUBLIC
   DriftCore
   DriftEngine
   DriftUI
