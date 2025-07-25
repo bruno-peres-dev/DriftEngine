@@ -129,7 +129,8 @@ void TestClippingSystem(UI::UIContext* uiContext)
     button4->SetLayoutProperties(button4Layout);
     
     button4->SetOnClick([](const UI::ButtonClickEvent& event) {
-        Core::Log("[Clipping Test] Botão Fora dos Limites clicado!");
+        // Este log não deve aparecer se o clipping estiver funcionando
+        Core::Log("[Clipping Test][ERRO] Botão Fora dos Limites clicado!");
     });
     
     mainContainer->AddChild(button4);
@@ -173,6 +174,7 @@ void TestClippingSystem(UI::UIContext* uiContext)
         subButton->SetLayoutProperties(subButtonLayout);
         
         subButton->SetOnClick([i](const UI::ButtonClickEvent& event) {
+            // Apenas os botões visíveis dentro do clipping devem responder
             Core::Log("[Clipping Test] Sub Botão " + std::to_string(i + 1) + " clicado!");
         });
         
