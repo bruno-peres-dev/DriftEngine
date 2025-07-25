@@ -34,10 +34,10 @@ target_include_directories(glm INTERFACE
 )
 
 # ------------------------------------------------
-# 2) DirectXTK (core + WIC loader) via subdirectory
+# 2) GLI (header-only) via subdirectory
 # ------------------------------------------------
 
-add_subdirectory(../extern/DirectXTK "extern/DirectXTK-build")
+add_subdirectory(../extern/gli "extern/gli-build")
 
 # ------------------------------------------------
 # 3) DriftEngine Libraries
@@ -108,7 +108,7 @@ target_include_directories(DriftRHI_DX11 PUBLIC
 )
 target_link_libraries(DriftRHI_DX11 PUBLIC
   DriftRHI
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 # 3.5) DriftRenderer (passes)
@@ -126,7 +126,7 @@ target_link_libraries(DriftRenderer PUBLIC
   DriftEngine
   DriftMath
   glm
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 # 3.6) DriftUI (sistema de interface)
@@ -196,6 +196,13 @@ add_executable(LayoutFixesTest
   app/layout_fixes_test.cpp
 )
 
+add_executable(TexturePipeline
+  tools/texture_pipeline.cpp
+)
+target_include_directories(TexturePipeline PUBLIC
+  ${CMAKE_SOURCE_DIR}/extern/stb
+)
+
 target_include_directories(DriftEngineApp PUBLIC
   core/include
   engine/include
@@ -214,7 +221,7 @@ target_link_libraries(DriftEngineApp PUBLIC
   DriftRenderer
   DriftUI
   glfw
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 target_include_directories(LayoutTest PUBLIC
@@ -233,7 +240,7 @@ target_link_libraries(LayoutTest PUBLIC
   DriftRHI_DX11
   DriftUI
   glfw
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 target_include_directories(ClippingTest PUBLIC
@@ -252,7 +259,7 @@ target_link_libraries(ClippingTest PUBLIC
   DriftRHI_DX11
   DriftUI
   glfw
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 target_include_directories(FontTest PUBLIC
@@ -272,7 +279,7 @@ target_link_libraries(FontTest PUBLIC
   DriftRHI_DX11
   DriftUI
   glfw
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 target_include_directories(LayoutFixesTest PUBLIC
@@ -292,7 +299,7 @@ target_link_libraries(LayoutFixesTest PUBLIC
   DriftRHI_DX11
   DriftUI
   glfw
-  d3d11 dxgi D3DCompiler DirectXTK
+  d3d11 dxgi D3DCompiler
 )
 
 # Garantir que os shaders estão disponíveis
