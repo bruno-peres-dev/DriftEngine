@@ -2,6 +2,7 @@
 
 #include "Drift/UI/UIElement.h"
 #include "Drift/Core/Log.h"
+#include "Drift/Core/Color.h"
 #include <functional>
 #include <string>
 #include <glm/vec2.hpp>
@@ -47,19 +48,19 @@ public:
     void SetOnHover(std::function<void(const ButtonHoverEvent&)> callback) { m_OnHover = callback; }
 
     // Estados visuais
-    void SetNormalColor(unsigned color) { 
+    void SetNormalColor(Drift::Color color) {
         m_NormalColor = color;
         UpdateState(); 
     }
-    void SetHoverColor(unsigned color) { 
+    void SetHoverColor(Drift::Color color) {
         m_HoverColor = color;
         UpdateState(); 
     }
-    void SetPressedColor(unsigned color) { 
+    void SetPressedColor(Drift::Color color) {
         m_PressedColor = color;
         UpdateState(); 
     }
-    void SetDisabledColor(unsigned color) { 
+    void SetDisabledColor(Drift::Color color) {
         m_DisabledColor = color;
         UpdateState(); 
     }
@@ -67,7 +68,7 @@ public:
     // Overrides
     void Update(float deltaSeconds) override;
     void Render(Drift::RHI::IUIBatcher& batch) override;
-    unsigned GetRenderColor() const override;
+    Drift::Color GetRenderColor() const override;
 
     // Eventos de mouse (override dos métodos virtuais da base)
     void OnMouseEnter() override;
@@ -77,7 +78,7 @@ public:
     void OnMouseClick(const glm::vec2& position) override;
 
     // Debug: Método público para verificar a cor atual
-    unsigned GetCurrentColor() const;
+    Drift::Color GetCurrentColor() const;
 
 private:
     void UpdateState();
@@ -94,19 +95,19 @@ private:
     std::function<void(const ButtonHoverEvent&)> m_OnHover;
 
     // Cores por estado (32 bits ARGB)
-    unsigned m_NormalColor{0xFF4A90E2};   // Azul
-    unsigned m_HoverColor{0xFF357ABD};    // Azul escuro
-    unsigned m_PressedColor{0xFF2E6DA4};  // Azul mais escuro
-    unsigned m_DisabledColor{0xFFCCCCCC}; // Cinza
+    Drift::Color m_NormalColor{0xFF4A90E2};   // Azul
+    Drift::Color m_HoverColor{0xFF357ABD};    // Azul escuro
+    Drift::Color m_PressedColor{0xFF2E6DA4};  // Azul mais escuro
+    Drift::Color m_DisabledColor{0xFFCCCCCC}; // Cinza
 
     // Constantes de cor comuns (ARGB format)
-    static constexpr unsigned COLOR_RED = 0xFFFF0000;
-    static constexpr unsigned COLOR_GREEN = 0xFF00FF00;
-    static constexpr unsigned COLOR_BLUE = 0xFF0000FF;
-    static constexpr unsigned COLOR_WHITE = 0xFFFFFFFF;
-    static constexpr unsigned COLOR_BLACK = 0xFF000000;
-    static constexpr unsigned COLOR_GRAY = 0xFF808080;
-    static constexpr unsigned COLOR_TRANSPARENT = 0x00000000;
+    static constexpr Drift::Color COLOR_RED = 0xFFFF0000;
+    static constexpr Drift::Color COLOR_GREEN = 0xFF00FF00;
+    static constexpr Drift::Color COLOR_BLUE = 0xFF0000FF;
+    static constexpr Drift::Color COLOR_WHITE = 0xFFFFFFFF;
+    static constexpr Drift::Color COLOR_BLACK = 0xFF000000;
+    static constexpr Drift::Color COLOR_GRAY = 0xFF808080;
+    static constexpr Drift::Color COLOR_TRANSPARENT = 0x00000000;
 };
 
 } // namespace Drift::UI 

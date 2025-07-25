@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Drift/UI/UIElement.h"
+#include "Drift/Core/Color.h"
 #include <string>
 #include <glm/vec2.hpp>
 
@@ -33,8 +34,8 @@ public:
     TextAlign GetTextAlign() const { return m_TextAlign; }
 
     // Cor do texto
-    void SetTextColor(unsigned color) { m_TextColor = color; }
-    unsigned GetTextColor() const { return m_TextColor; }
+    void SetTextColor(Drift::Color color) { m_TextColor = color; }
+    Drift::Color GetTextColor() const { return m_TextColor; }
 
     // Overrides
     void Update(float deltaSeconds) override;
@@ -48,12 +49,12 @@ private:
     float m_FontSize{16.0f};
     std::string m_FontFamily{"Arial"};
     TextAlign m_TextAlign{TextAlign::Left};
-    unsigned m_TextColor{0xFFFFFFFF}; // Branco por padrão
+    Drift::Color m_TextColor{0xFFFFFFFF}; // Branco por padrão
 
     // Constantes de cor para texto
-    static constexpr unsigned COLOR_WHITE = 0xFFFFFFFF;
-    static constexpr unsigned COLOR_BLACK = 0xFF000000;
-    static constexpr unsigned COLOR_GRAY = 0xFF808080;
+    static constexpr Drift::Color COLOR_WHITE = 0xFFFFFFFF;
+    static constexpr Drift::Color COLOR_BLACK = 0xFF000000;
+    static constexpr Drift::Color COLOR_GRAY = 0xFF808080;
 };
 
 } // namespace Drift::UI 

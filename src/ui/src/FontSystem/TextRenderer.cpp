@@ -75,9 +75,9 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
     LOG_DEBUG("Added text command: '{}' at ({}, {})", text, position.x, position.y);
 }
 
-void TextRenderer::AddText(const std::string& text, float x, float y, 
-                          const std::string& fontName, float fontSize, 
-                          unsigned color, const TextRenderSettings& settings) {
+void TextRenderer::AddText(const std::string& text, float x, float y,
+                          const std::string& fontName, float fontSize,
+                          Drift::Color color, const TextRenderSettings& settings) {
     glm::vec4 colorVec;
     colorVec.r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
     colorVec.g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
@@ -178,7 +178,7 @@ UIBatcherTextRenderer::UIBatcherTextRenderer(Drift::RHI::IUIBatcher* batcher)
 
 UIBatcherTextRenderer::~UIBatcherTextRenderer() = default;
 
-void UIBatcherTextRenderer::AddText(float x, float y, const char* text, unsigned color) {
+void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::Color color) {
     if (!m_TextRenderer || !text) {
         return;
     }

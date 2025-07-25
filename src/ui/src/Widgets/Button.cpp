@@ -41,7 +41,7 @@ void Button::Render(Drift::RHI::IUIBatcher& batch)
         glm::vec2 textPos = absPos + size * 0.5f;
         
         // Renderiza o texto com a cor atual do botão
-        unsigned textColor = GetCurrentColor();
+        Drift::Color textColor = GetCurrentColor();
         batch.AddText(textPos.x, textPos.y, m_Text.c_str(), textColor);
     }
 }
@@ -118,9 +118,9 @@ void Button::UpdateState()
     }
 }
 
-unsigned Button::GetCurrentColor() const
+Drift::Color Button::GetCurrentColor() const
 {
-    unsigned color;
+    Drift::Color color;
     switch (m_CurrentState) {
         case ButtonState::Normal:
             color = m_NormalColor;
@@ -142,7 +142,7 @@ unsigned Button::GetCurrentColor() const
     return color;
 } 
 
-unsigned Button::GetRenderColor() const
+Drift::Color Button::GetRenderColor() const
 {
     return GetCurrentColor();
 } 

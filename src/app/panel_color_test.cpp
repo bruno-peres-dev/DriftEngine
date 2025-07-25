@@ -1,5 +1,6 @@
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/Widgets/Panel.h"
+#include "Drift/Core/Color.h"
 #include <memory>
 #include <iostream>
 
@@ -10,7 +11,7 @@ int main() {
     ctx.Initialize();
 
     auto panel = std::make_shared<UI::Panel>(&ctx);
-    unsigned newColor = 0xFF123456;
+    Drift::Color newColor = 0xFF123456;
     panel->SetBackgroundColor(newColor);
 
     if (panel->GetRenderColor() != newColor) {

@@ -28,7 +28,7 @@ void Image::Render(Drift::RHI::IUIBatcher& batch)
         batch.AddRect(absPos.x, absPos.y, m_Size.x, m_Size.y, m_TintColor);
         
         // Renderiza uma borda para indicar que é uma imagem
-        unsigned borderColor = 0xFF888888;
+        Drift::Color borderColor = 0xFF888888;
         float borderWidth = 1.0f;
         
         // Borda superior
@@ -41,7 +41,7 @@ void Image::Render(Drift::RHI::IUIBatcher& batch)
         batch.AddRect(absPos.x + m_Size.x - borderWidth, absPos.y, borderWidth, m_Size.y, borderColor);
     } else {
         // Renderiza um placeholder se não há imagem
-        unsigned placeholderColor = 0xFF444444;
+        Drift::Color placeholderColor = 0xFF444444;
         batch.AddRect(absPos.x, absPos.y, m_Size.x, m_Size.y, placeholderColor);
     }
 

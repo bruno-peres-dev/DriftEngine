@@ -27,7 +27,7 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
 
     // Só renderiza se tiver tamanho > 0
     if (GetSize().x > 0 && GetSize().y > 0) {
-        unsigned color = GetRenderColor();
+        Drift::Color color = GetRenderColor();
         
         // Aplica opacidade
         unsigned alpha = static_cast<unsigned>(((color >> 24) & 0xFF) * GetOpacity());
@@ -41,7 +41,7 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
         // Renderiza borda se necessário
         if (m_BorderWidth > 0.0f && m_BorderColor != 0) {
             unsigned borderAlpha = static_cast<unsigned>(((m_BorderColor >> 24) & 0xFF) * GetOpacity());
-            unsigned borderColor = (m_BorderColor & 0x00FFFFFF) | (borderAlpha << 24);
+            Drift::Color borderColor = (m_BorderColor & 0x00FFFFFF) | (borderAlpha << 24);
             
             // Só renderiza bordas se o alpha for > 0
             if (borderAlpha > 0) {
