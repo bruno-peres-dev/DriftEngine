@@ -73,8 +73,8 @@ void UIContext::Update(float deltaSeconds)
         m_Root->Update(deltaSeconds);
     }
     
-    // Processa layout usando engine
-    if (m_LayoutEngine && m_Root) {
+    // Processa layout usando engine somente se necessário
+    if (m_LayoutEngine && m_Root && m_Root->IsLayoutDirty()) {
         m_LayoutEngine->Layout(*m_Root);
     }
     
