@@ -146,6 +146,7 @@ add_library(DriftUI STATIC
   ui/src/FontSystem/FontManager.cpp
   ui/src/FontSystem/Font.cpp
   ui/src/FontSystem/FontAtlas.cpp
+  ui/src/FontSystem/MSDFGenerator.cpp
   ui/src/FontSystem/TextRenderer.cpp
 )
 
