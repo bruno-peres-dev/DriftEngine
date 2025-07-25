@@ -13,3 +13,4 @@ git submodule update --init --recursive
 ```
 
 O código-fonte do DirectXTK estará em `extern/DirectXTK`. 
+Para detalhes sobre o novo sistema de UI consulte `docs/UI_OVERHAUL_PLAN.md`.
