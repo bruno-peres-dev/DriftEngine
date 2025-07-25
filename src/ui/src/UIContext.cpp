@@ -6,6 +6,7 @@
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
 #include "Drift/Engine/Input/InputManager.h"
 #include <glm/mat4x4.hpp>
+#include <mutex>
 
 using namespace Drift::UI;
 
@@ -51,12 +52,11 @@ UIContext::~UIContext()
 
 void UIContext::Initialize()
 {
-    // Registra widgets padrão apenas uma vez
-    static bool widgetsRegistered = false;
-    if (!widgetsRegistered) {
+    // Registra widgets padrão apenas uma vez de forma thread-safe
+    static std::once_flag widgetsRegisteredFlag;
+    std::call_once(widgetsRegisteredFlag, []() {
         UIComponentRegistry::GetInstance().RegisterDefaultWidgets();
-        widgetsRegistered = true;
-    }
+    });
     
     // Carregar temas, preparar atlases, etc.
 }
