@@ -1,2 +1,0 @@
-/usr/bin/ar qc libDriftUI.a CMakeFiles/DriftUI.dir/ui/src/UIContext.cpp.o CMakeFiles/DriftUI.dir/ui/src/EventBus.cpp.o CMakeFiles/DriftUI.dir/ui/src/UIElement.cpp.o CMakeFiles/DriftUI.dir/ui/src/LayoutEngine.cpp.o
-/usr/bin/ranlib libDriftUI.a

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libDriftCore.a CMakeFiles/DriftCore.dir/core/src/Log.cpp.o
-/usr/bin/ranlib libDriftCore.a
