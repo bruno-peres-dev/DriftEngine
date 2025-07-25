@@ -91,8 +91,9 @@ void UIElement::PostRender()
 
 void UIElement::RecalculateTransform(const glm::mat4& parentTransform)
 {
-    // Calcula transformação local (simplificada para posição e escala)
+    // Calcula transformação local com posição, rotação e escala
     glm::mat4 local = glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f));
+    local = glm::rotate(local, m_Transform.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     local = glm::scale(local, glm::vec3(m_Transform.scale, 1.0f));
     
     // Aplica transformação do pai
