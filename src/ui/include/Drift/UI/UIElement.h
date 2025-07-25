@@ -85,6 +85,13 @@ public:
     virtual bool HitTest(const glm::vec2& point) const;
     virtual UIElement* HitTestChildren(const glm::vec2& point);
 
+    // === EVENTOS DE MOUSE ===
+    virtual void OnMouseEnter() {}
+    virtual void OnMouseLeave() {}
+    virtual void OnMouseDown(const glm::vec2& position) {}
+    virtual void OnMouseUp(const glm::vec2& position) {}
+    virtual void OnMouseClick(const glm::vec2& position) {}
+
     // === IDENTIFICAÇÃO ===
     void SetName(const std::string& name) { m_Name = name; }
     const std::string& GetName() const { return m_Name; }

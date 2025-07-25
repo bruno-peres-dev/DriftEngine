@@ -39,15 +39,16 @@ void TestLayoutSystem(UI::UIContext* uiContext)
     mainLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Stretch; // Responsivo
     mainLayout.layoutType = UI::LayoutType::Stack;
     mainLayout.stackDirection = UI::StackDirection::Vertical;
-    mainLayout.stackSpacing = 10.0f; // Espaçamento entre elementos
-    mainLayout.margin = UI::LayoutMargins(20.0f).ToVec4(); // Margem externa
-    mainLayout.padding = UI::LayoutMargins(15.0f).ToVec4(); // Padding interno
+    mainLayout.stackSpacing = 5.0f; // Reduzido: Espaçamento entre elementos
+    mainLayout.margin = UI::LayoutMargins(10.0f).ToVec4(); // Reduzido: Margem externa
+    mainLayout.padding = UI::LayoutMargins(10.0f).ToVec4(); // Reduzido: Padding interno
+    mainLayout.clipContent = true; // Habilita clipping para testar
     mainContainer->SetLayoutProperties(mainLayout);
     
     uiContext->GetRoot()->AddChild(mainContainer);
     
     // ========================================
-    // CINCO BOTÕES QUE OCUPAM TODA A LARGURA
+    // CINCO BOTÕES VERTICAIS QUE OCUPAM TODA A LARGURA
     // ========================================
     
     std::vector<std::string> buttonTexts = {
@@ -70,7 +71,7 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         auto button = std::make_shared<UI::Button>(uiContext);
         button->SetName("FullWidthButton" + std::to_string(i + 1));
         button->SetText(buttonTexts[i]);
-        button->SetSize({200.0f, 40.0f}); // Tamanho base, será esticado
+        button->SetSize({200.0f, 35.0f}); // Reduzido: altura menor
         button->SetNormalColor(buttonColors[i]);
         
         // Cores de hover e pressed calculadas de forma segura
@@ -100,8 +101,8 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         UI::LayoutProperties buttonLayout;
         buttonLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Stretch;
         buttonLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-        buttonLayout.layoutType = UI::LayoutType::Absolute;
-        buttonLayout.margin = UI::LayoutMargins(0.0f, 5.0f, 0.0f, 5.0f).ToVec4(); // Espaçamento vertical entre botões
+        buttonLayout.layoutType = UI::LayoutType::None; // Mudança: None para ser processado pelo pai
+        buttonLayout.margin = UI::LayoutMargins(0.0f, 2.0f, 0.0f, 2.0f).ToVec4(); // Reduzido: Espaçamento vertical entre botões
         button->SetLayoutProperties(buttonLayout);
         
         button->SetOnClick([buttonTexts, i](const UI::ButtonClickEvent& event) {
@@ -110,11 +111,7 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         
         mainContainer->AddChild(button);
     }
-    
-    // Processa alguns frames para aplicar o layout
-    for (int i = 0; i < 3; ++i) {
-        uiContext->Update(1.0f / 60.0f);
-    }
+
 }
 
 int main() {

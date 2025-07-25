@@ -8,6 +8,16 @@ namespace Drift::RHI { class IPipelineState; }
 
 namespace Drift::RHI::DX11 {
 
+// Estrutura para representar um retângulo de clipping
+struct ScissorRect {
+    float x, y, width, height;
+    
+    ScissorRect() : x(0), y(0), width(0), height(0) {}
+    ScissorRect(float x, float y, float w, float h) : x(x), y(y), width(w), height(h) {}
+    
+    bool IsValid() const { return width > 0 && height > 0; }
+};
+
 // Implementação DX11 de IUIBatcher para batching de primitivas 2D
 class UIBatcherDX11 : public Drift::RHI::IUIBatcher {
 public:
@@ -18,6 +28,12 @@ public:
     void End() override;
 
     void SetScreenSize(float w, float h) override { _screenW = w; _screenH = h; }
+    
+    // Métodos para gerenciar scissor rectangles
+    void PushScissorRect(float x, float y, float w, float h) override;
+    void PopScissorRect() override;
+    void ClearScissorRects() override;
+    
 private:
     struct Vertex {
         float x, y;
@@ -26,6 +42,8 @@ private:
 
     // Helper
     void EnsurePipeline();
+    bool IsRectVisible(const ScissorRect& rect) const;
+    ScissorRect GetCurrentScissorRect() const;
 
     float _screenW{1280.0f};
     float _screenH{720.0f};
@@ -34,6 +52,9 @@ private:
     std::vector<unsigned> _indices;
     std::shared_ptr<IRingBuffer> _ringBuffer;
     Drift::RHI::IContext* _ctx;
+    
+    // Stack de scissor rectangles
+    std::vector<ScissorRect> _scissorStack;
 };
 
 // Cria um UIBatcherDX11

@@ -146,7 +146,12 @@ void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>&
             // Os filhos mantêm suas posições absolutas
             break;
         case LayoutType::Stack:
-            LayoutVertical(children, parentRect, layoutProps);
+            // Agora respeita a direção do stack
+            if (layoutProps.stackDirection == StackDirection::Horizontal) {
+                LayoutHorizontal(children, parentRect, layoutProps);
+            } else {
+                LayoutVertical(children, parentRect, layoutProps);
+            }
             break;
         case LayoutType::Grid:
             // TODO: Implementar layout de grid
@@ -191,7 +196,8 @@ void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>
     float currentX = parentRect.x;
     float maxHeight = 0.0f;
     
-    for (auto& child : children) {
+    for (size_t i = 0; i < children.size(); ++i) {
+        auto& child = children[i];
         if (!child->IsVisible()) continue;
         
         auto childProps = child->GetLayoutProperties();
@@ -223,6 +229,12 @@ void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>
         
         // Update position for next child
         currentX = x + childSize.x + marginRight;
+        
+        // Aplica stackSpacing se não for o último elemento
+        if (i < children.size() - 1) {
+            currentX += layoutProps.stackSpacing;
+        }
+        
         maxHeight = std::max(maxHeight, childSize.y + marginTop + marginBottom);
     }
 }
@@ -232,7 +244,8 @@ void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>&
     float currentY = parentRect.y;
     float maxWidth = 0.0f;
     
-    for (auto& child : children) {
+    for (size_t i = 0; i < children.size(); ++i) {
+        auto& child = children[i];
         if (!child->IsVisible()) continue;
         
         auto childProps = child->GetLayoutProperties();
@@ -264,6 +277,12 @@ void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>&
         
         // Update position for next child
         currentY = y + childSize.y + marginBottom;
+        
+        // Aplica stackSpacing se não for o último elemento
+        if (i < children.size() - 1) {
+            currentY += layoutProps.stackSpacing;
+        }
+        
         maxWidth = std::max(maxWidth, childSize.x + marginLeft + marginRight);
     }
 }

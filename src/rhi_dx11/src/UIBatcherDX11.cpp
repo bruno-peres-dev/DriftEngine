@@ -35,6 +35,12 @@ void UIBatcherDX11::Begin() {
 
 // Adiciona um retângulo ao batch de UI
 void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) {
+    // Verifica se o retângulo está visível dentro do scissor atual
+    ScissorRect currentScissor = GetCurrentScissorRect();
+    if (currentScissor.IsValid() && !IsRectVisible(ScissorRect(x, y, w, h))) {
+        return; // Retângulo fora da área visível
+    }
+    
     auto toClipX = [this](float px) {
         return (px / _screenW) * 2.0f - 1.0f;
     };
@@ -130,4 +136,38 @@ void UIBatcherDX11::EnsurePipeline() {
 // Fábrica de UIBatcherDX11
 std::unique_ptr<IUIBatcher> Drift::RHI::DX11::CreateUIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* ctx) {
     return std::make_unique<UIBatcherDX11>(std::move(ringBuffer), ctx);
+} 
+
+void UIBatcherDX11::PushScissorRect(float x, float y, float w, float h) {
+    _scissorStack.push_back(ScissorRect(x, y, w, h));
+}
+
+void UIBatcherDX11::PopScissorRect() {
+    if (!_scissorStack.empty()) {
+        _scissorStack.pop_back();
+    }
+}
+
+void UIBatcherDX11::ClearScissorRects() {
+    _scissorStack.clear();
+}
+
+bool UIBatcherDX11::IsRectVisible(const ScissorRect& rect) const {
+    ScissorRect currentScissor = GetCurrentScissorRect();
+    if (!currentScissor.IsValid()) {
+        return true; // Sem scissor ativo, tudo é visível
+    }
+    
+    // Verifica se há interseção entre os retângulos
+    return !(rect.x + rect.width <= currentScissor.x ||
+             rect.x >= currentScissor.x + currentScissor.width ||
+             rect.y + rect.height <= currentScissor.y ||
+             rect.y >= currentScissor.y + currentScissor.height);
+}
+
+ScissorRect UIBatcherDX11::GetCurrentScissorRect() const {
+    if (_scissorStack.empty()) {
+        return ScissorRect(); // Retorna retângulo inválido
+    }
+    return _scissorStack.back();
 } 

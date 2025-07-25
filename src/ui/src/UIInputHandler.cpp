@@ -42,19 +42,13 @@ void UIInputHandler::ProcessMouseInput()
         if (elementAtPosition != m_HoveredElement) {
             // Sai do elemento anterior
             if (m_HoveredElement) {
-                // Tenta fazer cast para Button para chamar OnMouseLeave
-                if (auto* button = dynamic_cast<Button*>(m_HoveredElement)) {
-                    button->OnMouseLeave();
-                }
+                m_HoveredElement->OnMouseLeave();
             }
             
             // Entra no novo elemento
             m_HoveredElement = elementAtPosition;
             if (m_HoveredElement) {
-                // Tenta fazer cast para Button para chamar OnMouseEnter
-                if (auto* button = dynamic_cast<Button*>(m_HoveredElement)) {
-                    button->OnMouseEnter();
-                }
+                m_HoveredElement->OnMouseEnter();
             }
         }
         
@@ -70,20 +64,20 @@ void UIInputHandler::ProcessMouseInput()
     if (isMouseLeftPressed) {
         m_PressedElement = m_HoveredElement;
         if (m_PressedElement) {
-            // Tenta fazer cast para Button para chamar OnMouseDown
-            if (auto* button = dynamic_cast<Button*>(m_PressedElement)) {
-                button->OnMouseDown(currentMousePos);
-            }
+            m_PressedElement->OnMouseDown(currentMousePos);
         }
     }
     
     // Mouse up
     if (isMouseLeftReleased) {
         if (m_PressedElement) {
-            // Tenta fazer cast para Button para chamar OnMouseUp
-            if (auto* button = dynamic_cast<Button*>(m_PressedElement)) {
-                button->OnMouseUp(currentMousePos);
+            m_PressedElement->OnMouseUp(currentMousePos);
+            
+            // Se o mouse foi solto sobre o mesmo elemento que foi pressionado, é um clique
+            if (m_PressedElement == m_HoveredElement) {
+                m_PressedElement->OnMouseClick(currentMousePos);
             }
+            
             m_PressedElement = nullptr;
         }
     }

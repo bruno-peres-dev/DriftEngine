@@ -69,11 +69,12 @@ public:
     void Render(Drift::RHI::IUIBatcher& batch) override;
     unsigned GetRenderColor() const override;
 
-    // Input handling
-    void OnMouseEnter();
-    void OnMouseLeave();
-    void OnMouseDown(const glm::vec2& position);
-    void OnMouseUp(const glm::vec2& position);
+    // Eventos de mouse (override dos métodos virtuais da base)
+    void OnMouseEnter() override;
+    void OnMouseLeave() override;
+    void OnMouseDown(const glm::vec2& position) override;
+    void OnMouseUp(const glm::vec2& position) override;
+    void OnMouseClick(const glm::vec2& position) override;
 
     // Debug: Método público para verificar a cor atual
     unsigned GetCurrentColor() const;

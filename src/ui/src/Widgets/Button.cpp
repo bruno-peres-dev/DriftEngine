@@ -83,12 +83,16 @@ void Button::OnMouseUp(const glm::vec2& position)
 {
     if (!m_Enabled) return;
     
-    bool wasPressed = m_IsPressed;
     m_IsPressed = false;
     UpdateState();
+}
+
+void Button::OnMouseClick(const glm::vec2& position)
+{
+    if (!m_Enabled) return;
     
-    // Se estava pressionado e soltou dentro do botão, dispara o evento de click
-    if (wasPressed && m_IsHovered && m_OnClick) {
+    // Dispara o evento de click
+    if (m_OnClick) {
         ButtonClickEvent event{this, position};
         m_OnClick(event);
     }

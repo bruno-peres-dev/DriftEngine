@@ -120,6 +120,14 @@ void UIElement::Render(Drift::RHI::IUIBatcher& batch)
     if (!m_Visible || m_Opacity <= 0.0f)
         return;
 
+    // Aplica clipping se habilitado
+    bool clippingApplied = false;
+    if (m_LayoutProps.clipContent) {
+        glm::vec2 absPos = GetAbsolutePosition();
+        batch.PushScissorRect(absPos.x, absPos.y, m_Size.x, m_Size.y);
+        clippingApplied = true;
+    }
+
     // Só renderiza se tiver tamanho > 0
     if (m_Size.x > 0 && m_Size.y > 0) {
         glm::vec2 absPos = GetAbsolutePosition();
@@ -138,6 +146,11 @@ void UIElement::Render(Drift::RHI::IUIBatcher& batch)
     // Renderiza filhos
     for (auto& child : m_Children) {
         child->Render(batch);
+    }
+    
+    // Remove clipping se foi aplicado
+    if (clippingApplied) {
+        batch.PopScissorRect();
     }
 }
 

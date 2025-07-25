@@ -63,6 +63,11 @@ namespace Drift::RHI {
 
         // Dimensões da tela (pode ser ignorado por implementações que usam matriz proj)
         virtual void SetScreenSize(float /*w*/, float /*h*/) {}
+        
+        // Métodos para gerenciar scissor rectangles (opcionais)
+        virtual void PushScissorRect(float /*x*/, float /*y*/, float /*w*/, float /*h*/) {}
+        virtual void PopScissorRect() {}
+        virtual void ClearScissorRects() {}
     };
 }
 
