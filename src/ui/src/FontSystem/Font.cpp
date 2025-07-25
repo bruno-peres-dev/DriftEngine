@@ -1,6 +1,8 @@
 #include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/Core/Log.h"
 #include <algorithm>
+#include <fstream>
+#include "stb_truetype.h"
 
 namespace Drift::UI {
 
@@ -20,25 +22,62 @@ bool Font::Load() {
     if (m_IsLoaded) {
         return true;
     }
-    
-    // Aqui seria implementada a lógica real de carregamento de fonte
-    // Por enquanto, vamos simular o carregamento
-    
+
     LOG_INFO("Loading font: {} from {}", m_Name, m_FilePath);
-    
-    // Simular carregamento de glyphs básicos
-    LoadBasicGlyphs();
-    
-    // Criar atlas de fontes
-    m_Atlas = std::make_unique<FontAtlas>();
-    if (!m_Atlas) {
-        LOG_ERROR("Failed to create font atlas for: {}", m_Name);
+
+    std::ifstream file(m_FilePath, std::ios::binary);
+    if (!file) {
+        LOG_ERROR("Failed to open font file: {}", m_FilePath);
         return false;
     }
-    
+    file.seekg(0, std::ios::end);
+    size_t len = static_cast<size_t>(file.tellg());
+    file.seekg(0, std::ios::beg);
+    m_TTFBuffer.resize(len);
+    file.read(reinterpret_cast<char*>(m_TTFBuffer.data()), len);
+    file.close();
+
+    if (!stbtt_InitFont(&m_FontInfo, m_TTFBuffer.data(), 0)) {
+        LOG_ERROR("stbtt_InitFont failed for {}", m_FilePath);
+        return false;
+    }
+
+    m_Scale = stbtt_ScaleForPixelHeight(&m_FontInfo, m_Size);
+    int ascent, descent, lineGap;
+    stbtt_GetFontVMetrics(&m_FontInfo, &ascent, &descent, &lineGap);
+    m_Ascender = ascent * m_Scale;
+    m_Descender = -descent * m_Scale;
+    m_LineHeight = (ascent - descent + lineGap) * m_Scale;
+
+    m_BitmapWidth = 512;
+    m_BitmapHeight = 512;
+    m_Bitmap.assign(m_BitmapWidth * m_BitmapHeight, 0);
+
+    std::vector<stbtt_bakedchar> baked(96);
+    int res = stbtt_BakeFontBitmap(m_TTFBuffer.data(), 0, m_Size,
+                                   m_Bitmap.data(), m_BitmapWidth, m_BitmapHeight,
+                                   32, 96, baked.data());
+    if (res <= 0) {
+        LOG_ERROR("stbtt_BakeFontBitmap failed for {}", m_FilePath);
+        return false;
+    }
+
+    for (int i = 0; i < 96; ++i) {
+        const auto& bc = baked[i];
+        Glyph g{};
+        g.codepoint = i + 32;
+        g.position = {static_cast<float>(bc.x0), static_cast<float>(bc.y0)};
+        g.size = {static_cast<float>(bc.x1 - bc.x0), static_cast<float>(bc.y1 - bc.y0)};
+        g.offset = {bc.xoff, bc.yoff};
+        g.advance = bc.xadvance;
+        g.uvMin = {bc.x0 / static_cast<float>(m_BitmapWidth), bc.y0 / static_cast<float>(m_BitmapHeight)};
+        g.uvMax = {bc.x1 / static_cast<float>(m_BitmapWidth), bc.y1 / static_cast<float>(m_BitmapHeight)};
+        g.isValid = true;
+        m_Glyphs[g.codepoint] = g;
+    }
+
     m_IsLoaded = true;
     LOG_INFO("Font loaded successfully: {} (size: {})", m_Name, m_Size);
-    
     return true;
 }
 
@@ -46,11 +85,13 @@ void Font::Unload() {
     if (!m_IsLoaded) {
         return;
     }
-    
+
     m_Glyphs.clear();
+    m_Bitmap.clear();
+    m_TTFBuffer.clear();
     m_Atlas.reset();
     m_IsLoaded = false;
-    
+
     LOG_INFO("Font unloaded: {}", m_Name);
 }
 
@@ -73,16 +114,7 @@ float Font::GetKerning(uint32_t left, uint32_t right) const {
         return 0.0f;
     }
     
-    // Implementação simples de kerning
-    // Em uma implementação real, isso seria baseado em dados da fonte
-    uint64_t key = (static_cast<uint64_t>(left) << 32) | right;
-    
-    auto it = m_Kerning.find(key);
-    if (it != m_Kerning.end()) {
-        return it->second;
-    }
-    
-    return 0.0f;
+    return stbtt_GetCodepointKernAdvance(&m_FontInfo, left, right) * m_Scale;
 }
 
 glm::vec2 Font::MeasureText(const std::string& text) const {
@@ -91,7 +123,7 @@ glm::vec2 Font::MeasureText(const std::string& text) const {
     }
     
     float width = 0.0f;
-    float height = 0.0f;
+    float height = m_LineHeight;
     float lineHeight = 0.0f;
     
     for (size_t i = 0; i < text.length(); ++i) {
@@ -125,53 +157,25 @@ float Font::GetLineHeight() const {
     if (!m_IsLoaded) {
         return m_Size;
     }
-    
-    // Em uma implementação real, isso seria baseado na métrica da fonte
-    return m_Size * 1.2f; // 120% do tamanho da fonte
+    return m_LineHeight;
 }
 
 float Font::GetAscender() const {
     if (!m_IsLoaded) {
         return m_Size * 0.8f;
     }
-    
-    // Em uma implementação real, isso seria baseado na métrica da fonte
-    return m_Size * 0.8f;
+    return m_Ascender;
 }
 
 float Font::GetDescender() const {
     if (!m_IsLoaded) {
         return -m_Size * 0.2f;
     }
-    
-    // Em uma implementação real, isso seria baseado na métrica da fonte
-    return -m_Size * 0.2f;
+    return m_Descender;
 }
 
 void Font::LoadBasicGlyphs() {
-    // Carregar glyphs básicos (ASCII 32-126)
-    for (uint32_t i = 32; i <= 126; ++i) {
-        Glyph glyph;
-        glyph.character = i;
-        glyph.size = glm::vec2(m_Size * 0.6f, m_Size); // Largura aproximada
-        glyph.bearing = glm::vec2(0.0f, m_Size * 0.8f); // Bearing aproximado
-        glyph.advance = glm::vec2(m_Size * 0.6f, 0.0f); // Advance aproximado
-        glyph.atlasRegion = nullptr; // Será configurado pelo atlas
-        
-        m_Glyphs[i] = glyph;
-    }
-    
-    // Adicionar glyph de espaço
-    Glyph spaceGlyph;
-    spaceGlyph.character = ' ';
-    spaceGlyph.size = glm::vec2(m_Size * 0.3f, m_Size);
-    spaceGlyph.bearing = glm::vec2(0.0f, 0.0f);
-    spaceGlyph.advance = glm::vec2(m_Size * 0.3f, 0.0f);
-    spaceGlyph.atlasRegion = nullptr;
-    
-    m_Glyphs[' '] = spaceGlyph;
-    
-    LOG_INFO("Loaded {} basic glyphs for font: {}", m_Glyphs.size(), m_Name);
+    // Obsoleto: glyphs são gerados em Font::Load usando stb_truetype
 }
 
 const std::string& Font::GetName() const {

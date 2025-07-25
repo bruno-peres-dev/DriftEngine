@@ -146,14 +146,14 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         const Glyph* glyph = command.font->GetGlyph(character);
         
         if (glyph) {
-            // Simular posicionamento do glyph
-            float glyphX = currentX + glyph->bearing.x;
-            float glyphY = currentY - glyph->bearing.y;
+            // Simular posicionamento do glyph usando offsets
+            float glyphX = currentX + glyph->offset.x;
+            float glyphY = currentY - glyph->offset.y;
             
             LOG_DEBUG("  Glyph '{}' at ({}, {}) size {}x{}", 
                       c, glyphX, glyphY, glyph->size.x, glyph->size.y);
             
-            currentX += glyph->advance.x;
+            currentX += glyph->advance;
             
             // Aplicar kerning se não for o último caractere
             if (c != command.text.back()) {

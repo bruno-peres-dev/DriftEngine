@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <glm/glm.hpp>
+#include "stb_truetype.h"
 
 namespace Drift::UI {
 
@@ -71,8 +72,15 @@ private:
     std::unordered_map<uint32_t, Glyph> m_Glyphs;
     std::unordered_map<uint64_t, float> m_Kerning;
     std::unique_ptr<class FontAtlas> m_Atlas;
+    std::vector<unsigned char> m_TTFBuffer;
+    std::vector<unsigned char> m_Bitmap;
+    int m_BitmapWidth{0};
+    int m_BitmapHeight{0};
+    float m_Scale{1.0f};
+    stbtt_fontinfo m_FontInfo{};
+
     void LoadBasicGlyphs();
-};
+}; 
 
 // Gerenciador principal de fontes
 class FontManager {
