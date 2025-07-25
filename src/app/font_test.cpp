@@ -12,6 +12,7 @@
 #include "Drift/RHI/DX11/SwapChainDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include "Drift/RHI/DX11/RingBufferDX11.h"
+#include "Drift/Core/Color.h"
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -186,7 +187,7 @@ void TestFontSystem(UI::UIContext* uiContext)
     demoContainer->AddChild(colorDemoPanel);
     
     // Botões com diferentes cores
-    std::vector<std::pair<std::string, unsigned>> colorExamples = {
+    std::vector<std::pair<std::string, Drift::Color>> colorExamples = {
         {"Texto Branco", 0xFFFFFFFF},
         {"Texto Vermelho", 0xFFFF4444},
         {"Texto Verde", 0xFF44FF44},

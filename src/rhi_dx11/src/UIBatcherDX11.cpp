@@ -11,7 +11,7 @@ using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
 
 // Conversão ARGB para BGRA otimizada (inline para performance)
-inline unsigned ConvertARGBtoBGRA(unsigned argb) {
+inline Drift::Color ConvertARGBtoBGRA(Drift::Color argb) {
     // ARGB: AAAA AAAA RRRR RRRR GGGG GGGG BBBB BBBB
     // BGRA: BBBB BBBB GGGG GGGG RRRR RRRR AAAA AAAA
     return ((argb & 0x000000FF) << 16) |  // B -> posição 16
@@ -45,7 +45,7 @@ void UIBatcherDX11::Begin() {
 }
 
 // Adiciona um retângulo ao batch de UI
-void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) {
+void UIBatcherDX11::AddRect(float x, float y, float w, float h, Drift::Color color) {
     // Verifica se o retângulo está visível dentro do scissor atual
     ScissorRect currentScissor = GetCurrentScissorRect();
     if (currentScissor.IsValid()) {
@@ -69,7 +69,7 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     };
 
     // Conversão ARGB para BGRA otimizada
-    unsigned bgra = ConvertARGBtoBGRA(color);
+    Drift::Color bgra = ConvertARGBtoBGRA(color);
 
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({toClipX(x),       toClipY(y),       bgra});
@@ -86,7 +86,7 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
 
 void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
                             float x2, float y2, float x3, float y3,
-                            unsigned color) {
+                            Drift::Color color) {
     ScissorRect currentScissor = GetCurrentScissorRect();
     if (currentScissor.IsValid()) {
         float minX = std::min({x0, x1, x2, x3});
@@ -102,7 +102,7 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
     auto toClipX = [this](float px) { return (px / _screenW) * 2.0f - 1.0f; };
     auto toClipY = [this](float py) { return 1.0f - (py / _screenH) * 2.0f; };
 
-    unsigned bgra = ConvertARGBtoBGRA(color);
+    Drift::Color bgra = ConvertARGBtoBGRA(color);
     unsigned base = (unsigned)_vertices.size();
     _vertices.push_back({toClipX(x0), toClipY(y0), bgra});
     _vertices.push_back({toClipX(x1), toClipY(y1), bgra});
@@ -117,7 +117,7 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
 }
 
 // Implementação do sistema de renderização de texto com MSDF
-void UIBatcherDX11::AddText(float x, float y, const char* text, unsigned color) {
+void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color color) {
     if (!text || !_textRenderer) {
         return;
     }

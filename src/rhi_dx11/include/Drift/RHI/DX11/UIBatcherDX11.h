@@ -1,6 +1,7 @@
 #pragma once
 #include "Drift/RHI/Buffer.h"
 #include "Drift/RHI/Context.h"
+#include "Drift/Core/Color.h"
 #include <vector>
 #include <memory>
 
@@ -26,11 +27,11 @@ class UIBatcherDX11 : public Drift::RHI::IUIBatcher {
 public:
     UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, Drift::RHI::IContext* ctx);
     void Begin() override;
-    void AddRect(float x, float y, float w, float h, unsigned color) override;
+    void AddRect(float x, float y, float w, float h, Drift::Color color) override;
     void AddQuad(float x0, float y0, float x1, float y1,
                  float x2, float y2, float x3, float y3,
-                 unsigned color) override;
-    void AddText(float x, float y, const char* text, unsigned color) override;
+                 Drift::Color color) override;
+    void AddText(float x, float y, const char* text, Drift::Color color) override;
     void End() override;
 
     void SetScreenSize(float w, float h) override;
@@ -43,7 +44,7 @@ public:
 private:
     struct Vertex {
         float x, y;
-        unsigned color;
+        Drift::Color color;
     };
 
     // Helper

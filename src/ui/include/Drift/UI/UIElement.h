@@ -7,6 +7,7 @@
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 #include "Drift/RHI/Buffer.h" // IUIBatcher
+#include "Drift/Core/Color.h"
 #include "Drift/UI/Transform2D.h"
 #include "Drift/UI/LayoutTypes.h"
 #include "Drift/Core/Log.h"
@@ -62,9 +63,9 @@ public:
     virtual void Render(Drift::RHI::IUIBatcher& batch);
 
     // === COR E ESTILO ===
-    void SetColor(unsigned col) { m_Color = col; }
-    unsigned GetColor() const { return m_Color; }
-    virtual unsigned GetRenderColor() const { return m_Color; }
+    void SetColor(Drift::Color col) { m_Color = col; }
+    Drift::Color GetColor() const { return m_Color; }
+    virtual Drift::Color GetRenderColor() const { return m_Color; }
 
     // === LAYOUT PROPERTIES ===
     void SetLayoutProperties(const LayoutProperties& props) { m_LayoutProps = props; MarkLayoutDirty(); }
@@ -118,7 +119,7 @@ protected:
     bool m_LayoutDirty{true};
     bool m_Visible{true};
     float m_Opacity{1.0f};
-    unsigned m_Color{0xFF00FFFF}; // ciano por padrão
+    Drift::Color m_Color{0xFF00FFFF}; // ciano por padrão
     
     // Layout
     LayoutProperties m_LayoutProps{};

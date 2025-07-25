@@ -220,7 +220,7 @@ void Grid::Render(Drift::RHI::IUIBatcher& batch)
     // Render background if we have a color
     if (GetRenderColor() != 0x00000000) {
         glm::vec2 absPos = GetAbsolutePosition();
-        unsigned color = GetRenderColor();
+        Drift::Color color = GetRenderColor();
         
         // Apply opacity
         unsigned alpha = static_cast<unsigned>(((color >> 24) & 0xFF) * GetOpacity());

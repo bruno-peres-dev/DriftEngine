@@ -11,6 +11,7 @@
 #include "Drift/RHI/DX11/SwapChainDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include "Drift/RHI/DX11/RingBufferDX11.h"
+#include "Drift/Core/Color.h"
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -62,7 +63,7 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         "Botão de Sair"
     };
     
-    std::vector<uint32_t> buttonColors = {
+    std::vector<Drift::Color> buttonColors = {
         0xFF4CAF50, // Verde
         0xFF2196F3, // Azul
         0xFFFF9800, // Laranja
@@ -78,7 +79,7 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         button->SetNormalColor(buttonColors[i]);
         
         // Cores de hover e pressed calculadas de forma segura
-        uint32_t baseColor = buttonColors[i];
+        Drift::Color baseColor = buttonColors[i];
         
         // Extrai componentes RGB
         uint8_t r = (baseColor >> 16) & 0xFF;
@@ -89,13 +90,13 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         uint8_t hoverR = (r + 40 > 255) ? 255 : r + 40;
         uint8_t hoverG = (g + 40 > 255) ? 255 : g + 40;
         uint8_t hoverB = (b + 40 > 255) ? 255 : b + 40;
-        uint32_t hoverColor = 0xFF000000 | (hoverR << 16) | (hoverG << 8) | hoverB;
+        Drift::Color hoverColor = 0xFF000000 | (hoverR << 16) | (hoverG << 8) | hoverB;
         
         // Calcula cores de pressed (mais escuras)
         uint8_t pressedR = (r < 40) ? 0 : r - 40;
         uint8_t pressedG = (g < 40) ? 0 : g - 40;
         uint8_t pressedB = (b < 40) ? 0 : b - 40;
-        uint32_t pressedColor = 0xFF000000 | (pressedR << 16) | (pressedG << 8) | pressedB;
+        Drift::Color pressedColor = 0xFF000000 | (pressedR << 16) | (pressedG << 8) | pressedB;
         
         button->SetHoverColor(hoverColor);
         button->SetPressedColor(pressedColor);

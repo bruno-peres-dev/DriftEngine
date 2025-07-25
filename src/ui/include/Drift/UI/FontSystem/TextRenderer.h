@@ -5,6 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Drift/RHI/Buffer.h"
+#include "Drift/Core/Color.h"
 #include "FontManager.h"
 
 namespace Drift::UI {
@@ -31,7 +32,7 @@ public:
                  const TextRenderSettings& settings = TextRenderSettings{});
     void AddText(const std::string& text, float x, float y,
                  const std::string& fontName = "default", float fontSize = 16.0f,
-                 unsigned color = 0xFFFFFFFF,
+                 Drift::Color color = 0xFFFFFFFF,
                  const TextRenderSettings& settings = TextRenderSettings{});
 
     void NextBatch();
@@ -63,7 +64,7 @@ public:
     explicit UIBatcherTextRenderer(Drift::RHI::IUIBatcher* batcher);
     ~UIBatcherTextRenderer();
 
-    void AddText(float x, float y, const char* text, unsigned color);
+    void AddText(float x, float y, const char* text, Drift::Color color);
     void AddText(const std::string& text, const glm::vec2& position,
                  const std::string& fontName, float fontSize,
                  const glm::vec4& color, const TextRenderSettings& settings);

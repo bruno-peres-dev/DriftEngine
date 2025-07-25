@@ -131,7 +131,7 @@ void UIElement::Render(Drift::RHI::IUIBatcher& batch)
 
     // Só renderiza se tiver tamanho > 0
     if (m_Size.x > 0 && m_Size.y > 0) {
-        unsigned color = GetRenderColor();
+        Drift::Color color = GetRenderColor();
 
         // Aplica opacidade
         unsigned alpha = static_cast<unsigned>(((color >> 24) & 0xFF) * m_Opacity);
