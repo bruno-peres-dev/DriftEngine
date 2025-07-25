@@ -31,12 +31,6 @@ public:
 private:
     // Processa eventos de mouse usando o sistema de input da Engine
     void ProcessMouseInput();
-    
-    // Busca recursiva por elementos em uma posição
-    UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& position);
-    
-    // Verifica se um ponto está dentro de um elemento
-    bool IsPointInElement(const UIElement* element, const glm::vec2& point) const;
 
     UIContext* m_Context;
     Drift::Engine::Input::IInputManager* m_InputManager{nullptr};

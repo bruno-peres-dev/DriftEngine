@@ -23,6 +23,7 @@ class UIElement;
 class UIInputHandler;
 
 class UIContext {
+    friend class UIInputHandler;
 public:
     UIContext();
     ~UIContext();
@@ -58,6 +59,7 @@ public:
     UIElement* HitTest(const glm::vec2& point);
 
 private:
+    UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& point) const;
     std::shared_ptr<Drift::Engine::EventBus> m_EventBus;
 
     std::unique_ptr<LayoutEngine> m_LayoutEngine;

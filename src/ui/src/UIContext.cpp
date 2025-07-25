@@ -146,10 +146,29 @@ std::shared_ptr<Drift::Engine::EventBus> UIContext::GetEventBus() const
     return m_EventBus;
 }
 
+UIElement* UIContext::FindElementAtPosition(UIElement* element, const glm::vec2& point) const
+{
+    if (!element) return nullptr;
+
+    const bool pointInside = element->HitTest(point);
+
+    if (element->GetLayoutProperties().clipContent && !pointInside)
+        return nullptr;
+
+    auto& children = element->GetChildren();
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if (UIElement* childHit = FindElementAtPosition(it->get(), point)) {
+            return childHit;
+        }
+    }
+
+    return pointInside ? element : nullptr;
+}
+
 UIElement* UIContext::HitTest(const glm::vec2& point)
 {
     if (m_Root) {
-        return m_Root->HitTestChildren(point);
+        return FindElementAtPosition(m_Root.get(), point);
     }
     return nullptr;
-} 
+}
