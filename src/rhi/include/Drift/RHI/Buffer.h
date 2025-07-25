@@ -3,6 +3,8 @@
 #include <memory>
 #include <cstddef>
 #include "Drift/RHI/Resource.h"
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
 
 namespace Drift::RHI {
 
@@ -58,6 +60,18 @@ namespace Drift::RHI {
         virtual ~IUIBatcher() = default;
         virtual void Begin() = 0; // Inicia um novo batch
         virtual void AddRect(float x, float y, float w, float h, unsigned color) = 0; // Adiciona retângulo
+        virtual void AddQuad(float x0, float y0,
+                             float x1, float y1,
+                             float x2, float y2,
+                             float x3, float y3,
+                             unsigned color) = 0; // Adiciona quad genérico
+        virtual void AddQuad(const glm::mat4& transform, float w, float h, unsigned color) {
+            glm::vec4 p0 = transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            glm::vec4 p1 = transform * glm::vec4(w, 0.0f, 0.0f, 1.0f);
+            glm::vec4 p2 = transform * glm::vec4(w, h, 0.0f, 1.0f);
+            glm::vec4 p3 = transform * glm::vec4(0.0f, h, 0.0f, 1.0f);
+            AddQuad(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, color);
+        }
         virtual void AddText(float x, float y, const char* text, unsigned color) = 0;  // Adiciona texto
         virtual void End() = 0;   // Finaliza e envia draw calls
 

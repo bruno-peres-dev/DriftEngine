@@ -99,6 +99,9 @@ void TestLayoutSystem(UI::UIContext* uiContext)
         
         button->SetHoverColor(hoverColor);
         button->SetPressedColor(pressedColor);
+        if (i == 0) {
+            button->SetRotation(glm::radians(30.0f));
+        }
         
         // Layout que ocupa toda a largura horizontal
         UI::LayoutProperties buttonLayout;

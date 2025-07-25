@@ -27,6 +27,9 @@ public:
     UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, Drift::RHI::IContext* ctx);
     void Begin() override;
     void AddRect(float x, float y, float w, float h, unsigned color) override;
+    void AddQuad(float x0, float y0, float x1, float y1,
+                 float x2, float y2, float x3, float y3,
+                 unsigned color) override;
     void AddText(float x, float y, const char* text, unsigned color) override;
     void End() override;
 
