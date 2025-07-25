@@ -203,6 +203,22 @@ add_executable(LayoutPropagationTest
   app/layout_propagation_test.cpp
 )
 
+add_executable(AbsoluteLayoutClampTest
+  app/absolute_layout_clamp_test.cpp
+)
+
+target_include_directories(AbsoluteLayoutClampTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+)
+
+target_link_libraries(AbsoluteLayoutClampTest PUBLIC
+  DriftCore
+  DriftEngine
+  DriftUI
+)
+
 add_executable(HitTestClippingTest
   app/hittest_clipping_test.cpp
 )
