@@ -134,8 +134,6 @@ add_library(DriftUI STATIC
   ui/src/UIContext.cpp
   ui/src/UIElement.cpp
   ui/src/LayoutEngine.cpp
-  ui/src/LayoutEngine/FlexLayout.cpp
-  ui/src/LayoutEngine/DirtyFlagSystem.cpp
   ui/src/Transform2D.cpp
   ui/src/UIInputHandler.cpp
   ui/src/DataDriven/UIComponentRegistry.cpp
@@ -143,6 +141,8 @@ add_library(DriftUI STATIC
   ui/src/Widgets/Label.cpp
   ui/src/Widgets/Panel.cpp
   ui/src/Widgets/Image.cpp
+  ui/src/Widgets/StackPanel.cpp
+  ui/src/Widgets/Grid.cpp
 )
 
 # Corrigir problema de PDB no Visual Studio
@@ -170,15 +170,36 @@ target_link_libraries(DriftUI PUBLIC
 # ------------------------------------------------
 # 4) Executáveis
 # ------------------------------------------------
-add_executable(DriftUITest
-  app/ui_test.cpp
+add_executable(DriftEngineApp
+  app/main.cpp
 )
 
-add_executable(FlexboxTest
-  app/flexbox_test.cpp
+add_executable(LayoutTest
+  app/layout_test.cpp
 )
 
-target_include_directories(FlexboxTest PUBLIC
+target_include_directories(DriftEngineApp PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+  renderer/include
+)
+
+target_link_libraries(DriftEngineApp PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftRenderer
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
+)
+
+target_include_directories(LayoutTest PUBLIC
   core/include
   engine/include
   ui/include
@@ -186,7 +207,7 @@ target_include_directories(FlexboxTest PUBLIC
   rhi_dx11/include
 )
 
-target_link_libraries(FlexboxTest PUBLIC
+target_link_libraries(LayoutTest PUBLIC
   DriftCore
   DriftMath
   DriftEngine
@@ -197,12 +218,6 @@ target_link_libraries(FlexboxTest PUBLIC
   d3d11 dxgi D3DCompiler DirectXTK
 )
 
-add_custom_command(TARGET DriftUITest PRE_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/shaders"
-    "$<TARGET_FILE_DIR:DriftUITest>/shaders"
-)
-
 # Garantir que os shaders estão disponíveis
 file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
 foreach(SHADER ${SHADERS})
@@ -210,18 +225,16 @@ foreach(SHADER ${SHADERS})
   configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
 
-target_include_directories(DriftUITest PRIVATE
+target_include_directories(LayoutTest PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
-target_link_libraries(DriftUITest PRIVATE
+target_link_libraries(LayoutTest PRIVATE
   DriftCore
   DriftEngine
   DriftRHI_DX11
   DriftUI
   glfw
 )
-
-
 
 # ------------------------------------------------
 # Instruções:

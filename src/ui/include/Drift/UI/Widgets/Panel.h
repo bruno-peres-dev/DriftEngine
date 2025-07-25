@@ -10,45 +10,27 @@ public:
     explicit Panel(UIContext* context);
     ~Panel() override = default;
 
-    // Propriedades do painel
-    void SetTitle(const std::string& title) { m_Title = title; }
-    const std::string& GetTitle() const { return m_Title; }
-
-    // Bordas e padding
-    void SetBorderWidth(float width) { m_BorderWidth = width; MarkDirty(); }
-    float GetBorderWidth() const { return m_BorderWidth; }
-
+    // === PROPRIEDADES ESPECÍFICAS ===
+    void SetBackgroundColor(unsigned color) { m_BackgroundColor = color; }
+    unsigned GetBackgroundColor() const { return m_BackgroundColor; }
+    
     void SetBorderColor(unsigned color) { m_BorderColor = color; }
     unsigned GetBorderColor() const { return m_BorderColor; }
-
-    void SetPadding(float padding) { 
-        m_Padding = padding; 
-        MarkDirty(); 
-    }
-    float GetPadding() const { return m_Padding; }
-
-    // Visibilidade da borda
-    void SetShowBorder(bool show) { m_ShowBorder = show; }
-    bool GetShowBorder() const { return m_ShowBorder; }
-
-    // Overrides
-    void Update(float deltaSeconds) override;
+    
+    void SetBorderWidth(float width) { m_BorderWidth = width; }
+    float GetBorderWidth() const { return m_BorderWidth; }
+    
+    void SetCornerRadius(float radius) { m_CornerRadius = radius; }
+    float GetCornerRadius() const { return m_CornerRadius; }
+    
+    // === RENDERIZAÇÃO ===
     void Render(Drift::RHI::IUIBatcher& batch) override;
 
-    // Layout do painel
-    glm::vec2 GetContentArea() const;
-
 private:
-    std::string m_Title;
+    unsigned m_BackgroundColor{0xFF202020}; // Cinza escuro
+    unsigned m_BorderColor{0xFF404040};     // Cinza médio
     float m_BorderWidth{1.0f};
-    unsigned m_BorderColor{0xFF666666}; // Cinza
-    float m_Padding{5.0f};
-    bool m_ShowBorder{true};
-
-    // Constantes de cor para painéis
-    static constexpr unsigned COLOR_PANEL_BG = 0xFF2A2A2A;
-    static constexpr unsigned COLOR_BORDER = 0xFF666666;
-    static constexpr unsigned COLOR_TITLE = 0xFFFFFFFF;
+    float m_CornerRadius{0.0f};
 };
 
 } // namespace Drift::UI 

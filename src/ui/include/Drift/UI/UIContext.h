@@ -3,6 +3,7 @@
 #include <memory>
 #include "Drift/Core/Log.h"
 #include <vector>
+#include <glm/vec2.hpp>
 
 namespace Drift::RHI { class IUIBatcher; }
 
@@ -39,10 +40,10 @@ public:
     void Shutdown();
 
     // Acesso global ao EventBus
-    std::shared_ptr<Drift::Engine::EventBus> GetEventBus() const { return m_EventBus; }
+    std::shared_ptr<Drift::Engine::EventBus> GetEventBus() const;
 
     // Raiz da árvore de elementos
-    std::shared_ptr<UIElement> GetRoot() const { return m_Root; }
+    std::shared_ptr<UIElement> GetRoot() const;
 
     // Acesso ao sistema de input
     UIInputHandler* GetInputHandler() const { return m_InputHandler.get(); }
@@ -52,6 +53,9 @@ public:
     
     // Ajusta o tamanho da tela
     void SetScreenSize(float width, float height);
+    
+    // Hit testing
+    UIElement* HitTest(const glm::vec2& point);
 
 private:
     std::shared_ptr<Drift::Engine::EventBus> m_EventBus;

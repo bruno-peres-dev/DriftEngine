@@ -1,261 +1,247 @@
 #include "Drift/UI/LayoutEngine.h"
 #include "Drift/UI/UIElement.h"
 #include "Drift/UI/LayoutTypes.h"
-#include "Drift/UI/LayoutEngine/FlexLayout.h"
-#include "Drift/UI/LayoutEngine/DirtyFlagSystem.h"
-#include "Drift/Core/Log.h"
 #include <algorithm>
-#include <vector>
-#include <glm/vec2.hpp>
 
 using namespace Drift::UI;
 
 void LayoutEngine::Layout(UIElement& root)
 {
-    // Usa o sistema de dirty flags para otimização
-    if (DirtyFlagSystem::IsDirty(&root) || root.IsLayoutDirty()) {
-        // Recalcula apenas elementos "sujos"
-        DirtyFlagSystem::RecalculateOnlyDirty(&root);
-        root.ClearLayoutDirty();
-    } else {
-        // Layout tradicional para compatibilidade
-        LayoutRect availableSpace = {0.0f, 0.0f, 800.0f, 600.0f}; // TODO: obter do viewport
+    // Sempre recalcula layout para o root
+    if (root.IsLayoutDirty()) {
+        LayoutRect availableSpace(0, 0, root.GetSize().x, root.GetSize().y);
         CalculateLayout(root, availableSpace);
     }
 }
 
+LayoutMeasure LayoutEngine::MeasureElement(UIElement& element, const LayoutRect& availableSpace)
+{
+    const auto& layoutProps = element.GetLayoutProperties();
+    
+    // Medida base do elemento
+    glm::vec2 size = element.GetSize();
+    
+    // Aplica constraints de tamanho
+    size = ClampSize(size, layoutProps.minSize, layoutProps.maxSize);
+    
+    return LayoutMeasure(size.x, size.y);
+}
+
+void LayoutEngine::ArrangeElement(UIElement& element, const LayoutRect& finalRect)
+{
+    element.SetPosition(finalRect.GetPosition());
+    element.SetSize(finalRect.GetSize());
+}
+
 void LayoutEngine::CalculateLayout(UIElement& element, const LayoutRect& availableSpace)
 {
-    // Configuração padrão de layout
-    LayoutConfig config;
+    if (!IsElementVisible(element)) return;
     
-    // Se o tipo de layout é None, preserva a posição e tamanho atuais do elemento
-    if (config.type == LayoutType::None) {
-        // Apenas processa os filhos recursivamente, mas não altera este elemento
-        auto& children = element.GetChildren();
-        for (auto& child : children) {
-            CalculateLayout(*child, availableSpace);
-        }
-        return;
-    }
+    const auto& layoutProps = element.GetLayoutProperties();
     
     // Aplica margens ao espaço disponível
-    LayoutRect contentSpace = availableSpace;
-    contentSpace.x += config.margin.left;
-    contentSpace.y += config.margin.top;
-    contentSpace.width -= (config.margin.left + config.margin.right);
-    contentSpace.height -= (config.margin.top + config.margin.bottom);
+    LayoutMargins margins;
+    margins.left = layoutProps.margin.x;
+    margins.top = layoutProps.margin.y;
+    margins.right = layoutProps.margin.z;
+    margins.bottom = layoutProps.margin.w;
+    LayoutRect contentSpace = ApplyMargins(availableSpace, margins);
     
     // Aplica padding
-    LayoutRect paddingSpace = contentSpace;
-    paddingSpace.x += config.padding.left;
-    paddingSpace.y += config.padding.top;
-    paddingSpace.width -= (config.padding.left + config.padding.right);
-    paddingSpace.height -= (config.padding.top + config.padding.bottom);
+    LayoutMargins padding;
+    padding.left = layoutProps.padding.x;
+    padding.top = layoutProps.padding.y;
+    padding.right = layoutProps.padding.z;
+    padding.bottom = layoutProps.padding.w;
+    LayoutRect paddingSpace = ApplyPadding(contentSpace, padding);
     
     // Calcula posição e tamanho do elemento baseado no alinhamento
-    LayoutRect elementRect = CalculateElementRect(element, paddingSpace, config);
-    element.SetPosition(glm::vec2(elementRect.x, elementRect.y));
-    element.SetSize(glm::vec2(elementRect.width, elementRect.height));
+    LayoutRect elementRect = CalculateElementRect(element, paddingSpace, layoutProps);
+    ArrangeElement(element, elementRect);
     
     // Calcula layout dos filhos
     auto& children = element.GetChildren();
-    if (!children.empty() && config.type != LayoutType::None) {
-        LayoutChildren(children, elementRect, config);
+    if (!children.empty()) {
+        LayoutChildren(children, elementRect, layoutProps);
     }
     
     // Recursão para filhos
     for (auto& child : children) {
-        CalculateLayout(*child, elementRect);
+        if (IsElementVisible(*child)) {
+            CalculateLayout(*child, elementRect);
+        }
     }
 }
 
-LayoutRect LayoutEngine::CalculateElementRect(const UIElement& element, const LayoutRect& availableSpace, const LayoutConfig& config)
+LayoutRect LayoutEngine::CalculateElementRect(const UIElement& element, const LayoutRect& availableSpace, const LayoutProperties& layoutProps)
 {
     LayoutRect rect;
+    glm::vec2 size = element.GetSize();
     
-    // Se deve expandir para preencher
-    if (config.expandToFill) {
-        rect = availableSpace;
-    } else {
-        // Usa tamanho atual do elemento como preferido
-        glm::vec2 size = element.GetSize();
-        rect.width = size.x;
-        rect.height = size.y;
-        
-        // Aplica alinhamento horizontal
-        switch (config.horizontalAlign) {
-            case HorizontalAlignment::Left:
-                rect.x = availableSpace.x;
-                break;
-            case HorizontalAlignment::Center:
-                rect.x = availableSpace.x + (availableSpace.width - rect.width) * 0.5f;
-                break;
-            case HorizontalAlignment::Right:
-                rect.x = availableSpace.GetRight() - rect.width;
-                break;
-            case HorizontalAlignment::Stretch:
-                rect.x = availableSpace.x;
-                rect.width = availableSpace.width;
-                break;
-        }
-        
-        // Aplica alinhamento vertical
-        switch (config.verticalAlign) {
-            case VerticalAlignment::Top:
-                rect.y = availableSpace.y;
-                break;
-            case VerticalAlignment::Center:
-                rect.y = availableSpace.y + (availableSpace.height - rect.height) * 0.5f;
-                break;
-            case VerticalAlignment::Bottom:
-                rect.y = availableSpace.GetBottom() - rect.height;
-                break;
-            case VerticalAlignment::Stretch:
-                rect.y = availableSpace.y;
-                rect.height = availableSpace.height;
-                break;
-        }
+    // Aplica constraints de tamanho
+    size = ClampSize(size, layoutProps.minSize, layoutProps.maxSize);
+    
+    // Aplica alinhamento horizontal
+    switch (layoutProps.horizontalAlign) {
+        case LayoutProperties::HorizontalAlign::Left:
+            rect.x = availableSpace.x;
+            rect.width = size.x;
+            break;
+        case LayoutProperties::HorizontalAlign::Center:
+            rect.x = availableSpace.x + (availableSpace.width - size.x) * 0.5f;
+            rect.width = size.x;
+            break;
+        case LayoutProperties::HorizontalAlign::Right:
+            rect.x = availableSpace.x + availableSpace.width - size.x;
+            rect.width = size.x;
+            break;
+        case LayoutProperties::HorizontalAlign::Stretch:
+            rect.x = availableSpace.x;
+            rect.width = availableSpace.width;
+            break;
+    }
+    
+    // Aplica alinhamento vertical
+    switch (layoutProps.verticalAlign) {
+        case LayoutProperties::VerticalAlign::Top:
+            rect.y = availableSpace.y;
+            rect.height = size.y;
+            break;
+        case LayoutProperties::VerticalAlign::Center:
+            rect.y = availableSpace.y + (availableSpace.height - size.y) * 0.5f;
+            rect.height = size.y;
+            break;
+        case LayoutProperties::VerticalAlign::Bottom:
+            rect.y = availableSpace.y + availableSpace.height - size.y;
+            rect.height = size.y;
+            break;
+        case LayoutProperties::VerticalAlign::Stretch:
+            rect.y = availableSpace.y;
+            rect.height = availableSpace.height;
+            break;
     }
     
     return rect;
 }
 
-void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutConfig& config)
+void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutProperties& layoutProps)
 {
-    if (children.empty()) return;
+    // Por enquanto, usa layout vertical simples
+    LayoutVertical(children, parentRect, layoutProps);
+}
+
+void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutProperties& layoutProps)
+{
+    float currentX = parentRect.x;
+    float maxHeight = 0.0f;
     
-    switch (config.type) {
-        case LayoutType::Horizontal:
-            LayoutHorizontal(children, parentRect, config);
-            break;
-        case LayoutType::Vertical:
-            LayoutVertical(children, parentRect, config);
-            break;
-        case LayoutType::Grid:
-            LayoutGrid(children, parentRect, config);
-            break;
-        case LayoutType::Flow:
-            LayoutFlow(children, parentRect, config);
-            break;
-        default:
-            break;
+    for (auto& child : children) {
+        if (!child->IsVisible()) continue;
+        
+        auto childProps = child->GetLayoutProperties();
+        auto childSize = child->GetSize();
+        
+        // Aplica margens
+        float marginLeft = childProps.margin.x;
+        float marginTop = childProps.margin.y;
+        float marginRight = childProps.margin.z;
+        float marginBottom = childProps.margin.w;
+        
+        // Calcula posição
+        float x = currentX + marginLeft;
+        float y = parentRect.y + marginTop;
+        
+        // Handle alignment
+        if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Center) {
+            y = parentRect.y + (parentRect.height - childSize.y) * 0.5f;
+        } else if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Bottom) {
+            y = parentRect.y + parentRect.height - childSize.y - marginBottom;
+        } else if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Stretch) {
+            y = parentRect.y + marginTop;
+            childSize.y = parentRect.height - marginTop - marginBottom;
+        }
+        
+        // Set child position and size
+        child->SetPosition(glm::vec2(x, y));
+        child->SetSize(childSize);
+        
+        // Update position for next child
+        currentX = x + childSize.x + marginRight;
+        maxHeight = std::max(maxHeight, childSize.y + marginTop + marginBottom);
     }
 }
 
-void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutConfig& config)
+void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutProperties& layoutProps)
 {
-    float currentX = parentRect.x + config.padding.left;
-    float availableHeight = parentRect.height - config.padding.top - config.padding.bottom;
+    float currentY = parentRect.y;
+    float maxWidth = 0.0f;
     
-    for (size_t i = 0; i < children.size(); ++i) {
-        auto& child = children[i];
-        LayoutConfig childConfig; // Configuração padrão
+    for (auto& child : children) {
+        if (!child->IsVisible()) continue;
         
-        // Calcula altura do filho
-        float childHeight = availableHeight;
-        if (!childConfig.expandToFill) {
-            glm::vec2 childSize = child->GetSize();
-            childHeight = std::min(childSize.y, availableHeight);
+        auto childProps = child->GetLayoutProperties();
+        auto childSize = child->GetSize();
+        
+        // Aplica margens
+        float marginLeft = childProps.margin.x;
+        float marginTop = childProps.margin.y;
+        float marginRight = childProps.margin.z;
+        float marginBottom = childProps.margin.w;
+        
+        // Calcula posição
+        float x = parentRect.x + marginLeft;
+        float y = currentY + marginTop;
+        
+        // Handle alignment
+        if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Center) {
+            x = parentRect.x + (parentRect.width - childSize.x) * 0.5f;
+        } else if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Right) {
+            x = parentRect.x + parentRect.width - childSize.x - marginRight;
+        } else if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Stretch) {
+            x = parentRect.x + marginLeft;
+            childSize.x = parentRect.width - marginLeft - marginRight;
         }
         
-        // Aplica alinhamento vertical
-        float childY = parentRect.y + config.padding.top;
-        if (childConfig.verticalAlign == VerticalAlignment::Center) {
-            childY += (availableHeight - childHeight) * 0.5f;
-        } else if (childConfig.verticalAlign == VerticalAlignment::Bottom) {
-            childY += availableHeight - childHeight;
-        }
+        // Set child position and size
+        child->SetPosition(glm::vec2(x, y));
+        child->SetSize(childSize);
         
-        // Define posição e tamanho
-        glm::vec2 childSize = child->GetSize();
-        child->SetPosition(glm::vec2(currentX, childY));
-        child->SetSize(glm::vec2(childSize.x, childHeight));
-        
-        // Avança para próximo elemento
-        currentX += childSize.x + config.spacing;
+        // Update position for next child
+        currentY = y + childSize.y + marginBottom;
+        maxWidth = std::max(maxWidth, childSize.x + marginLeft + marginRight);
     }
 }
 
-void LayoutEngine::LayoutVertical(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutConfig& config)
+// Helper functions
+LayoutRect LayoutEngine::ApplyMargins(const LayoutRect& rect, const LayoutMargins& margins)
 {
-    float currentY = parentRect.y + config.padding.top;
-    float availableWidth = parentRect.width - config.padding.left - config.padding.right;
-    
-    for (size_t i = 0; i < children.size(); ++i) {
-        auto& child = children[i];
-        LayoutConfig childConfig; // Configuração padrão
-        
-        // Calcula largura do filho
-        float childWidth = availableWidth;
-        if (!childConfig.expandToFill) {
-            glm::vec2 childSize = child->GetSize();
-            childWidth = std::min(childSize.x, availableWidth);
-        }
-        
-        // Aplica alinhamento horizontal
-        float childX = parentRect.x + config.padding.left;
-        if (childConfig.horizontalAlign == HorizontalAlignment::Center) {
-            childX += (availableWidth - childWidth) * 0.5f;
-        } else if (childConfig.horizontalAlign == HorizontalAlignment::Right) {
-            childX += availableWidth - childWidth;
-        }
-        
-        // Define posição e tamanho
-        glm::vec2 childSize = child->GetSize();
-        child->SetPosition(glm::vec2(childX, currentY));
-        child->SetSize(glm::vec2(childWidth, childSize.y));
-        
-        // Avança para próximo elemento
-        currentY += childSize.y + config.spacing;
-    }
+    return LayoutRect(
+        rect.x + margins.left,
+        rect.y + margins.top,
+        rect.width - margins.left - margins.right,
+        rect.height - margins.top - margins.bottom
+    );
 }
 
-void LayoutEngine::LayoutGrid(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutConfig& config)
+LayoutRect LayoutEngine::ApplyPadding(const LayoutRect& rect, const LayoutMargins& padding)
 {
-    // Layout de grade simples - 2 colunas por padrão
-    const int columns = 2;
-    const int rows = (children.size() + columns - 1) / columns;
-    
-    float cellWidth = (parentRect.width - config.padding.left - config.padding.right) / columns;
-    float cellHeight = (parentRect.height - config.padding.top - config.padding.bottom) / rows;
-    
-    for (size_t i = 0; i < children.size(); ++i) {
-        int row = static_cast<int>(i) / columns;
-        int col = static_cast<int>(i) % columns;
-        
-        float x = parentRect.x + config.padding.left + col * cellWidth;
-        float y = parentRect.y + config.padding.top + row * cellHeight;
-        
-        children[i]->SetPosition(glm::vec2(x, y));
-        children[i]->SetSize(glm::vec2(cellWidth - config.spacing, cellHeight - config.spacing));
-    }
+    return LayoutRect(
+        rect.x + padding.left,
+        rect.y + padding.top,
+        rect.width - padding.left - padding.right,
+        rect.height - padding.top - padding.bottom
+    );
 }
 
-void LayoutEngine::LayoutFlow(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutConfig& config)
+glm::vec2 LayoutEngine::ClampSize(const glm::vec2& size, const glm::vec2& minSize, const glm::vec2& maxSize)
 {
-    float currentX = parentRect.x + config.padding.left;
-    float currentY = parentRect.y + config.padding.top;
-    float maxHeightInRow = 0.0f;
-    float availableWidth = parentRect.width - config.padding.left - config.padding.right;
-    
-    for (size_t i = 0; i < children.size(); ++i) {
-        auto& child = children[i];
-        glm::vec2 childSize = child->GetSize();
-        float childWidth = childSize.x;
-        float childHeight = childSize.y;
-        
-        // Verifica se precisa quebrar linha
-        if (currentX + childWidth > parentRect.GetRight() - config.padding.right && currentX > parentRect.x + config.padding.left) {
-            currentX = parentRect.x + config.padding.left;
-            currentY += maxHeightInRow + config.spacing;
-            maxHeightInRow = 0.0f;
-        }
-        
-        child->SetPosition(glm::vec2(currentX, currentY));
-        child->SetSize(glm::vec2(childWidth, childHeight));
-        
-        currentX += childWidth + config.spacing;
-        maxHeightInRow = std::max(maxHeightInRow, childHeight);
-    }
+    return glm::vec2(
+        std::clamp(size.x, minSize.x, maxSize.x),
+        std::clamp(size.y, minSize.y, maxSize.y)
+    );
+}
+
+bool LayoutEngine::IsElementVisible(const UIElement& element)
+{
+    return element.IsVisible() && element.GetSize().x > 0 && element.GetSize().y > 0;
 } 

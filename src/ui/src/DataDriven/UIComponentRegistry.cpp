@@ -1,4 +1,10 @@
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
+#include "Drift/UI/Widgets/Button.h"
+#include "Drift/UI/Widgets/Label.h"
+#include "Drift/UI/Widgets/Panel.h"
+#include "Drift/UI/Widgets/Image.h"
+#include "Drift/UI/Widgets/StackPanel.h"
+#include "Drift/UI/Widgets/Grid.h"
 #include "Drift/Core/Log.h"
 #include <algorithm>
 
@@ -18,6 +24,34 @@ void UIComponentRegistry::RegisterWidget(const std::string& typeName, WidgetFact
     
     m_Factories[typeName] = factory;
     Core::Log("[UI] Registered widget type: " + typeName);
+}
+
+void UIComponentRegistry::RegisterDefaultWidgets()
+{
+    // Register built-in widgets
+    RegisterWidget("button", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<Button>(context);
+    });
+    
+    RegisterWidget("label", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<Label>(context);
+    });
+    
+    RegisterWidget("panel", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<Panel>(context);
+    });
+    
+    RegisterWidget("image", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<Image>(context);
+    });
+    
+    RegisterWidget("stackpanel", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<StackPanel>(context);
+    });
+    
+    RegisterWidget("grid", [](UIContext* context) -> std::shared_ptr<UIElement> {
+        return std::make_shared<Grid>(context);
+    });
 }
 
 std::shared_ptr<UIElement> UIComponentRegistry::CreateWidget(const std::string& typeName, UIContext* context)

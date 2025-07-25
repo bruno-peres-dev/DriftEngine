@@ -19,6 +19,9 @@ public:
     // Registra um novo tipo de widget
     void RegisterWidget(const std::string& typeName, WidgetFactory factory);
     
+    // Registra todos os widgets padrão
+    void RegisterDefaultWidgets();
+    
     // Cria um widget pelo nome
     std::shared_ptr<UIElement> CreateWidget(const std::string& typeName, UIContext* context);
     

@@ -287,14 +287,15 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIContext.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIElement.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\LayoutEngine.cpp" />
-    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\LayoutEngine\FlexLayout.cpp" />
-    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\LayoutEngine\DirtyFlagSystem.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Transform2D.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\UIInputHandler.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\DataDriven\UIComponentRegistry.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Button.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Label.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Panel.cpp" />
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Image.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\StackPanel.cpp" />
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Grid.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

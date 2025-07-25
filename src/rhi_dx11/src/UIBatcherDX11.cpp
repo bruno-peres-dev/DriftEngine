@@ -10,10 +10,12 @@ using namespace Drift::RHI;
 
 // Conversão ARGB para BGRA otimizada (inline para performance)
 inline unsigned ConvertARGBtoBGRA(unsigned argb) {
-    return ((argb & 0xFF) << 16) |        // B -> posição 16
-           ((argb >> 8) & 0xFF) |         // G -> posição 8  
-           ((argb >> 16) & 0xFF) |        // R -> posição 0
-           ((argb >> 24) & 0xFF);         // A -> posição 24
+    // ARGB: AAAA AAAA RRRR RRRR GGGG GGGG BBBB BBBB
+    // BGRA: BBBB BBBB GGGG GGGG RRRR RRRR AAAA AAAA
+    return ((argb & 0x000000FF) << 16) |  // B -> posição 16
+           ((argb & 0x0000FF00)) |         // G -> posição 8  
+           ((argb & 0x00FF0000) >> 16) |   // R -> posição 0
+           ((argb & 0xFF000000) >> 8);     // A -> posição 24
 }
 
 // TODO: Para otimização futura, considerar lookup table para cores comuns
