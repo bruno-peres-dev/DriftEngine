@@ -221,6 +221,8 @@ void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>
         } else if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Stretch) {
             y = parentRect.y + marginTop;
             childSize.y = parentRect.height - marginTop - marginBottom;
+            // Garante que o tamanho não seja negativo
+            if (childSize.y < 0) childSize.y = 0;
         }
         
         // Verifica se o elemento ultrapassa os limites do container pai (horizontal)
