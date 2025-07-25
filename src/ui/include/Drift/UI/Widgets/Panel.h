@@ -11,7 +11,11 @@ public:
     ~Panel() override = default;
 
     // === PROPRIEDADES ESPECÍFICAS ===
-    void SetBackgroundColor(unsigned color) { m_BackgroundColor = color; }
+    void SetBackgroundColor(unsigned color)
+    {
+        m_BackgroundColor = color;
+        SetColor(color); // Keep the render color in sync
+    }
     unsigned GetBackgroundColor() const { return m_BackgroundColor; }
     
     void SetBorderColor(unsigned color) { m_BorderColor = color; }
