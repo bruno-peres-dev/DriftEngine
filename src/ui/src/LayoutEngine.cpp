@@ -1,6 +1,7 @@
 #include "Drift/UI/LayoutEngine.h"
 #include "Drift/UI/UIElement.h"
 #include "Drift/UI/LayoutTypes.h"
+#include "Drift/Core/Log.h"
 #include <algorithm>
 
 using namespace Drift::UI;
@@ -38,6 +39,18 @@ void LayoutEngine::CalculateLayout(UIElement& element, const LayoutRect& availab
     if (!IsElementVisible(element)) return;
     
     const auto& layoutProps = element.GetLayoutProperties();
+    
+    // Para LayoutType::Absolute, não aplica layout automático
+    if (layoutProps.layoutType == LayoutType::Absolute) {
+        // Apenas processa filhos recursivamente, mas não modifica este elemento
+        auto& children = element.GetChildren();
+        for (auto& child : children) {
+            if (IsElementVisible(*child)) {
+                CalculateLayout(*child, availableSpace);
+            }
+        }
+        return;
+    }
     
     // Aplica margens ao espaço disponível
     LayoutMargins margins;
@@ -126,8 +139,17 @@ LayoutRect LayoutEngine::CalculateElementRect(const UIElement& element, const La
 
 void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutProperties& layoutProps)
 {
-    // Por enquanto, usa layout vertical simples
-    LayoutVertical(children, parentRect, layoutProps);
+    // Respeita o tipo de layout
+    switch (layoutProps.layoutType) {
+        case LayoutType::Stack:
+            LayoutVertical(children, parentRect, layoutProps);
+            break;
+        case LayoutType::Grid:
+            // TODO: Implementar layout de grid
+            break;
+        case LayoutType::Absolute:
+            break;
+    }
 }
 
 void LayoutEngine::LayoutHorizontal(const std::vector<std::shared_ptr<UIElement>>& children, const LayoutRect& parentRect, const LayoutProperties& layoutProps)

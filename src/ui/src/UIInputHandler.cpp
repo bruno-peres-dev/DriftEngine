@@ -126,9 +126,10 @@ bool UIInputHandler::IsPointInElement(const UIElement* element, const glm::vec2&
 {
     if (!element) return false;
     
-    glm::vec2 pos = element->GetPosition();
+    // Usa posição absoluta para considerar a hierarquia de elementos
+    glm::vec2 absPos = element->GetAbsolutePosition();
     glm::vec2 size = element->GetSize();
     
-    return point.x >= pos.x && point.x <= pos.x + size.x &&
-           point.y >= pos.y && point.y <= pos.y + size.y;
+    return point.x >= absPos.x && point.x <= absPos.x + size.x &&
+           point.y >= absPos.y && point.y <= absPos.y + size.y;
 } 

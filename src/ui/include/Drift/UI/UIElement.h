@@ -9,6 +9,7 @@
 #include "Drift/RHI/Buffer.h" // IUIBatcher
 #include "Drift/UI/Transform2D.h"
 #include "Drift/UI/LayoutTypes.h"
+#include "Drift/Core/Log.h"
 
 namespace Drift {
 class Transform2D;

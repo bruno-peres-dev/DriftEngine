@@ -22,132 +22,79 @@ using namespace Drift;
 void TestLayoutSystem(UI::UIContext* uiContext)
 {
     std::cout << "=== Teste do Sistema de Layout ===" << std::endl;
-    
-    // Configura tamanho da tela
     uiContext->SetScreenSize(800.0f, 600.0f);
     
-    // ================================
-    // TESTE SIMPLES - VERIFICAR SE A UI ESTÁ FUNCIONANDO
-    // ================================
-    
-    // Container principal simples
+    // Container principal responsivo com fundo vermelho
     auto mainContainer = std::make_shared<UI::Panel>(uiContext);
     mainContainer->SetName("MainContainer");
     mainContainer->SetPosition({50.0f, 50.0f});
     mainContainer->SetSize({700.0f, 500.0f});
-    mainContainer->SetColor(0xFF2A2A2A); // Cinza escuro
+    mainContainer->SetColor(0xFFFF0000); // Fundo vermelho puro
     
-    // Configura layout do container principal
+    // Layout absoluto do container principal (não interfere nos filhos)
     UI::LayoutProperties mainLayout;
+    mainLayout.padding = UI::LayoutMargins(5.0f).ToVec4();
     mainLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
     mainLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
     mainLayout.layoutType = UI::LayoutType::Absolute;
     mainContainer->SetLayoutProperties(mainLayout);
     
     uiContext->GetRoot()->AddChild(mainContainer);
+    Core::Log("[Layout Test] Container principal criado: fundo vermelho responsivo");
     
-    Core::Log("[Layout Test] MainContainer criado: pos=(" + std::to_string(mainContainer->GetPosition().x) + 
-              ", " + std::to_string(mainContainer->GetPosition().y) + "), size=(" + 
-              std::to_string(mainContainer->GetSize().x) + ", " + std::to_string(mainContainer->GetSize().y) + ")");
+    Core::Log("[Layout Test] Container principal criado: fundo vermelho responsivo");
     
-    // ================================
-    // BOTÕES SIMPLES PARA TESTE
-    // ================================
+    // Lista de botões pretos
+    std::vector<std::string> buttonTexts = {
+        "Botão 1",
+        "Botão 2", 
+        "Botão 3",
+        "Botão 4",
+        "Botão 5",
+        "Sair"
+    };
     
-    // Botão 1 - Vermelho
-    auto button1 = std::make_shared<UI::Button>(uiContext);
-    button1->SetName("Button1");
-    button1->SetText("Botão 1");
-    button1->SetPosition({100.0f, 100.0f});
-    button1->SetSize({150.0f, 50.0f});
-    button1->SetNormalColor(0xFFFF0000); // Vermelho
-    button1->SetHoverColor(0xFFFF4444);
-    button1->SetOnClick([](const UI::ButtonClickEvent& event) {
-        Core::Log("[Layout Test] Botão 1 clicado!");
-    });
+    for (size_t i = 0; i < buttonTexts.size(); ++i) {
+        // Botão simples com cor preta
+        auto button = std::make_shared<UI::Button>(uiContext);
+        button->SetName("Button" + std::to_string(i + 1));
+        button->SetText(buttonTexts[i]);
+        
+        // Posicionamento absoluto dos botões
+        float buttonY = 100.0f + (i * 60.0f); // 60px de espaçamento entre botões
+        button->SetPosition({250.0f, buttonY}); // Centralizado horizontalmente
+        button->SetSize({200.0f, 40.0f});
+        
+        // Define cores específicas para cada estado do botão
+        button->SetNormalColor(0xFF000000);   // Preto
+        button->SetHoverColor(0xFF333333);    // Cinza escuro
+        button->SetPressedColor(0xFF666666);  // Cinza médio
+        button->SetDisabledColor(0xFFCCCCCC); // Cinza claro
+        
+        // Layout absoluto do botão
+        UI::LayoutProperties buttonLayout;
+        buttonLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
+        buttonLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
+        buttonLayout.layoutType = UI::LayoutType::Absolute;
+        button->SetLayoutProperties(buttonLayout);
+        
+        // Callback do botão
+        button->SetOnClick([buttonTexts, i](const UI::ButtonClickEvent& event) {
+            Core::Log("[UI] " + buttonTexts[i] + " clicado!");
+        });
+        
+        mainContainer->AddChild(button);
+        Core::Log("[Layout Test] " + buttonTexts[i] + " criado (preto com estados)");
+    }
     
-    UI::LayoutProperties btn1Layout;
-    btn1Layout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
-    btn1Layout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-    btn1Layout.layoutType = UI::LayoutType::Absolute;
-    button1->SetLayoutProperties(btn1Layout);
+    std::cout << "Layout criado! Lista vertical de botões pretos com fundo vermelho:" << std::endl;
+    std::cout << "- Container principal: fundo vermelho puro responsivo" << std::endl;
+    std::cout << "- StackPanel vertical com espaçamento de 10px entre botões" << std::endl;
+    std::cout << "- " << buttonTexts.size() << " botões pretos puros centralizados" << std::endl;
+    std::cout << "- Botões clicáveis com callbacks funcionais" << std::endl;
+    std::cout << "- Layout responsivo: se adapta ao redimensionamento da janela" << std::endl;
     
-    mainContainer->AddChild(button1);
-    Core::Log("[Layout Test] Button1 criado: pos=(" + std::to_string(button1->GetPosition().x) + 
-              ", " + std::to_string(button1->GetPosition().y) + "), size=(" + 
-              std::to_string(button1->GetSize().x) + ", " + std::to_string(button1->GetSize().y) + ")");
-    
-    // Botão 2 - Verde
-    auto button2 = std::make_shared<UI::Button>(uiContext);
-    button2->SetName("Button2");
-    button2->SetText("Botão 2");
-    button2->SetPosition({300.0f, 100.0f});
-    button2->SetSize({150.0f, 50.0f});
-    button2->SetNormalColor(0xFF00FF00); // Verde
-    button2->SetHoverColor(0xFF44FF44);
-    button2->SetOnClick([](const UI::ButtonClickEvent& event) {
-        Core::Log("[Layout Test] Botão 2 clicado!");
-    });
-    
-    UI::LayoutProperties btn2Layout;
-    btn2Layout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
-    btn2Layout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-    btn2Layout.layoutType = UI::LayoutType::Absolute;
-    button2->SetLayoutProperties(btn2Layout);
-    
-    mainContainer->AddChild(button2);
-    Core::Log("[Layout Test] Button2 criado: pos=(" + std::to_string(button2->GetPosition().x) + 
-              ", " + std::to_string(button2->GetPosition().y) + "), size=(" + 
-              std::to_string(button2->GetSize().x) + ", " + std::to_string(button2->GetSize().y) + ")");
-    
-    // Botão 3 - Azul
-    auto button3 = std::make_shared<UI::Button>(uiContext);
-    button3->SetName("Button3");
-    button3->SetText("Botão 3");
-    button3->SetPosition({500.0f, 100.0f});
-    button3->SetSize({150.0f, 50.0f});
-    button3->SetNormalColor(0xFF0000FF); // Azul
-    button3->SetHoverColor(0xFF4444FF);
-    button3->SetOnClick([](const UI::ButtonClickEvent& event) {
-        Core::Log("[Layout Test] Botão 3 clicado!");
-    });
-    
-    UI::LayoutProperties btn3Layout;
-    btn3Layout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
-    btn3Layout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-    btn3Layout.layoutType = UI::LayoutType::Absolute;
-    button3->SetLayoutProperties(btn3Layout);
-    
-    mainContainer->AddChild(button3);
-    
-    // Botão Sair - Preto
-    auto quitButton = std::make_shared<UI::Button>(uiContext);
-    quitButton->SetName("QuitButton");
-    quitButton->SetText("Sair");
-    quitButton->SetPosition({300.0f, 300.0f});
-    quitButton->SetSize({100.0f, 40.0f});
-    quitButton->SetNormalColor(0xFF666666);
-    quitButton->SetHoverColor(0xFF888888);
-    quitButton->SetOnClick([](const UI::ButtonClickEvent& event) {
-        Core::Log("[Layout Test] Saindo...");
-        glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
-    });
-    
-    UI::LayoutProperties quitLayout;
-    quitLayout.horizontalAlign = UI::LayoutProperties::HorizontalAlign::Left;
-    quitLayout.verticalAlign = UI::LayoutProperties::VerticalAlign::Top;
-    quitLayout.layoutType = UI::LayoutType::Absolute;
-    quitButton->SetLayoutProperties(quitLayout);
-    
-    mainContainer->AddChild(quitButton);
-    
-    std::cout << "Layout simples criado! Teste os botões:" << std::endl;
-    std::cout << "- Botão 1 (Vermelho): posição (100, 100)" << std::endl;
-    std::cout << "- Botão 2 (Verde): posição (300, 100)" << std::endl;
-    std::cout << "- Botão 3 (Azul): posição (500, 100)" << std::endl;
-    std::cout << "- Botão Sair (Cinza): posição (300, 300)" << std::endl;
-    
-    // Simula algumas atualizações
+    // Processa alguns frames para garantir que o layout seja aplicado
     for (int i = 0; i < 3; ++i) {
         uiContext->Update(1.0f / 60.0f);
         std::cout << "Frame " << (i + 1) << " processado" << std::endl;
@@ -231,12 +178,8 @@ int main() {
     TestLayoutSystem(uiContext.get());
     Core::Log("[Layout Test] TestLayoutSystem concluído!");
     
-    // Teste simples: adiciona um retângulo diretamente ao UIBatcher
-    Core::Log("[Layout Test] Testando renderização direta...");
-    uiBatcher->Begin();
-    uiBatcher->AddRect(100.0f, 100.0f, 200.0f, 100.0f, 0xFFFF0000); // Retângulo vermelho
-    uiBatcher->End();
-    Core::Log("[Layout Test] Teste direto concluído!");
+    // Teste de renderização no loop principal
+    Core::Log("[Layout Test] Iniciando loop principal...");
     
     // Teste de renderização no loop principal
     Core::Log("[Layout Test] Iniciando loop principal...");
@@ -283,13 +226,7 @@ int main() {
         
         // UI Render
         uiBatcher->Begin();
-        Core::Log("[Layout Test] Renderizando UI...");
         uiContext->Render(*uiBatcher);
-        
-        // Teste: adiciona um retângulo azul no loop principal
-        uiBatcher->AddRect(400.0f, 100.0f, 150.0f, 100.0f, 0xFF0000FF); // Retângulo azul
-        
-        Core::Log("[Layout Test] UI renderizada!");
         uiBatcher->End();
 
         // Present

@@ -91,10 +91,8 @@ void UIElement::PostRender()
 
 void UIElement::RecalculateTransform(const glm::mat4& parentTransform)
 {
-    // Calcula transformação local
+    // Calcula transformação local (simplificada para posição e escala)
     glm::mat4 local = glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f));
-    local = glm::translate(local, glm::vec3(m_Transform.position, 0.0f));
-    local = glm::rotate(local, m_Transform.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     local = glm::scale(local, glm::vec3(m_Transform.scale, 1.0f));
     
     // Aplica transformação do pai
@@ -103,28 +101,18 @@ void UIElement::RecalculateTransform(const glm::mat4& parentTransform)
 
 glm::vec2 UIElement::GetAbsolutePosition() const
 {
-    glm::vec2 absolutePos = m_Position;
-    UIElement* current = m_Parent;
-    
-    while (current) {
-        absolutePos += current->m_Position;
-        current = current->GetParent();
-    }
-    
-    return absolutePos;
+    // Usa a matriz de transformação mundial que já foi calculada
+    // A posição absoluta é a translação da matriz de transformação
+    glm::vec4 worldPos = m_WorldTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    return glm::vec2(worldPos.x, worldPos.y);
 }
 
 glm::vec2 UIElement::GetAbsoluteSize() const
 {
-    glm::vec2 absoluteSize = m_Size;
-    UIElement* current = m_Parent;
-    
-    while (current) {
-        absoluteSize *= current->m_Transform.scale;
-        current = current->GetParent();
-    }
-    
-    return absoluteSize;
+    // Usa a matriz de transformação mundial para calcular o tamanho absoluto
+    // Aplica a escala da matriz de transformação ao tamanho local
+    glm::vec4 scaleVec = m_WorldTransform * glm::vec4(m_Size.x, m_Size.y, 0.0f, 0.0f);
+    return glm::vec2(std::abs(scaleVec.x), std::abs(scaleVec.y));
 }
 
 void UIElement::Render(Drift::RHI::IUIBatcher& batch)

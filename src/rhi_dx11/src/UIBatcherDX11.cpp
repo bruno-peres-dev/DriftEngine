@@ -15,7 +15,7 @@ inline unsigned ConvertARGBtoBGRA(unsigned argb) {
     return ((argb & 0x000000FF) << 16) |  // B -> posição 16
            ((argb & 0x0000FF00)) |         // G -> posição 8  
            ((argb & 0x00FF0000) >> 16) |   // R -> posição 0
-           ((argb & 0xFF000000) >> 8);     // A -> posição 24
+           ((argb & 0xFF000000));          // A -> posição 24 (corrigido)
 }
 
 // TODO: Para otimização futura, considerar lookup table para cores comuns
