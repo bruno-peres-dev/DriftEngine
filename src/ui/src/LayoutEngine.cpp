@@ -173,12 +173,16 @@ void LayoutEngine::LayoutChildren(const std::vector<std::shared_ptr<UIElement>>&
                         // Aplica stretch horizontal se configurado
                         if (childProps.horizontalAlign == LayoutProperties::HorizontalAlign::Stretch) {
                             childSize.x = parentRect.width - childProps.margin.x - childProps.margin.z;
+                            // Garante que o tamanho não seja negativo
+                            if (childSize.x < 0) childSize.x = 0;
                             childPos.x = parentRect.x + childProps.margin.x;
                         }
-                        
+
                         // Aplica stretch vertical se configurado
                         if (childProps.verticalAlign == LayoutProperties::VerticalAlign::Stretch) {
                             childSize.y = parentRect.height - childProps.margin.y - childProps.margin.w;
+                            // Garante que o tamanho não seja negativo
+                            if (childSize.y < 0) childSize.y = 0;
                             childPos.y = parentRect.y + childProps.margin.y;
                         }
                         
