@@ -23,6 +23,12 @@ public:
     void SetCornerRadius(float radius) { m_CornerRadius = radius; }
     float GetCornerRadius() const { return m_CornerRadius; }
     
+    void SetProportionalBorders(bool proportional) { m_ProportionalBorders = proportional; }
+    bool GetProportionalBorders() const { return m_ProportionalBorders; }
+    
+    void SetBorderProportion(float proportion) { m_BorderProportion = proportion; }
+    float GetBorderProportion() const { return m_BorderProportion; }
+    
     // === RENDERIZAÇÃO ===
     void Render(Drift::RHI::IUIBatcher& batch) override;
 
@@ -31,6 +37,8 @@ private:
     unsigned m_BorderColor{0xFF404040};     // Cinza médio
     float m_BorderWidth{1.0f};
     float m_CornerRadius{0.0f};
+    bool m_ProportionalBorders{false};      // Bordas proporcionais
+    float m_BorderProportion{0.01f};        // Proporção da borda (1% por padrão)
 };
 
 } // namespace Drift::UI 

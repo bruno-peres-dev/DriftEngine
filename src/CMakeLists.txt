@@ -143,6 +143,10 @@ add_library(DriftUI STATIC
   ui/src/Widgets/Image.cpp
   ui/src/Widgets/StackPanel.cpp
   ui/src/Widgets/Grid.cpp
+  ui/src/FontSystem/FontManager.cpp
+  ui/src/FontSystem/Font.cpp
+  ui/src/FontSystem/FontAtlas.cpp
+  ui/src/FontSystem/TextRenderer.cpp
 )
 
 # Corrigir problema de PDB no Visual Studio
@@ -180,6 +184,14 @@ add_executable(LayoutTest
 
 add_executable(ClippingTest
   app/clipping_test.cpp
+)
+
+add_executable(FontTest
+  app/font_test.cpp
+)
+
+add_executable(LayoutFixesTest
+  app/layout_fixes_test.cpp
 )
 
 target_include_directories(DriftEngineApp PUBLIC
@@ -241,12 +253,65 @@ target_link_libraries(ClippingTest PUBLIC
   d3d11 dxgi D3DCompiler DirectXTK
 )
 
+target_include_directories(FontTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+  renderer/include
+)
+
+target_link_libraries(FontTest PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
+)
+
+target_include_directories(LayoutFixesTest PUBLIC
+  core/include
+  engine/include
+  ui/include
+  rhi/include
+  rhi_dx11/include
+  renderer/include
+)
+
+target_link_libraries(LayoutFixesTest PUBLIC
+  DriftCore
+  DriftMath
+  DriftEngine
+  DriftRHI
+  DriftRHI_DX11
+  DriftUI
+  glfw
+  d3d11 dxgi D3DCompiler DirectXTK
+)
+
 # Garantir que os shaders estão disponíveis
 file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
 foreach(SHADER ${SHADERS})
   get_filename_component(SHADER_NAME ${SHADER} NAME)
   configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
+
+# Garantir que os shaders de texto estão disponíveis para os testes
+add_custom_command(TARGET FontTest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/shaders
+  ${CMAKE_BINARY_DIR}/shaders
+)
+
+add_custom_command(TARGET LayoutFixesTest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/shaders
+  ${CMAKE_BINARY_DIR}/shaders
+)
 
 target_include_directories(LayoutTest PRIVATE
   ${glfw_SOURCE_DIR}/include
@@ -263,6 +328,28 @@ target_include_directories(ClippingTest PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
 target_link_libraries(ClippingTest PRIVATE
+  DriftCore
+  DriftEngine
+  DriftRHI_DX11
+  DriftUI
+  glfw
+)
+
+target_include_directories(FontTest PRIVATE
+  ${glfw_SOURCE_DIR}/include
+)
+target_link_libraries(FontTest PRIVATE
+  DriftCore
+  DriftEngine
+  DriftRHI_DX11
+  DriftUI
+  glfw
+)
+
+target_include_directories(LayoutFixesTest PRIVATE
+  ${glfw_SOURCE_DIR}/include
+)
+target_link_libraries(LayoutFixesTest PRIVATE
   DriftCore
   DriftEngine
   DriftRHI_DX11

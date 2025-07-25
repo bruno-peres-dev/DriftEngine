@@ -3,6 +3,7 @@
 #include "Drift/Core/Log.h"
 #include "Drift/RHI/PipelineState.h"
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
+#include "Drift/UI/FontSystem/TextRenderer.h"
 #include <cstring>
 #include <algorithm>
 
@@ -24,7 +25,11 @@ inline unsigned ConvertARGBtoBGRA(unsigned argb) {
 
 // Construtor: armazena ring buffer e contexto
 UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* ctx)
-    : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {}
+    : _ringBuffer(std::move(ringBuffer)), _ctx(ctx) {
+    
+    // Inicializa o sistema de renderização de texto
+    _textRenderer = std::make_unique<Drift::UI::UIBatcherTextRenderer>(this);
+}
 
 void UIBatcherDX11::Begin() {
     // Desativa teste de profundidade e escrita, para overlay
@@ -32,6 +37,11 @@ void UIBatcherDX11::Begin() {
 
     _vertices.clear();
     _indices.clear();
+    
+    // Inicia renderização de texto
+    if (_textRenderer) {
+        _textRenderer->BeginTextRendering();
+    }
 }
 
 // Adiciona um retângulo ao batch de UI
@@ -74,42 +84,61 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, unsigned color) 
     _indices.push_back(base + 0);
 }
 
-// Stub: integração futura com sistema de fontes/texto
-void UIBatcherDX11::AddText(float, float, const char*, unsigned) {
-    // Não implementado
+// Implementação do sistema de renderização de texto com MSDF
+void UIBatcherDX11::AddText(float x, float y, const char* text, unsigned color) {
+    if (!text || !_textRenderer) {
+        return;
+    }
+    
+    // Usa o renderizador de texto integrado
+    _textRenderer->AddText(x, y, text, color);
 }
 
 // Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
-    if (_vertices.empty() || _indices.empty()) {
-        return;
+    // Renderiza elementos básicos (retângulos)
+    if (!_vertices.empty() && !_indices.empty()) {
+        EnsurePipeline();
+
+        // Desabilita depth
+        _ctx->SetDepthTestEnabled(false);
+        // Assume viewport já configurado pelo RenderManager
+        _pipeline->Apply(*_ctx);
+
+        // Garante que o ring buffer está pronto para o próximo frame
+        _ringBuffer->NextFrame();
+
+        size_t vtxSize = _vertices.size() * sizeof(Vertex);
+        size_t idxSize = _indices.size() * sizeof(unsigned);
+        size_t vtxOffset = 0, idxOffset = 0;
+        void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
+        void* idxPtr = _ringBuffer->Allocate(idxSize, 4, idxOffset);
+        
+        std::memcpy(vtxPtr, _vertices.data(), vtxSize);
+        std::memcpy(idxPtr, _indices.data(), idxSize);
+        IBuffer* vtxBuf = _ringBuffer->GetBuffer();
+        IBuffer* idxBuf = _ringBuffer->GetBuffer();
+        
+        _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
+        _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
+        _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
+            _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+}
+
+void UIBatcherDX11::SetScreenSize(float w, float h) {
+    _screenW = w;
+    _screenH = h;
+    
+    // Propaga para o renderizador de texto
+    if (_textRenderer) {
+        _textRenderer->SetScreenSize(w, h);
     }
-
-    EnsurePipeline();
-
-    // Desabilita depth
-    _ctx->SetDepthTestEnabled(false);
-    // Assume viewport já configurado pelo RenderManager
-    _pipeline->Apply(*_ctx);
-
-    // Garante que o ring buffer está pronto para o próximo frame
-    _ringBuffer->NextFrame();
-
-    size_t vtxSize = _vertices.size() * sizeof(Vertex);
-    size_t idxSize = _indices.size() * sizeof(unsigned);
-    size_t vtxOffset = 0, idxOffset = 0;
-    void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
-    void* idxPtr = _ringBuffer->Allocate(idxSize, 4, idxOffset);
+}
     
-    std::memcpy(vtxPtr, _vertices.data(), vtxSize);
-    std::memcpy(idxPtr, _indices.data(), idxSize);
-    IBuffer* vtxBuf = _ringBuffer->GetBuffer();
-    IBuffer* idxBuf = _ringBuffer->GetBuffer();
-    
-    _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
-    _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
-    _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
-    _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+    // Renderiza texto se houver renderizador de texto
+    if (_textRenderer) {
+        _textRenderer->EndTextRendering();
+    }
 }
 
 void UIBatcherDX11::EnsurePipeline() {

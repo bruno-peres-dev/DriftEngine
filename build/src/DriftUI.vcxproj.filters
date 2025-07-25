@@ -37,6 +37,18 @@
     <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\Widgets\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\FontSystem\FontManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\FontSystem\Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\FontSystem\FontAtlas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Bruno\Desktop\DriftEngine\src\ui\src\FontSystem\TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\Bruno\Desktop\DriftEngine\src\CMakeLists.txt" />

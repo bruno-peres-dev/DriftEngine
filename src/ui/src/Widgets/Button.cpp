@@ -32,16 +32,18 @@ void Button::Render(Drift::RHI::IUIBatcher& batch)
     // Chama o render da classe base (UIElement)
     UIElement::Render(batch);
     
-    // O Button não precisa renderizar nada adicional por enquanto
-    // pois a classe base já renderiza o retângulo com a cor correta
-    // baseada no estado do botão (normal, hover, pressed, disabled)
-    
-    // TODO: Renderizar texto quando o sistema de texto estiver implementado
-    // if (!m_Text.empty()) {
-    //     glm::vec2 absPos = GetAbsolutePosition();
-    //     glm::vec2 textPos = absPos + GetSize() * 0.5f;
-    //     batch.AddText(textPos.x, textPos.y, m_Text.c_str(), 0xFFFFFFFF);
-    // }
+    // Renderiza o texto do botão
+    if (!m_Text.empty()) {
+        glm::vec2 absPos = GetAbsolutePosition();
+        glm::vec2 size = GetSize();
+        
+        // Centraliza o texto no botão
+        glm::vec2 textPos = absPos + size * 0.5f;
+        
+        // Renderiza o texto com a cor atual do botão
+        unsigned textColor = GetCurrentColor();
+        batch.AddText(textPos.x, textPos.y, m_Text.c_str(), textColor);
+    }
 }
 
 void Button::OnMouseEnter()

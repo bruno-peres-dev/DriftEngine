@@ -4,6 +4,9 @@
 #include <vector>
 #include <memory>
 
+// Forward declaration para o sistema de texto
+namespace Drift::UI { class UIBatcherTextRenderer; }
+
 namespace Drift::RHI { class IPipelineState; }
 
 namespace Drift::RHI::DX11 {
@@ -24,10 +27,10 @@ public:
     UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, Drift::RHI::IContext* ctx);
     void Begin() override;
     void AddRect(float x, float y, float w, float h, unsigned color) override;
-    void AddText(float x, float y, const char* text, unsigned color) override; // Stub
+    void AddText(float x, float y, const char* text, unsigned color) override;
     void End() override;
 
-    void SetScreenSize(float w, float h) override { _screenW = w; _screenH = h; }
+    void SetScreenSize(float w, float h) override;
     
     // Métodos para gerenciar scissor rectangles
     void PushScissorRect(float x, float y, float w, float h) override;
@@ -56,6 +59,9 @@ private:
     
     // Stack de scissor rectangles
     std::vector<ScissorRect> _scissorStack;
+    
+    // Sistema de renderização de texto
+    std::unique_ptr<class UIBatcherTextRenderer> _textRenderer;
 };
 
 // Cria um UIBatcherDX11

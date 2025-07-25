@@ -72,16 +72,16 @@ void LayoutEngine::CalculateLayout(UIElement& element, const LayoutRect& availab
     LayoutRect elementRect = CalculateElementRect(element, paddingSpace, layoutProps);
     ArrangeElement(element, elementRect);
     
-    // Calcula layout dos filhos
+    // Calcula layout dos filhos usando o espaço com padding aplicado
     auto& children = element.GetChildren();
     if (!children.empty()) {
-        LayoutChildren(children, elementRect, layoutProps);
+        LayoutChildren(children, paddingSpace, layoutProps);
     }
     
-    // Recursão para filhos
+    // Recursão para filhos usando o espaço com padding aplicado
     for (auto& child : children) {
         if (IsElementVisible(*child)) {
-            CalculateLayout(*child, elementRect);
+            CalculateLayout(*child, paddingSpace);
         }
     }
 }

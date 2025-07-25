@@ -53,8 +53,18 @@ void Panel::Render(Drift::RHI::IUIBatcher& batch)
                 
                 // Verifica se as dimensões são válidas antes de renderizar bordas
                 if (w > 0 && h > 0) {
-                    // Usa espessura fixa para evitar mudanças durante redimensionamento
+                    // Calcula espessura da borda
                     float borderThickness = m_BorderWidth;
+                    
+                    // Se bordas proporcionais estão habilitadas, calcula baseado no tamanho
+                    if (m_ProportionalBorders) {
+                        float minDimension = std::min(w, h);
+                        float proportionalBorder = std::max(1.0f, minDimension * m_BorderProportion);
+                        borderThickness = std::min(borderThickness, proportionalBorder);
+                    }
+                    
+                    // Garante um mínimo de 1 pixel
+                    borderThickness = std::max(1.0f, borderThickness);
                     
                     // Borda superior
                     batch.AddRect(x, y, w, borderThickness, borderColor);
