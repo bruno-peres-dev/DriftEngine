@@ -134,7 +134,6 @@ add_library(DriftUI STATIC
   ui/src/UIContext.cpp
   ui/src/UIElement.cpp
   ui/src/LayoutEngine.cpp
-  ui/src/Transform2D.cpp
   ui/src/UIInputHandler.cpp
   ui/src/DataDriven/UIComponentRegistry.cpp
   ui/src/Widgets/Button.cpp

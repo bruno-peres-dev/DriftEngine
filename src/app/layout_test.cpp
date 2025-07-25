@@ -11,6 +11,7 @@
 #include "Drift/RHI/DX11/SwapChainDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include "Drift/RHI/DX11/RingBufferDX11.h"
+#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -45,6 +46,7 @@ void TestLayoutSystem(UI::UIContext* uiContext)
     mainLayout.padding = UI::LayoutMargins(5.0f).ToVec4(); // Reduzido ainda mais: Padding interno
     mainLayout.clipContent = true; // Habilita clipping para testar
     mainContainer->SetLayoutProperties(mainLayout);
+    mainContainer->SetRotation(glm::radians(15.0f));
     
     uiContext->GetRoot()->AddChild(mainContainer);
     
