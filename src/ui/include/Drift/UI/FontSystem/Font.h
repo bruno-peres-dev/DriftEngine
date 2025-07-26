@@ -24,6 +24,7 @@ class Font {
 public:
     Font(std::string name, float size, FontQuality quality);
     bool LoadFromFile(const std::string& path, Drift::RHI::IDevice* device);
+    bool LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::IDevice* device);
 
     const GlyphInfo* GetGlyph(uint32_t codepoint) const;
     std::shared_ptr<Drift::RHI::ITexture> GetAtlasTexture() const { return m_Texture; }

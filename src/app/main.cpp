@@ -161,7 +161,7 @@ int main() {
             
             // Criar elementos de teste da UI
             auto& fontManager = UI::FontManager::GetInstance();
-            auto defaultFont = fontManager.GetFont("default", 24.0f);
+            auto defaultFont = fontManager.GetOrLoadFont("default", "fonts/Arial-Regular.ttf", 24.0f);
             if (!defaultFont) {
                 Core::Log("[App] ERRO: Fonte padrão não encontrada!");
             }

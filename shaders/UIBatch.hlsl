@@ -30,7 +30,21 @@ PSIn VSMain(VSIn v) {
 float4 PSMain(PSIn i) : SV_TARGET { 
     // Se tem textura (textureId < 8), usar a textura com a cor
     if (i.textureId < 8) {
-        float4 texColor = g_Textures[i.textureId].Sample(g_Samplers[i.textureId], i.uv);
+        float4 texColor;
+        
+        // Usar switch para evitar erro de sampler array index
+        switch (i.textureId) {
+            case 0: texColor = g_Textures[0].Sample(g_Samplers[0], i.uv); break;
+            case 1: texColor = g_Textures[1].Sample(g_Samplers[1], i.uv); break;
+            case 2: texColor = g_Textures[2].Sample(g_Samplers[2], i.uv); break;
+            case 3: texColor = g_Textures[3].Sample(g_Samplers[3], i.uv); break;
+            case 4: texColor = g_Textures[4].Sample(g_Samplers[4], i.uv); break;
+            case 5: texColor = g_Textures[5].Sample(g_Samplers[5], i.uv); break;
+            case 6: texColor = g_Textures[6].Sample(g_Samplers[6], i.uv); break;
+            case 7: texColor = g_Textures[7].Sample(g_Samplers[7], i.uv); break;
+            default: texColor = float4(1, 1, 1, 1); break;
+        }
+        
         return texColor * i.col;
     }
     

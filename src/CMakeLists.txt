@@ -71,6 +71,7 @@ target_link_libraries(DriftEngine PUBLIC
 # 3.2) DriftCore (logging)
 add_library(DriftCore STATIC
   core/src/Log.cpp
+  core/src/Profiler.cpp
 )
 target_include_directories(DriftCore PUBLIC
   core/include

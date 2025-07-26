@@ -179,14 +179,17 @@ void UIContext::LoadFonts()
     std::string fontPath = ResolveFontPath("fonts/Arial-Regular.ttf");
     Drift::Core::LogRHI("[UIContext] Caminho da fonte resolvido: " + fontPath);
     
-    // Pré-carregar múltiplos tamanhos de fonte
-    std::vector<float> fontSizes = {12.0f, 14.0f, 16.0f, 18.0f, 20.0f, 24.0f, 28.0f, 32.0f};
+    // Pré-carregar o arquivo TTF uma única vez
+    fontManager.PreloadFontFile(fontPath);
     
-    Drift::Core::LogRHIDebug("[UIContext] Carregando " + std::to_string(fontSizes.size()) + " tamanhos de fonte...");
+    // Carregar apenas os tamanhos mais comuns inicialmente (lazy loading para os outros)
+    std::vector<float> prioritySizes = {16.0f, 14.0f, 20.0f, 24.0f}; // Tamanhos mais usados primeiro
     
-    for (size_t i = 0; i < fontSizes.size(); ++i) {
-        float size = fontSizes[i];
-        Drift::Core::LogRHIDebug("[UIContext] Carregando fonte " + std::to_string(i+1) + "/" + std::to_string(fontSizes.size()) + " (tamanho: " + std::to_string(size) + ")");
+    Drift::Core::LogRHIDebug("[UIContext] Carregando " + std::to_string(prioritySizes.size()) + " tamanhos prioritários...");
+    
+    for (size_t i = 0; i < prioritySizes.size(); ++i) {
+        float size = prioritySizes[i];
+        Drift::Core::LogRHIDebug("[UIContext] Carregando fonte " + std::to_string(i+1) + "/" + std::to_string(prioritySizes.size()) + " (tamanho: " + std::to_string(size) + ")");
         
         try {
             auto font = fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
@@ -210,6 +213,7 @@ void UIContext::LoadFonts()
     }
     
     Drift::Core::LogRHI("[UIContext] Carregamento de fontes concluído");
+    Drift::Core::LogRHI("[UIContext] Cache de fontes: " + std::to_string(fontManager.GetCacheSize()) + " fontes carregadas");
 }
 
 void UIContext::Shutdown()

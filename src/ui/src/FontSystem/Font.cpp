@@ -36,12 +36,16 @@ bool Font::LoadFromFile(const std::string& path, Drift::RHI::IDevice* device) {
     }
     
     Drift::Core::LogRHIDebug("[Font] Arquivo lido com sucesso");
+    
+    return LoadFromMemory(buffer.data(), buffer.size(), device);
+}
 
+bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::IDevice* device) {
     Drift::Core::LogRHIDebug("[Font] Inicializando stb_truetype...");
     
     stbtt_fontinfo info;
-    if (!stbtt_InitFont(&info, buffer.data(), stbtt_GetFontOffsetForIndex(buffer.data(), 0))) {
-        Drift::Core::LogError("[Font] stbtt_InitFont falhou: " + path);
+    if (!stbtt_InitFont(&info, data, stbtt_GetFontOffsetForIndex(data, 0))) {
+        Drift::Core::LogError("[Font] stbtt_InitFont falhou");
         return false;
     }
     
@@ -54,9 +58,9 @@ bool Font::LoadFromFile(const std::string& path, Drift::RHI::IDevice* device) {
     std::vector<stbtt_bakedchar> baked(96);
     
     Drift::Core::LogRHIDebug("[Font] Chamando stbtt_BakeFontBitmap...");
-    int result = stbtt_BakeFontBitmap(buffer.data(), 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 96, baked.data());
+    int result = stbtt_BakeFontBitmap(data, 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 96, baked.data());
     if (result <= 0) {
-        Drift::Core::LogError("[Font] stbtt_BakeFontBitmap falhou: " + path);
+        Drift::Core::LogError("[Font] stbtt_BakeFontBitmap falhou");
         return false;
     }
     

@@ -15,10 +15,18 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     }
 
     auto& fm = FontManager::GetInstance();
+    
     auto font = fm.GetFont(fontName, fontSize);
     if (!font) {
-        Drift::Core::LogWarning("[TextRenderer] Fonte não encontrada: " + fontName);
-        return;
+        Drift::Core::LogWarning("[TextRenderer] Fonte não encontrada: " + fontName + " (tamanho: " + std::to_string(fontSize) + ")");
+        
+        // Tentar carregar a fonte se não encontrada
+        Drift::Core::LogRHIDebug("[TextRenderer] Tentando lazy loading da fonte...");
+        font = fm.GetOrLoadFont(fontName, "fonts/Arial-Regular.ttf", fontSize);
+        if (!font) {
+            Drift::Core::LogError("[TextRenderer] Falha no lazy loading da fonte");
+            return;
+        }
     }
 
     const auto* texture = font->GetAtlasTexture().get();

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <mutex>
 
 namespace Drift::UI {
 
@@ -38,6 +39,7 @@ private:
     UIComponentRegistry& operator=(const UIComponentRegistry&) = delete;
     
     std::unordered_map<std::string, WidgetFactory> m_Factories;
+    mutable std::mutex m_Mutex;
 };
 
 // Macro para facilitar o registro de widgets
