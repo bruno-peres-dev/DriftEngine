@@ -17,6 +17,8 @@ FontManager::FontManager() {
     m_DefaultQuality = FontQuality::High;
     m_DefaultSize = 16.0f;
     m_DefaultFontName = "default";
+    m_CacheConfig = FontCacheConfig{};
+    m_Fonts.reserve(m_CacheConfig.maxFonts);
     
     Core::Log("[FontManager] Configuracoes padrao:");
     Core::Log("[FontManager]   - Qualidade: " + std::to_string(static_cast<int>(m_DefaultQuality)));

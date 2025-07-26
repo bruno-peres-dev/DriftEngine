@@ -4,6 +4,7 @@
 #include "Drift/RHI/Context.h"
 #include "Drift/RHI/Texture.h"
 #include "Drift/Core/Color.h"
+#include <glm/vec2.hpp>
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -64,6 +65,9 @@ public:
     void AddQuad(float x0, float y0, float x1, float y1,
                  float x2, float y2, float x3, float y3,
                  Drift::Color color) override;
+    void AddTexturedRect(float x, float y, float w, float h,
+                         const glm::vec2& uvMin, const glm::vec2& uvMax,
+                         Drift::Color color, uint32_t textureId) override;
     
     // === Renderização de texto ===
     void AddText(float x, float y, const char* text, Drift::Color color) override;

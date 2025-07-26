@@ -184,21 +184,23 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             
             LOG_DEBUG("  Rendering glyph '" + std::string(1, c) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y));
             
-            // Renderiza o quad do glyph
             if (m_UIBatcher) {
-                // Por enquanto, renderiza um retângulo colorido representando o glyph
-                // TODO: Implementar renderização real com textura quando o atlas estiver pronto
-                // Converte glm::vec4 para Drift::Color
                 Drift::Color color = static_cast<uint32_t>(command.color.a * 255) << 24 |
                                    static_cast<uint32_t>(command.color.r * 255) << 16 |
                                    static_cast<uint32_t>(command.color.g * 255) << 8 |
                                    static_cast<uint32_t>(command.color.b * 255);
-                
-                m_UIBatcher->AddRect(
-                    glyphX, glyphY,                    // Posição
-                    glyph->size.x, glyph->size.y,      // Tamanho
-                    color                               // Cor
-                );
+
+                auto* tex = command.font->GetAtlas()->GetTexture();
+                uint32_t texId = 1; // slot reservado para fontes
+                if (tex) {
+                    m_UIBatcher->SetTexture(texId, tex);
+                }
+
+                m_UIBatcher->AddTexturedRect(
+                    glyphX, glyphY,
+                    glyph->size.x, glyph->size.y,
+                    glyph->uvMin, glyph->uvMax,
+                    color, texId);
             }
             
             currentX += glyph->advance;

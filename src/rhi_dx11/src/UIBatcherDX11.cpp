@@ -5,6 +5,7 @@
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
 #include "Drift/UI/FontSystem/FontManager.h"
+#include <glm/vec2.hpp>
 #include <cstring>
 #include <algorithm>
 
@@ -193,6 +194,50 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
     m_CurrentBatch.indices.push_back(baseIndex + 3);
     m_CurrentBatch.indices.push_back(baseIndex + 0);
     
+    m_CurrentBatch.vertexCount += 4;
+    m_CurrentBatch.indexCount += 6;
+    m_BatchDirty = true;
+}
+
+void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
+                                    const glm::vec2& uvMin, const glm::vec2& uvMax,
+                                    Drift::Color color, uint32_t textureId) {
+    ScissorRect currentScissor = GetCurrentScissorRect();
+    if (currentScissor.IsValid()) {
+        ScissorRect clipped = ClipRectToScissor(ScissorRect(x, y, w, h), currentScissor);
+        if (!clipped.IsValid()) {
+            return;
+        }
+        x = clipped.x;
+        y = clipped.y;
+        w = clipped.width;
+        h = clipped.height;
+    }
+
+    if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
+        m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices ||
+        (m_CurrentBatch.hasTexture && m_CurrentBatch.textureId != textureId)) {
+        FlushCurrentBatch();
+    }
+
+    m_CurrentBatch.textureId = textureId;
+    m_CurrentBatch.hasTexture = true;
+
+    Drift::Color bgra = ConvertARGBtoBGRA(color);
+
+    uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y), uvMin.x, uvMin.y, bgra, textureId);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y), uvMax.x, uvMin.y, bgra, textureId);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y + h), uvMax.x, uvMax.y, bgra, textureId);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y + h), uvMin.x, uvMax.y, bgra, textureId);
+
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    m_CurrentBatch.indices.push_back(baseIndex + 1);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 3);
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+
     m_CurrentBatch.vertexCount += 4;
     m_CurrentBatch.indexCount += 6;
     m_BatchDirty = true;
