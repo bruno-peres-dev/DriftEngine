@@ -21,18 +21,15 @@ struct VertexOutput {
 // Constantes do shader
 cbuffer TextConstants : register(b0) {
     float2 screenSize;
+    float2 atlasSize;
     float2 padding;
 }
 
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // Posição já está em coordenadas de tela, apenas converter para clip space
-    float2 clipPos = (input.position / screenSize) * 2.0f - 1.0f;
-    clipPos.y = -clipPos.y; // Inverte Y para coordenadas de tela
-    
-    // Posição final
-    output.position = float4(clipPos, 0.0f, 1.0f);
+    // As coordenadas já estão em clip space (convertidas pelo UIBatcher)
+    output.position = float4(input.position, 0.0f, 1.0f);
     
     // Coordenadas de textura
     output.texCoord = input.texCoord;

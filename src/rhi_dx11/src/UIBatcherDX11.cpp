@@ -24,6 +24,7 @@ using namespace Drift::RHI;
 
 struct TextConstants {
     glm::vec2 screenSize{0.0f};
+    glm::vec2 atlasSize{512.0f, 512.0f};  // Tamanho padrão do atlas
     glm::vec2 padding{0.0f, 0.0f};
 };
 
@@ -65,7 +66,7 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
         SamplerDesc samplerDesc{};
         // Criar sampler diretamente usando o device DX11
         D3D11_SAMPLER_DESC sd{};
-        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Usar POINT para fontes bitmap
+        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Usar LINEAR para melhor qualidade
         sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
         sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
         sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -77,9 +78,9 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
         HRESULT hr = device->CreateSamplerState(&sd, samplerState.GetAddressOf());
         if (SUCCEEDED(hr)) {
             m_DefaultSampler = std::make_shared<SamplerDX11>(samplerState.Get());
-            Core::Log("[UIBatcherDX11] Sampler POINT criado com sucesso para fontes bitmap");
+            Core::Log("[UIBatcherDX11] Sampler LINEAR criado com sucesso para melhor qualidade de texto");
         } else {
-            Core::Log("[UIBatcherDX11] ERRO: Falha ao criar sampler POINT! HRESULT: " + std::to_string(hr));
+            Core::Log("[UIBatcherDX11] ERRO: Falha ao criar sampler LINEAR! HRESULT: " + std::to_string(hr));
         }
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Device DX11 é nullptr para criar sampler!");
@@ -161,6 +162,8 @@ void UIBatcherDX11::Begin() {
     if (m_TextCB) {
         TextConstants tc;
         tc.screenSize = glm::vec2(m_ScreenW, m_ScreenH);
+        tc.atlasSize = glm::vec2(512.0f, 512.0f);  // Tamanho padrão do atlas de fontes
+        tc.padding = glm::vec2(0.0f, 0.0f);
         auto* ctxDX11 = static_cast<ContextDX11*>(m_Context);
         if (ctxDX11) {
             ctxDX11->UpdateConstantBuffer(static_cast<ID3D11Buffer*>(m_TextCB->GetBackendHandle()),
@@ -330,7 +333,10 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 
     m_CurrentBatch.textureId = textureId;
     m_CurrentBatch.hasTexture = true;
-    if (m_AddingText) m_CurrentBatch.isText = true;
+    if (m_AddingText) {
+        m_CurrentBatch.isText = true;
+        Core::LogRHIDebug("[UIBatcherDX11] Batch marcado como texto (isText=true)");
+    }
 
     Drift::Color rgba = ConvertARGBtoRGBA(color);
 
@@ -635,12 +641,15 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     // Configurar pipeline
     EnsureUIPipeline();
     if (batch.isText && m_TextPipeline) {
+        Core::LogRHIDebug("[UIBatcherDX11] Usando pipeline de texto bitmap");
         m_TextPipeline->Apply(*contextDX11);
         if (m_TextCB) {
             contextDX11->VSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
             contextDX11->PSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
+            Core::LogRHIDebug("[UIBatcherDX11] Constantes de texto configuradas");
         }
     } else if (m_Pipeline) {
+        Core::LogRHIDebug("[UIBatcherDX11] Usando pipeline UI padrão (isText=" + std::to_string(batch.isText) + ")");
         m_Pipeline->Apply(*contextDX11);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");

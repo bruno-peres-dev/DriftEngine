@@ -1,140 +1,169 @@
 #include <iostream>
-#include <string>
-#include <glm/glm.hpp>
-#include <vector> // Added for TestTextureFormat
+#include <vector>
+#include <cstdint>
 
 // Simulação das estruturas para teste
 struct GlyphInfo {
-    glm::vec2 uv0;
-    glm::vec2 uv1;
-    glm::vec2 size;
-    glm::vec2 bearing;
+    float uv0[2];
+    float uv1[2];
+    float size[2];
+    float bearing[2];
     float advance;
 };
 
-class Font {
-public:
-    float GetAscent() const { return 20.0f; }
-    float GetDescent() const { return -5.0f; }
-    
-    const GlyphInfo* GetGlyph(uint32_t codepoint) const {
-        static GlyphInfo testGlyph;
-        testGlyph.size = glm::vec2(10.0f, 15.0f);
-        testGlyph.bearing = glm::vec2(1.0f, 12.0f); // yoff positivo = acima da baseline
-        testGlyph.advance = 12.0f;
-        return &testGlyph;
-    }
+// Simulação do stb_truetype
+struct stbtt_bakedchar {
+    unsigned short x0, y0, x1, y1;
+    float xoff, yoff, xadvance;
 };
 
-void TestFontPositioning() {
-    std::cout << "=== Teste de Posicionamento de Fontes ===" << std::endl;
+// Função para testar a geração do atlas
+void TestFontAtlasGeneration() {
+    std::cout << "=== Teste de Geração de Atlas de Fonte ===" << std::endl;
     
-    Font font;
-    glm::vec2 pos(100.0f, 200.0f);
-    
-    // Simular o cálculo antigo (INCORRETO)
-    float baseline_old = pos.y + font.GetAscent();
-    float ypos_old = baseline_old + font.GetGlyph('A')->bearing.y;
-    
-    // Simular o cálculo novo (CORRETO)
-    float baseline_new = pos.y + font.GetAscent();
-    float ypos_new = baseline_new - font.GetGlyph('A')->bearing.y;
-    
-    std::cout << "Posição base: (" << pos.x << ", " << pos.y << ")" << std::endl;
-    std::cout << "Baseline: " << baseline_new << std::endl;
-    std::cout << "yoff do glyph: " << font.GetGlyph('A')->bearing.y << std::endl;
-    std::cout << "Posição Y antiga (INCORRETA): " << ypos_old << std::endl;
-    std::cout << "Posição Y nova (CORRETA): " << ypos_new << std::endl;
-    std::cout << "Diferença: " << (ypos_old - ypos_new) << std::endl;
-    
-    if (ypos_new < ypos_old) {
-        std::cout << "✓ Correção aplicada: glyph posicionado mais alto (correto)" << std::endl;
-    } else {
-        std::cout << "✗ Erro: glyph ainda posicionado incorretamente" << std::endl;
-    }
-}
-
-void TestTextureFormat() {
-    std::cout << "\n=== Teste de Formato de Textura ===" << std::endl;
-    
-    // Simular dados bitmap R8 (um canal)
     const int atlasSize = 512;
-    std::vector<unsigned char> bitmapR8(atlasSize * atlasSize);
+    std::vector<unsigned char> bitmap(atlasSize * atlasSize, 0);
+    std::vector<stbtt_bakedchar> baked(96);
     
-    // Preencher com dados de teste
-    for (int i = 0; i < atlasSize * atlasSize; ++i) {
-        bitmapR8[i] = (i % 256); // Dados de teste
-    }
-    
-    // Simular conversão antiga (INCORRETA)
-    std::vector<unsigned char> rgbaBitmap(atlasSize * atlasSize * 4);
-    for (int i = 0; i < atlasSize * atlasSize; ++i) {
-        unsigned char alpha = bitmapR8[i];
-        rgbaBitmap[i * 4 + 0] = alpha; // R
-        rgbaBitmap[i * 4 + 1] = alpha; // G
-        rgbaBitmap[i * 4 + 2] = alpha; // B
-        rgbaBitmap[i * 4 + 3] = alpha; // A
-    }
-    
-    std::cout << "Tamanho do bitmap R8: " << bitmapR8.size() << " bytes" << std::endl;
-    std::cout << "Tamanho do bitmap RGBA: " << rgbaBitmap.size() << " bytes" << std::endl;
-    std::cout << "Razão de tamanho: " << (float)rgbaBitmap.size() / bitmapR8.size() << "x" << std::endl;
-    
-    // Verificar se os dados são equivalentes
-    bool equivalent = true;
-    for (int i = 0; i < atlasSize * atlasSize; ++i) {
-        if (bitmapR8[i] != rgbaBitmap[i * 4]) {
-            equivalent = false;
-            break;
+    // Simular dados de glyph (valores de exemplo)
+    for (int i = 0; i < 96; ++i) {
+        baked[i].x0 = i * 8;
+        baked[i].y0 = 0;
+        baked[i].x1 = (i + 1) * 8;
+        baked[i].y1 = 16;
+        baked[i].xoff = 0;
+        baked[i].yoff = 0;
+        baked[i].xadvance = 8;
+        
+        // Simular dados de bitmap (criar um padrão simples)
+        for (int y = baked[i].y0; y < baked[i].y1; ++y) {
+            for (int x = baked[i].x0; x < baked[i].x1; ++x) {
+                if (x < atlasSize && y < atlasSize) {
+                    bitmap[y * atlasSize + x] = 255; // Branco
+                }
+            }
         }
     }
     
-    if (equivalent) {
-        std::cout << "✓ Dados R8 e RGBA são equivalentes" << std::endl;
-    } else {
-        std::cout << "✗ Erro: dados R8 e RGBA não são equivalentes" << std::endl;
+    // Converter para GlyphInfo
+    std::vector<GlyphInfo> glyphs(96);
+    for (int i = 0; i < 96; ++i) {
+        stbtt_bakedchar& bc = baked[i];
+        GlyphInfo& g = glyphs[i];
+        
+        g.uv0[0] = bc.x0 / float(atlasSize);
+        g.uv0[1] = bc.y0 / float(atlasSize);
+        g.uv1[0] = bc.x1 / float(atlasSize);
+        g.uv1[1] = bc.y1 / float(atlasSize);
+        g.size[0] = bc.x1 - bc.x0;
+        g.size[1] = bc.y1 - bc.y0;
+        g.bearing[0] = bc.xoff;
+        g.bearing[1] = bc.yoff;
+        g.advance = bc.xadvance;
+        
+        std::cout << "Glyph " << (32 + i) << " (char '" << (char)(32 + i) << "'):" << std::endl;
+        std::cout << "  Size: (" << g.size[0] << ", " << g.size[1] << ")" << std::endl;
+        std::cout << "  UV: (" << g.uv0[0] << ", " << g.uv0[1] << ") -> (" << g.uv1[0] << ", " << g.uv1[1] << ")" << std::endl;
+        std::cout << "  Bearing: (" << g.bearing[0] << ", " << g.bearing[1] << ")" << std::endl;
+        std::cout << "  Advance: " << g.advance << std::endl;
     }
     
-    std::cout << "✓ Formato R8_UNORM é mais eficiente (4x menos memória)" << std::endl;
+    // Verificar se há dados no bitmap
+    int nonZeroPixels = 0;
+    for (int i = 0; i < atlasSize * atlasSize; ++i) {
+        if (bitmap[i] > 0) {
+            nonZeroPixels++;
+        }
+    }
+    
+    std::cout << "Pixels não-zero no bitmap: " << nonZeroPixels << std::endl;
+    std::cout << "Total de pixels: " << (atlasSize * atlasSize) << std::endl;
+    std::cout << "Densidade: " << (float(nonZeroPixels) / (atlasSize * atlasSize) * 100.0f) << "%" << std::endl;
 }
 
-void TestShaderCompatibility() {
-    std::cout << "\n=== Teste de Compatibilidade de Shader ===" << std::endl;
+// Função para testar a conversão de coordenadas
+void TestCoordinateConversion() {
+    std::cout << "\n=== Teste de Conversão de Coordenadas ===" << std::endl;
     
-    // Simular amostragem de textura R8
-    float r8Value = 0.75f; // Valor de exemplo
+    float screenW = 1280.0f;
+    float screenH = 720.0f;
     
-    // Shader antigo (esperava RGBA)
-    float alpha_old = r8Value; // Assumindo que estava usando .a
+    // Testar conversão de coordenadas de tela para clip space
+    auto ToClipX = [screenW](float px) -> float {
+        return (px / screenW) * 2.0f - 1.0f;
+    };
     
-    // Shader novo (espera R8)
-    float alpha_new = r8Value; // Usando .r
+    auto ToClipY = [screenH](float py) -> float {
+        return 1.0f - (py / screenH) * 2.0f;
+    };
     
-    std::cout << "Valor R8: " << r8Value << std::endl;
-    std::cout << "Alpha shader antigo: " << alpha_old << std::endl;
-    std::cout << "Alpha shader novo: " << alpha_new << std::endl;
+    // Testar algumas posições
+    std::vector<std::pair<float, float>> testPositions = {
+        {0, 0},           // Canto superior esquerdo
+        {screenW/2, screenH/2}, // Centro
+        {screenW, screenH},     // Canto inferior direito
+        {100, 100},       // Posição arbitrária
+        {screenW-100, screenH-100} // Outra posição
+    };
     
-    if (alpha_old == alpha_new) {
-        std::cout << "✓ Shaders produzem o mesmo resultado" << std::endl;
-    } else {
-        std::cout << "✗ Erro: shaders produzem resultados diferentes" << std::endl;
+    for (const auto& pos : testPositions) {
+        float clipX = ToClipX(pos.first);
+        float clipY = ToClipY(pos.second);
+        
+        std::cout << "Screen (" << pos.first << ", " << pos.second << ") -> Clip (" << clipX << ", " << clipY << ")" << std::endl;
     }
+}
+
+// Função para testar a conversão de cores
+void TestColorConversion() {
+    std::cout << "\n=== Teste de Conversão de Cores ===" << std::endl;
     
-    std::cout << "✓ Shader R8_UNORM é mais eficiente e correto" << std::endl;
+    // Simular Drift::Color (ARGB)
+    auto ConvertARGBtoRGBA = [](uint32_t argb) -> uint32_t {
+        uint8_t a = (argb >> 24) & 0xFF;
+        uint8_t r = (argb >> 16) & 0xFF;
+        uint8_t g = (argb >> 8) & 0xFF;
+        uint8_t b = argb & 0xFF;
+        
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    };
+    
+    // Testar algumas cores
+    std::vector<uint32_t> testColors = {
+        0xFFFFFFFF, // Branco
+        0xFF000000, // Preto
+        0xFFFF0000, // Vermelho
+        0xFF00FF00, // Verde
+        0xFF0000FF, // Azul
+        0x80000000, // Preto semi-transparente
+    };
+    
+    for (uint32_t color : testColors) {
+        uint32_t converted = ConvertARGBtoRGBA(color);
+        
+        uint8_t a1 = (color >> 24) & 0xFF;
+        uint8_t r1 = (color >> 16) & 0xFF;
+        uint8_t g1 = (color >> 8) & 0xFF;
+        uint8_t b1 = color & 0xFF;
+        
+        uint8_t a2 = (converted >> 24) & 0xFF;
+        uint8_t r2 = (converted >> 16) & 0xFF;
+        uint8_t g2 = (converted >> 8) & 0xFF;
+        uint8_t b2 = converted & 0xFF;
+        
+        std::cout << "Original ARGB: (" << (int)a1 << ", " << (int)r1 << ", " << (int)g1 << ", " << (int)b1 << ")" << std::endl;
+        std::cout << "Converted RGBA: (" << (int)a2 << ", " << (int)r2 << ", " << (int)g2 << ", " << (int)b2 << ")" << std::endl;
+        std::cout << "---" << std::endl;
+    }
 }
 
 int main() {
-    std::cout << "Teste das Correções do Sistema de Fontes\n" << std::endl;
+    std::cout << "Iniciando testes de correção de fontes..." << std::endl;
     
-    TestFontPositioning();
-    TestTextureFormat();
-    TestShaderCompatibility();
+    TestFontAtlasGeneration();
+    TestCoordinateConversion();
+    TestColorConversion();
     
-    std::cout << "\n=== Resumo das Correções ===" << std::endl;
-    std::cout << "1. ✓ Formato de textura alterado de RGBA8_UNORM para R8_UNORM" << std::endl;
-    std::cout << "2. ✓ Posicionamento vertical corrigido (yoff agora é subtraído)" << std::endl;
-    std::cout << "3. ✓ Shader atualizado para trabalhar com R8_UNORM" << std::endl;
-    std::cout << "4. ✓ Eficiência melhorada (4x menos memória)" << std::endl;
-    
+    std::cout << "\nTestes concluídos!" << std::endl;
     return 0;
 } 

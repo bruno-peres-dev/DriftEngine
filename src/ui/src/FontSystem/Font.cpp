@@ -63,7 +63,7 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
     Drift::Core::LogRHIDebug("[Font] Criando atlas de textura...");
     
     const int atlasSize = 512;
-    std::vector<unsigned char> bitmap(atlasSize * atlasSize);
+    std::vector<unsigned char> bitmap(atlasSize * atlasSize, 0);  // Inicializar com zeros
     std::vector<stbtt_bakedchar> baked(96);
     
     Drift::Core::LogRHIDebug("[Font] Chamando stbtt_BakeFontBitmap...");
@@ -94,7 +94,9 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
         Drift::Core::LogRHIDebug("[Font] Glyph " + std::to_string(32 + i) + 
                                 " size: (" + std::to_string(g.size.x) + ", " + std::to_string(g.size.y) + ")" +
                                 " bearing: (" + std::to_string(g.bearing.x) + ", " + std::to_string(g.bearing.y) + ")" +
-                                " advance: " + std::to_string(g.advance));
+                                " advance: " + std::to_string(g.advance) +
+                                " uv: (" + std::to_string(g.uv0.x) + ", " + std::to_string(g.uv0.y) + ") -> (" +
+                                std::to_string(g.uv1.x) + ", " + std::to_string(g.uv1.y) + ")");
         
         m_Glyphs[32 + i] = g;
     }
