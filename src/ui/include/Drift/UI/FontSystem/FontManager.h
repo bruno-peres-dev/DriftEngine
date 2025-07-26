@@ -3,6 +3,7 @@
 #include "Font.h"
 #include <unordered_map>
 #include <memory>
+#include "Drift/RHI/Device.h"
 
 namespace Drift::UI {
 

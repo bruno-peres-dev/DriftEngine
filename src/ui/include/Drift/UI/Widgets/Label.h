@@ -4,6 +4,7 @@
 #include "Drift/Core/Color.h"
 #include <string>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace Drift::UI {
 
@@ -43,6 +44,9 @@ public:
 
     // Cálculo de tamanho baseado no texto
     glm::vec2 CalculateTextSize() const;
+
+    // Função utilitária para converter Drift::Color para glm::vec4
+    glm::vec4 TextColorToVec4(Drift::Color color) const;
 
 private:
     std::string m_Text;

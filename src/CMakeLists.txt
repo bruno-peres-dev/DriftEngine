@@ -165,15 +165,16 @@ target_include_directories(DriftUI PUBLIC
   ${CMAKE_SOURCE_DIR}/extern/stb
 )
 
+# Definir STB_IMAGE_IMPLEMENTATION para compilar stb_image
+target_compile_definitions(DriftUI PRIVATE STB_IMAGE_IMPLEMENTATION)
+target_compile_definitions(DriftUI PRIVATE STB_TRUETYPE_IMPLEMENTATION)
+
 target_link_libraries(DriftUI PUBLIC
   DriftCore
   DriftMath
   DriftEngine
   glm
 )
-
-# Vincular DriftUI ao DriftEngine e DriftRenderer
-# (se necessário futura integração)
 
 # ------------------------------------------------
 # 5) Executável Principal

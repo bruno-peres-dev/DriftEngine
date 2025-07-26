@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 #include "Drift/RHI/Texture.h"
+#include "Drift/RHI/Device.h"
 
 namespace Drift::UI {
 

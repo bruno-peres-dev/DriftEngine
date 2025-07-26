@@ -1,5 +1,6 @@
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include "Drift/RHI/Context.h"
+#include "Drift/RHI/Device.h"
 #include "Drift/Core/Log.h"
 #include "Drift/RHI/PipelineState.h"
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
@@ -163,10 +164,10 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
     // Verificar clipping básico
     ScissorRect currentScissor = GetCurrentScissorRect();
     if (currentScissor.IsValid()) {
-        float minX = std::min({x0, x1, x2, x3});
-        float minY = std::min({y0, y1, y2, y3});
-        float maxX = std::max({x0, x1, x2, x3});
-        float maxY = std::max({y0, y1, y2, y3});
+        float minX = (std::min)((std::min)(x0, x1), (std::min)(x2, x3));
+        float minY = (std::min)((std::min)(y0, y1), (std::min)(y2, y3));
+        float maxX = (std::max)((std::max)(x0, x1), (std::max)(x2, x3));
+        float maxY = (std::max)((std::max)(y0, y1), (std::max)(y2, y3));
         
         if (maxX < currentScissor.x || minX > currentScissor.x + currentScissor.width ||
             maxY < currentScissor.y || minY > currentScissor.y + currentScissor.height) {
@@ -251,7 +252,14 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color color) {
     
     if (m_TextRenderer) {
-        m_TextRenderer->AddText(x, y, text, color);
+        // Converter Drift::Color para glm::vec4
+        float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
+        float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
+        float b = static_cast<float>(color & 0xFF) / 255.0f;
+        float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
+        glm::vec4 textColor(r, g, b, a);
+        
+        m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "Arial", 16.0f, textColor);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: m_TextRenderer é nullptr!");
     }
