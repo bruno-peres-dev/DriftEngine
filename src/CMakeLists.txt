@@ -188,6 +188,22 @@ add_executable(FontTest
   app/font_test.cpp
 )
 
+add_executable(PNGTest
+  app/png_test.cpp
+)
+target_include_directories(PNGTest PUBLIC
+  core/include
+  engine/include
+  rhi/include
+  rhi_dx11/include
+  ${CMAKE_SOURCE_DIR}/extern/stb
+)
+target_link_libraries(PNGTest PUBLIC
+  DriftCore
+  DriftRHI_DX11
+  d3d11 dxgi D3DCompiler
+)
+
 add_executable(TexturePipeline
   tools/texture_pipeline.cpp
 )

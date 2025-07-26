@@ -11,11 +11,28 @@
 #include <gli/gli.hpp>
 #include <gli/dx.hpp>
 
+// Para suporte a PNG/JPG usando stb_image
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 using namespace Drift::RHI::DX11;
 
 // Converte wstring para UTF-8 usando std::filesystem
 static std::string ToUTF8(const std::wstring& wstr) {
     return std::filesystem::path(wstr).u8string();
+}
+
+// Função auxiliar para carregar imagens PNG/JPG usando stb_image
+static bool LoadImageWithSTB(const std::string& path, int& width, int& height, int& channels, unsigned char*& data) {
+    data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    return data != nullptr;
+}
+
+// Função para liberar dados da imagem
+static void FreeImageData(unsigned char* data) {
+    if (data) {
+        stbi_image_free(data);
+    }
 }
 
 namespace Drift::RHI::DX11 {
@@ -40,71 +57,167 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
 
     if (!desc.path.empty())
     {
+        // Verifica se é um formato suportado pelo GLI (DDS, KTX)
+        bool isGLIFormat = false;
         gli::texture tex;
+        
         if (pathUtf8.size() >= 4 &&
             _stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".dds") == 0)
         {
             tex = gli::load_dds(pathUtf8);
+            isGLIFormat = true;
         }
         else if (pathUtf8.size() >= 4 &&
                  (_stricmp(pathUtf8.c_str() + pathUtf8.size() - 4, ".ktx") == 0 ||
                   _stricmp(pathUtf8.c_str() + pathUtf8.size() - 5, ".ktx2") == 0))
         {
             tex = gli::load_ktx(pathUtf8);
+            isGLIFormat = true;
+        }
+
+        if (isGLIFormat)
+        {
+            if (tex.empty())
+                throw std::runtime_error("Falha ao carregar textura: " + pathUtf8);
+
+            gli::dx translator;
+            auto dxFmt = translator.translate(tex.format());
+            DXGI_FORMAT dxgiFmt = static_cast<DXGI_FORMAT>(dxFmt.DXGIFormat.DDS);
+
+            D3D11_TEXTURE2D_DESC td{};
+            td.Width = tex.extent().x;
+            td.Height = tex.extent().y;
+            td.MipLevels = static_cast<UINT>(tex.levels());
+            td.ArraySize = 1;
+            td.Format = dxgiFmt;
+            td.SampleDesc.Count = 1;
+            td.Usage = D3D11_USAGE_DEFAULT;
+            td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            td.CPUAccessFlags = 0;
+            td.MiscFlags = tex.target() == gli::TARGET_CUBE ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
+
+            std::vector<D3D11_SUBRESOURCE_DATA> initData(td.MipLevels);
+            for (UINT level = 0; level < td.MipLevels; ++level) {
+                auto extent = tex.extent(level);
+                initData[level].pSysMem = tex.data(0, 0, level);
+                size_t blockSize = gli::block_size(tex.format());
+                auto blockExtent = gli::block_extent(tex.format());
+                initData[level].SysMemPitch = (extent.x / blockExtent.x) * blockSize;
+                initData[level].SysMemSlicePitch = (extent.y / blockExtent.y) * initData[level].SysMemPitch;
+            }
+
+            Microsoft::WRL::ComPtr<ID3D11Texture2D> texObj;
+            hr = dev->CreateTexture2D(&td, initData.data(), texObj.GetAddressOf());
+            if (FAILED(hr)) {
+                throw std::runtime_error("Falha ao criar textura de '" + pathUtf8 + "'");
+            }
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
+            sd.Format = td.Format;
+            sd.ViewDimension = (td.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) ?
+                D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D;
+            sd.Texture2D.MostDetailedMip = 0;
+            sd.Texture2D.MipLevels = td.MipLevels;
+
+            hr = dev->CreateShaderResourceView(texObj.Get(), &sd, srv.GetAddressOf());
+            if (FAILED(hr)) {
+                throw std::runtime_error("Falha ao criar SRV para '" + pathUtf8 + "'");
+            }
+
+            resource = texObj;
         }
         else
         {
-            throw std::runtime_error("Formato de textura não suportado: " + pathUtf8);
+            // Tenta carregar com stb_image (PNG, JPG, etc.)
+            int width, height, channels;
+            unsigned char* imageData = nullptr;
+            
+            if (!LoadImageWithSTB(pathUtf8, width, height, channels, imageData)) {
+                throw std::runtime_error("Falha ao carregar imagem: " + pathUtf8);
+            }
+
+            // Determina o formato DXGI baseado no número de canais
+            DXGI_FORMAT dxgiFmt;
+            size_t bytesPerPixel;
+            
+            switch (channels) {
+                case 1: // Grayscale
+                    dxgiFmt = DXGI_FORMAT_R8_UNORM;
+                    bytesPerPixel = 1;
+                    break;
+                case 2: // Grayscale + Alpha
+                    dxgiFmt = DXGI_FORMAT_R8G8_UNORM;
+                    bytesPerPixel = 2;
+                    break;
+                case 3: // RGB
+                    dxgiFmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+                    bytesPerPixel = 4; // Expandir para RGBA
+                    break;
+                case 4: // RGBA
+                    dxgiFmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+                    bytesPerPixel = 4;
+                    break;
+                default:
+                    FreeImageData(imageData);
+                    throw std::runtime_error("Formato de imagem não suportado: " + pathUtf8);
+            }
+
+            // Se é RGB, converte para RGBA
+            std::vector<unsigned char> rgbaData;
+            if (channels == 3) {
+                rgbaData.resize(width * height * 4);
+                for (int i = 0; i < width * height; ++i) {
+                    rgbaData[i * 4 + 0] = imageData[i * 3 + 0]; // R
+                    rgbaData[i * 4 + 1] = imageData[i * 3 + 1]; // G
+                    rgbaData[i * 4 + 2] = imageData[i * 3 + 2]; // B
+                    rgbaData[i * 4 + 3] = 255; // A
+                }
+            }
+
+            D3D11_TEXTURE2D_DESC td{};
+            td.Width = width;
+            td.Height = height;
+            td.MipLevels = 1;
+            td.ArraySize = 1;
+            td.Format = dxgiFmt;
+            td.SampleDesc.Count = 1;
+            td.Usage = D3D11_USAGE_DEFAULT;
+            td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            td.CPUAccessFlags = 0;
+            td.MiscFlags = 0;
+
+            D3D11_SUBRESOURCE_DATA initData{};
+            if (channels == 3) {
+                initData.pSysMem = rgbaData.data();
+                initData.SysMemPitch = width * 4;
+            } else {
+                initData.pSysMem = imageData;
+                initData.SysMemPitch = width * bytesPerPixel;
+            }
+            initData.SysMemSlicePitch = 0;
+
+            Microsoft::WRL::ComPtr<ID3D11Texture2D> texObj;
+            hr = dev->CreateTexture2D(&td, &initData, texObj.GetAddressOf());
+            if (FAILED(hr)) {
+                FreeImageData(imageData);
+                throw std::runtime_error("Falha ao criar textura de '" + pathUtf8 + "'");
+            }
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
+            sd.Format = td.Format;
+            sd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            sd.Texture2D.MostDetailedMip = 0;
+            sd.Texture2D.MipLevels = 1;
+
+            hr = dev->CreateShaderResourceView(texObj.Get(), &sd, srv.GetAddressOf());
+            if (FAILED(hr)) {
+                FreeImageData(imageData);
+                throw std::runtime_error("Falha ao criar SRV para '" + pathUtf8 + "'");
+            }
+
+            resource = texObj;
+            FreeImageData(imageData);
         }
-
-        if (tex.empty())
-            throw std::runtime_error("Falha ao carregar textura: " + pathUtf8);
-
-        gli::dx translator;
-        auto dxFmt = translator.translate(tex.format());
-        DXGI_FORMAT dxgiFmt = static_cast<DXGI_FORMAT>(dxFmt.DXGIFormat.DDS);
-
-        D3D11_TEXTURE2D_DESC td{};
-        td.Width = tex.extent().x;
-        td.Height = tex.extent().y;
-        td.MipLevels = static_cast<UINT>(tex.levels());
-        td.ArraySize = 1;
-        td.Format = dxgiFmt;
-        td.SampleDesc.Count = 1;
-        td.Usage = D3D11_USAGE_DEFAULT;
-        td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-        td.CPUAccessFlags = 0;
-        td.MiscFlags = tex.target() == gli::TARGET_CUBE ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
-
-        std::vector<D3D11_SUBRESOURCE_DATA> initData(td.MipLevels);
-        for (UINT level = 0; level < td.MipLevels; ++level) {
-            auto extent = tex.extent(level);
-            initData[level].pSysMem = tex.data(0, 0, level);
-            size_t blockSize = gli::block_size(tex.format());
-            auto blockExtent = gli::block_extent(tex.format());
-            initData[level].SysMemPitch = (extent.x / blockExtent.x) * blockSize;
-            initData[level].SysMemSlicePitch = (extent.y / blockExtent.y) * initData[level].SysMemPitch;
-        }
-
-        Microsoft::WRL::ComPtr<ID3D11Texture2D> texObj;
-        hr = dev->CreateTexture2D(&td, initData.data(), texObj.GetAddressOf());
-        if (FAILED(hr)) {
-            throw std::runtime_error("Falha ao criar textura de '" + pathUtf8 + "'");
-        }
-
-        D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
-        sd.Format = td.Format;
-        sd.ViewDimension = (td.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) ?
-            D3D11_SRV_DIMENSION_TEXTURECUBE : D3D11_SRV_DIMENSION_TEXTURE2D;
-        sd.Texture2D.MostDetailedMip = 0;
-        sd.Texture2D.MipLevels = td.MipLevels;
-
-        hr = dev->CreateShaderResourceView(texObj.Get(), &sd, srv.GetAddressOf());
-        if (FAILED(hr)) {
-            throw std::runtime_error("Falha ao criar SRV para '" + pathUtf8 + "'");
-        }
-
-        resource = texObj;
     }
     // Textura vazia em memória
     else

@@ -14,10 +14,16 @@ Font::Font(const std::string& name, const std::string& filePath, float size, Fon
     , m_Size(size)
     , m_Quality(quality)
     , m_IsLoaded(false) {
+    Core::Log("[Font] Construtor chamado para: " + name);
+    Core::Log("[Font]   - Arquivo: " + filePath);
+    Core::Log("[Font]   - Tamanho: " + std::to_string(size));
+    Core::Log("[Font]   - Qualidade: " + std::to_string(static_cast<int>(quality)));
 }
 
 Font::~Font() {
+    Core::Log("[Font] Destrutor chamado para: " + m_Name);
     Unload();
+    Core::Log("[Font] Destrutor concluido para: " + m_Name);
 }
 
 bool Font::Load() {

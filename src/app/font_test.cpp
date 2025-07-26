@@ -437,6 +437,9 @@ int main() {
     Core::Log("[Font Test] ==========================================");
     Core::Log("[Font Test] INICIANDO TESTE DO SISTEMA DE FONTES");
     Core::Log("[Font Test] ==========================================");
+    Core::Log("[Font Test] Versao: 1.0.0");
+    Core::Log("[Font Test] Data/Hora: " + std::string(__DATE__) + " " + std::string(__TIME__));
+    Core::Log("[Font Test] ==========================================");
 
     // ================================
     // 1. INICIALIZAÇÃO DO GLFW
@@ -472,34 +475,55 @@ int main() {
     // ================================
     // 3. INICIALIZAÇÃO DO DIRECTX 11
     // ================================
+    Core::Log("[Font Test] 3. Inicializando DirectX 11...");
     RHI::DeviceDesc desc{ 1200, 800, false };
     auto device = RHI::DX11::CreateDeviceDX11(desc);
+    Core::Log("[Font Test] 3.1. Device DX11 criado com sucesso!");
+    
     auto swapChain = device->CreateSwapChain(hwnd);
+    Core::Log("[Font Test] 3.2. SwapChain criado com sucesso!");
+    
     auto context = device->CreateContext();
+    Core::Log("[Font Test] 3.3. Context criado com sucesso!");
+    Core::Log("[Font Test] 3. DirectX 11 inicializado com sucesso!");
 
     // ================================
     // 4. SISTEMA DE INPUT
     // ================================
+    Core::Log("[Font Test] 4. Inicializando sistema de input...");
     auto inputManager = Engine::Input::CreateGLFWInputManager(window);
+    Core::Log("[Font Test] 4. Sistema de input inicializado com sucesso!");
 
     // ================================
     // 5. SISTEMA DE UI
     // ================================
+    Core::Log("[Font Test] 5. Inicializando sistema de UI...");
     auto uiContext = std::make_unique<UI::UIContext>();
     uiContext->Initialize();
+    Core::Log("[Font Test] 5.1. UIContext inicializado!");
+    
     uiContext->SetInputManager(inputManager.get());
+    Core::Log("[Font Test] 5.2. InputManager configurado no UIContext!");
+    Core::Log("[Font Test] 5. Sistema de UI inicializado com sucesso!");
 
     // ================================
     // 6. UI BATCHER E RING BUFFER
     // ================================
+    Core::Log("[Font Test] 6. Configurando UI Batcher e Ring Buffer...");
     ID3D11Device* nativeDev = static_cast<ID3D11Device*>(device->GetNativeDevice());
     ID3D11DeviceContext* nativeCtx = static_cast<ID3D11DeviceContext*>(context->GetNativeContext());
+    Core::Log("[Font Test] 6.1. Handles nativos obtidos!");
 
     auto uiRingBuffer = RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 1024 * 1024);
+    Core::Log("[Font Test] 6.2. Ring Buffer criado (1MB)!");
+    
     auto uiBatcher = RHI::DX11::CreateUIBatcherDX11(uiRingBuffer, context.get());
+    Core::Log("[Font Test] 6.3. UI Batcher criado!");
     
     // Configura tamanho da tela no UIBatcher
     uiBatcher->SetScreenSize(1200.0f, 800.0f);
+    Core::Log("[Font Test] 6.4. Tamanho da tela configurado: 1200x800!");
+    Core::Log("[Font Test] 6. UI Batcher e Ring Buffer configurados com sucesso!");
 
     // ================================
     // 7. SISTEMA DE FONTES
@@ -508,30 +532,45 @@ int main() {
     
     // Inicializa o gerenciador de fontes
     auto& fontManager = UI::FontManager::GetInstance();
+    Core::Log("[Font Test] 7.1. FontManager obtido!");
     
     // Configurar fonte padrão
     fontManager.SetDefaultFontName("embedded_default");
+    Core::Log("[Font Test] 7.2. Fonte padrao configurada: embedded_default");
+    
     fontManager.SetDefaultSize(16.0f);
+    Core::Log("[Font Test] 7.3. Tamanho padrao configurado: 16.0f");
+    
     fontManager.SetDefaultQuality(UI::FontQuality::High);
+    Core::Log("[Font Test] 7.4. Qualidade padrao configurada: High");
     
     // A fonte padrão será criada automaticamente quando necessário
     Core::Log("[Font Test] 7. Sistema de fontes inicializado!");
+    Core::Log("[Font Test] 7.5. Fontes carregadas: " + std::to_string(fontManager.GetLoadedFontCount()));
 
     // ================================
     // 8. CRIAÇÃO DOS TESTES DE FONTE
     // ================================
-    Core::Log("[Font Test] Chamando TestFontSystem...");
+    Core::Log("[Font Test] 8. Criando interface de teste...");
+    Core::Log("[Font Test] 8.1. Chamando TestFontSystem...");
     TestFontSystem(uiContext.get());
-    Core::Log("[Font Test] TestFontSystem concluído!");
+    Core::Log("[Font Test] 8.2. TestFontSystem concluido!");
+    Core::Log("[Font Test] 8. Interface de teste criada com sucesso!");
     
+    Core::Log("[Font Test] ==========================================");
+    Core::Log("[Font Test] TODOS OS SISTEMAS INICIALIZADOS COM SUCESSO!");
     Core::Log("[Font Test] Iniciando loop principal...");
+    Core::Log("[Font Test] ==========================================");
 
     // ================================
     // 9. LOOP PRINCIPAL
     // ================================
+    Core::Log("[Font Test] 9. Loop principal iniciado!");
     double lastTime = glfwGetTime();
+    int frameCount = 0;
     
-    while (!glfwWindowShouldClose(window)) {
+    try {
+        while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
         // Timing
@@ -547,7 +586,7 @@ int main() {
         static int lastWidth = width;
         static int lastHeight = height;
         if (width != lastWidth || height != lastHeight) {
-            Core::Log("[Font Test] Janela redimensionada: " + std::to_string(width) + "x" + std::to_string(height));
+            Core::Log("[Font Test] [RESIZE] Janela redimensionada: " + std::to_string(width) + "x" + std::to_string(height));
             
             // Atualiza tamanho da tela no UIContext
             uiContext->SetScreenSize(static_cast<float>(width), static_cast<float>(height));
@@ -573,16 +612,37 @@ int main() {
 
         // Present
         context->Present();
+        
+        // Log de performance a cada 1000 frames
+        frameCount++;
+        if (frameCount % 1000 == 0) {
+            Core::Log("[Font Test] [PERF] Frame " + std::to_string(frameCount) + " - DeltaTime: " + std::to_string(deltaTime * 1000.0f) + "ms");
+        }
+    }
+    } catch (const std::exception& e) {
+        Core::Log("[Font Test] ERRO CRITICO no loop principal: " + std::string(e.what()));
+        std::cerr << "Erro critico: " << e.what() << std::endl;
+    } catch (...) {
+        Core::Log("[Font Test] ERRO CRITICO desconhecido no loop principal!");
+        std::cerr << "Erro critico desconhecido!" << std::endl;
     }
 
     // ================================
     // 10. FINALIZAÇÃO
     // ================================
-    Core::Log("[Font Test] Finalizando...");
+    Core::Log("[Font Test] ==========================================");
+    Core::Log("[Font Test] FINALIZANDO TESTE");
+    Core::Log("[Font Test] ==========================================");
+    Core::Log("[Font Test] 10.1. Total de frames processados: " + std::to_string(frameCount));
+    Core::Log("[Font Test] 10.2. Finalizando UIContext...");
     uiContext->Shutdown();
+    Core::Log("[Font Test] 10.3. Destruindo janela...");
     glfwDestroyWindow(window);
+    Core::Log("[Font Test] 10.4. Finalizando GLFW...");
     glfwTerminate();
-    Core::Log("[Font Test] Teste concluído com sucesso!");
+    Core::Log("[Font Test] ==========================================");
+    Core::Log("[Font Test] TESTE CONCLUÍDO COM SUCESSO!");
+    Core::Log("[Font Test] ==========================================");
 
     return 0;
 } 
