@@ -71,10 +71,10 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
         SamplerDesc samplerDesc{};
         // Criar sampler diretamente usando o device DX11
         D3D11_SAMPLER_DESC sd{};
-        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // Usar POINT para fontes bitmap
+        sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
         sd.MinLOD = 0;
         sd.MaxLOD = D3D11_FLOAT32_MAX;
@@ -358,6 +358,8 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 }
 
 void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color color) {
+    Core::LogRHIDebug("[UIBatcherDX11] AddText chamado: '" + std::string(text) + "' em (" + 
+                     std::to_string(x) + ", " + std::to_string(y) + ")");
 
     if (m_TextRenderer) {
         if (!m_CurrentBatch.IsEmpty()) {
@@ -371,9 +373,11 @@ void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color col
         float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
         glm::vec4 textColor(r, g, b, a);
 
+        Core::LogRHIDebug("[UIBatcherDX11] Chamando TextRenderer->AddText...");
         m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "default", 16.0f, textColor);
         FlushCurrentBatch();
         m_AddingText = false;
+        Core::LogRHIDebug("[UIBatcherDX11] AddText concluído");
     } else {
         Core::Log("[UIBatcherDX11] ERRO: m_TextRenderer é nullptr!");
     }

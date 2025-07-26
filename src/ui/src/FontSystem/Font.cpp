@@ -84,8 +84,18 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
         g.uv0 = glm::vec2(bc.x0 / float(atlasSize), bc.y0 / float(atlasSize));
         g.uv1 = glm::vec2(bc.x1 / float(atlasSize), bc.y1 / float(atlasSize));
         g.size = glm::vec2(bc.x1 - bc.x0, bc.y1 - bc.y0);
+        
+        // O bearing do stb_truetype já está correto
+        // xoff é o offset horizontal do glyph
+        // yoff é o offset vertical do glyph (já relativo à baseline)
         g.bearing = glm::vec2(bc.xoff, bc.yoff);
         g.advance = bc.xadvance;
+        
+        Drift::Core::LogRHIDebug("[Font] Glyph " + std::to_string(32 + i) + 
+                                " size: (" + std::to_string(g.size.x) + ", " + std::to_string(g.size.y) + ")" +
+                                " bearing: (" + std::to_string(g.bearing.x) + ", " + std::to_string(g.bearing.y) + ")" +
+                                " advance: " + std::to_string(g.advance));
+        
         m_Glyphs[32 + i] = g;
     }
     
@@ -94,16 +104,26 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
     if (device) {
         Drift::Core::LogRHIDebug("[Font] Criando textura no device...");
         
+        // Converter bitmap R8 para RGBA para compatibilidade com shader
+        std::vector<unsigned char> rgbaBitmap(atlasSize * atlasSize * 4);
+        for (int i = 0; i < atlasSize * atlasSize; ++i) {
+            unsigned char alpha = bitmap[i];
+            rgbaBitmap[i * 4 + 0] = alpha; // R
+            rgbaBitmap[i * 4 + 1] = alpha; // G
+            rgbaBitmap[i * 4 + 2] = alpha; // B
+            rgbaBitmap[i * 4 + 3] = alpha; // A
+        }
+        
         Drift::RHI::TextureDesc desc;
         desc.width = atlasSize;
         desc.height = atlasSize;
-        desc.format = Drift::RHI::Format::R8_UNORM;
+        desc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
         
         try {
             m_Texture = device->CreateTexture(desc);
             if (m_Texture) {
                 Drift::Core::LogRHIDebug("[Font] Textura criada, atualizando subresource...");
-                m_Texture->UpdateSubresource(0, 0, bitmap.data(), atlasSize, atlasSize * atlasSize);
+                m_Texture->UpdateSubresource(0, 0, rgbaBitmap.data(), atlasSize, atlasSize * atlasSize * 4);
                 Drift::Core::LogRHIDebug("[Font] Subresource atualizado com sucesso");
             } else {
                 Drift::Core::LogError("[Font] Falha ao criar textura no device");

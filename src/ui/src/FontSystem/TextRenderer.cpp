@@ -13,6 +13,9 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         Drift::Core::LogError("[TextRenderer] Batcher não configurado");
         return;
     }
+    
+    Drift::Core::LogRHIDebug("[TextRenderer] Renderizando texto: '" + text + "' em pos (" + 
+                            std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")");
 
     auto& fm = FontManager::GetInstance();
     
@@ -46,12 +49,19 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         }
 
         float xpos = x + g->bearing.x;
-        float ypos = baseline - g->bearing.y;
+        float ypos = baseline + g->bearing.y;
 
         glm::vec2 uv0 = g->uv0;
         glm::vec2 uv1 = g->uv1;
         float w = g->size.x;
         float h = g->size.y;
+
+        // Debug: verificar valores
+        Drift::Core::LogRHIDebug("[TextRenderer] Glyph '" + std::string(1, c) + 
+                                "' pos: (" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")" +
+                                " size: (" + std::to_string(w) + ", " + std::to_string(h) + ")" +
+                                " uv: (" + std::to_string(uv0.x) + ", " + std::to_string(uv0.y) + ") -> (" + 
+                                std::to_string(uv1.x) + ", " + std::to_string(uv1.y) + ")");
 
         Drift::Color textColor = Drift::Color((uint8_t)(color.w * 255.0f) << 24 |
                                               (uint8_t)(color.x * 255.0f) << 16 |
