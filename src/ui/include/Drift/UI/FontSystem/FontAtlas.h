@@ -49,6 +49,7 @@ private:
     AtlasConfig m_Config;
     std::unique_ptr<Drift::RHI::ITexture> m_Texture;
     std::shared_ptr<Drift::RHI::ITexture> m_SharedTexture; // Manter referência compartilhada
+    std::vector<uint8_t> m_TextureData;
     int m_Width{0};
     int m_Height{0};
     int m_CurrentX{0};
