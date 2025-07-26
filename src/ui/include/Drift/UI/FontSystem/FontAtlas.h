@@ -32,6 +32,9 @@ public:
     ~FontAtlas();
 
     AtlasRegion* AllocateRegion(int width, int height, uint32_t glyphId);
+
+    // Faz upload dos dados MSDF para o atlas. Retorna false se os dados excederem
+    // os limites do atlas ou se os parâmetros forem inválidos.
     bool UploadMSDFData(const AtlasRegion* region, const uint8_t* data, int width, int height);
     AtlasRegion* GetRegion(uint32_t glyphId) const;
     bool HasRegion(uint32_t glyphId) const;
