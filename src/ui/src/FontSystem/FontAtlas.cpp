@@ -75,11 +75,11 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
     // Armazenar a região
     AtlasRegion* regionPtr = region.get();
     m_Regions[glyphId] = std::move(region);
-    
+
     Core::Log("[FontAtlas]   - Regiao armazenada no mapa. Total de regioes: " + std::to_string(m_Regions.size()));
     Core::Log("[FontAtlas]   - Regiao alocada com sucesso para glyph " + std::to_string(glyphId));
-    
-    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + ": (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ") " + std::to_string(region->width) + "x" + std::to_string(region->height));
+
+    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + ": (" + std::to_string(regionPtr->x) + ", " + std::to_string(regionPtr->y) + ") " + std::to_string(regionPtr->width) + "x" + std::to_string(regionPtr->height));
     
     return regionPtr;
 }
