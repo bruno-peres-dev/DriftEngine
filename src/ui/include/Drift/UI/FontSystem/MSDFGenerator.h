@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <glm/glm.hpp>
 #include <memory>
+#include "Drift/UI/FontSystem/FontManager.h"
 
 namespace Drift::UI {
 
@@ -119,6 +121,9 @@ public:
     float GetDescender() const;
     float GetLineHeight() const;
     float GetBaseline() const;
+
+    // Novo método de acesso ao buffer da fonte
+    const unsigned char* GetFontBuffer() const; // devolve ponteiro const ou nullptr
     
     // Configurações
     void SetSize(float size) { m_Size = size; }

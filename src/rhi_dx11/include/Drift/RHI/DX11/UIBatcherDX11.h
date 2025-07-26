@@ -65,7 +65,7 @@ private:
     std::vector<ScissorRect> _scissorStack;
     
     // Sistema de renderização de texto
-    std::unique_ptr<class UIBatcherTextRenderer> _textRenderer;
+    std::unique_ptr<Drift::UI::UIBatcherTextRenderer> _textRenderer;
 };
 
 // Cria um UIBatcherDX11

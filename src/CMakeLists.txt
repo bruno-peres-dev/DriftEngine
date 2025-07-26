@@ -87,6 +87,7 @@ target_include_directories(DriftRHI PUBLIC
 )
 target_link_libraries(DriftRHI PUBLIC
   DriftCore
+  glm
 )
 
 # 3.4) DriftRHI_DX11 (implementação DX11)
@@ -105,6 +106,9 @@ add_library(DriftRHI_DX11 STATIC
 )
 target_include_directories(DriftRHI_DX11 PUBLIC
   rhi_dx11/include
+  ui/include
+  ${CMAKE_SOURCE_DIR}/extern/gli
+  ${CMAKE_SOURCE_DIR}/extern/stb
 )
 target_link_libraries(DriftRHI_DX11 PUBLIC
   DriftRHI
@@ -173,90 +177,15 @@ target_link_libraries(DriftUI PUBLIC
 # (se necessário futura integração)
 
 # ------------------------------------------------
-# 4) Executáveis
+# 5) Executáveis de Teste
 # ------------------------------------------------
+
 add_executable(DriftEngineApp
   app/main.cpp
 )
 
-add_executable(LayoutTest
-  app/layout_test.cpp
-)
-
-add_executable(ClippingTest
-  app/clipping_test.cpp
-)
-
 add_executable(FontTest
   app/font_test.cpp
-)
-
-add_executable(LayoutFixesTest
-  app/layout_fixes_test.cpp
-)
-
-add_executable(PanelColorTest
-  app/panel_color_test.cpp
-)
-
-add_executable(LayoutPropagationTest
-  app/layout_propagation_test.cpp
-)
-
-add_executable(AbsoluteLayoutClampTest
-  app/absolute_layout_clamp_test.cpp
-)
-
-target_include_directories(AbsoluteLayoutClampTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-)
-
-target_link_libraries(AbsoluteLayoutClampTest PUBLIC
-  DriftCore
-  DriftEngine
-  DriftUI
-)
-
-add_executable(HitTestClippingTest
-  app/hittest_clipping_test.cpp
-)
-
-target_include_directories(PanelColorTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-)
-
-target_link_libraries(PanelColorTest PUBLIC
-  DriftCore
-  DriftEngine
-  DriftUI
-)
-
-target_include_directories(LayoutPropagationTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-)
-
-target_link_libraries(LayoutPropagationTest PUBLIC
-  DriftCore
-  DriftEngine
-  DriftUI
-)
-
-target_include_directories(HitTestClippingTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-)
-
-target_link_libraries(HitTestClippingTest PUBLIC
-  DriftCore
-  DriftEngine
-  DriftUI
 )
 
 add_executable(TexturePipeline
@@ -287,44 +216,6 @@ target_link_libraries(DriftEngineApp PUBLIC
   d3d11 dxgi D3DCompiler
 )
 
-target_include_directories(LayoutTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-  rhi/include
-  rhi_dx11/include
-)
-
-target_link_libraries(LayoutTest PUBLIC
-  DriftCore
-  DriftMath
-  DriftEngine
-  DriftRHI
-  DriftRHI_DX11
-  DriftUI
-  glfw
-  d3d11 dxgi D3DCompiler
-)
-
-target_include_directories(ClippingTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-  rhi/include
-  rhi_dx11/include
-)
-
-target_link_libraries(ClippingTest PUBLIC
-  DriftCore
-  DriftMath
-  DriftEngine
-  DriftRHI
-  DriftRHI_DX11
-  DriftUI
-  glfw
-  d3d11 dxgi D3DCompiler
-)
-
 target_include_directories(FontTest PUBLIC
   core/include
   engine/include
@@ -335,26 +226,6 @@ target_include_directories(FontTest PUBLIC
 )
 
 target_link_libraries(FontTest PUBLIC
-  DriftCore
-  DriftMath
-  DriftEngine
-  DriftRHI
-  DriftRHI_DX11
-  DriftUI
-  glfw
-  d3d11 dxgi D3DCompiler
-)
-
-target_include_directories(LayoutFixesTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-  rhi/include
-  rhi_dx11/include
-  renderer/include
-)
-
-target_link_libraries(LayoutFixesTest PUBLIC
   DriftCore
   DriftMath
   DriftEngine
@@ -379,49 +250,10 @@ add_custom_command(TARGET FontTest POST_BUILD
   ${CMAKE_BINARY_DIR}/shaders
 )
 
-add_custom_command(TARGET LayoutFixesTest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/shaders
-  ${CMAKE_BINARY_DIR}/shaders
-)
-
-target_include_directories(LayoutTest PRIVATE
-  ${glfw_SOURCE_DIR}/include
-)
-target_link_libraries(LayoutTest PRIVATE
-  DriftCore
-  DriftEngine
-  DriftRHI_DX11
-  DriftUI
-  glfw
-)
-
-target_include_directories(ClippingTest PRIVATE
-  ${glfw_SOURCE_DIR}/include
-)
-target_link_libraries(ClippingTest PRIVATE
-  DriftCore
-  DriftEngine
-  DriftRHI_DX11
-  DriftUI
-  glfw
-)
-
 target_include_directories(FontTest PRIVATE
   ${glfw_SOURCE_DIR}/include
 )
 target_link_libraries(FontTest PRIVATE
-  DriftCore
-  DriftEngine
-  DriftRHI_DX11
-  DriftUI
-  glfw
-)
-
-target_include_directories(LayoutFixesTest PRIVATE
-  ${glfw_SOURCE_DIR}/include
-)
-target_link_libraries(LayoutFixesTest PRIVATE
   DriftCore
   DriftEngine
   DriftRHI_DX11

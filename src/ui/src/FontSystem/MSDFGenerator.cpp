@@ -1,9 +1,14 @@
 #include "Drift/UI/FontSystem/MSDFGenerator.h"
 #include "Drift/Core/Log.h"
+
+#define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <fstream>
+#include <string>
 
 namespace Drift::UI {
 
@@ -28,7 +33,7 @@ bool MSDFGenerator::GenerateFromGlyph(const void* fontData, uint32_t codepoint, 
     unsigned char* sdf = stbtt_GetCodepointSDF(&info, scale, static_cast<int>(codepoint), m_Config.range,
                                               128, 1.0f, &w, &h, &xoff, &yoff);
     if (!sdf) {
-        LOG_ERROR("stbtt_GetCodepointSDF failed for codepoint {}", codepoint);
+        LOG_ERROR(std::string("stbtt_GetCodepointSDF failed for codepoint ") + std::to_string(codepoint));
         return false;
     }
 
@@ -49,7 +54,7 @@ bool MSDFGenerator::GenerateFromGlyph(const void* fontData, uint32_t codepoint, 
         output.alpha[i] = v;
     }
 
-    STBTT_free(sdf, nullptr);
+    stbtt_FreeSDF(sdf, nullptr);
     return true;
 }
 
@@ -119,7 +124,7 @@ struct FontProcessor::FontData {
 bool FontProcessor::LoadFont(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {
-        LOG_ERROR("Failed to open font file {}", filePath);
+        LOG_ERROR(std::string("Failed to open font file ") + filePath);
         return false;
     }
     file.seekg(0, std::ios::end);
@@ -142,7 +147,7 @@ bool FontProcessor::LoadFontFromMemory(const void* data, size_t dataSize) {
 bool FontProcessor::InitializeFont() {
     if (!m_FontData) return false;
     if (!stbtt_InitFont(&m_FontData->info, m_FontData->buffer.data(), 0)) {
-        LOG_ERROR("stbtt_InitFont failed in FontProcessor");
+        LOG_ERROR("stbtt_InitFont failed in FontProcessor"); // já compatível
         return false;
     }
     float scale = stbtt_ScaleForPixelHeight(&m_FontData->info, m_Size);
@@ -181,6 +186,11 @@ float FontProcessor::GetDescender() const { return m_FontData ? m_FontData->desc
 float FontProcessor::GetLineHeight() const { return m_FontData ? m_FontData->lineHeight : m_Size; }
 float FontProcessor::GetBaseline() const { return GetAscender(); }
 
+// Implementação do novo método accessor
+const unsigned char* FontProcessor::GetFontBuffer() const {
+    return m_FontData ? m_FontData->buffer.data() : nullptr;
+}
+
 FontProcessingPipeline::FontProcessingPipeline()
     : m_Processor(std::make_unique<FontProcessor>()),
       m_Generator(std::make_unique<MSDFGenerator>()),
@@ -191,7 +201,9 @@ FontProcessingPipeline::~FontProcessingPipeline() = default;
 bool FontProcessingPipeline::ProcessGlyph(uint32_t codepoint, MSDFData& output, const MSDFConfig& config) {
     m_Generator->SetConfig(config);
     if (!m_Generator || !m_Processor) return false;
-    return m_Generator->GenerateFromGlyph(m_Processor->m_FontData->buffer.data(), codepoint, output);
+    const unsigned char* buffer = m_Processor->GetFontBuffer();
+    if (!buffer) return false;
+    return m_Generator->GenerateFromGlyph(buffer, codepoint, output);
 }
 
 bool FontProcessingPipeline::ProcessFont(const std::string& fontPath, const std::string&, const MSDFConfig& config) {

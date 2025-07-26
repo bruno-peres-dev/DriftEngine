@@ -38,7 +38,7 @@ void TextRenderer::EndTextRendering() {
     // Processar todos os batches
     ProcessBatches();
     
-    LOG_DEBUG("Text rendering ended, processed {} batches", m_Batches.size());
+    LOG_DEBUG("Text rendering ended, processed " + std::to_string(m_Batches.size()) + " batches");
 }
 
 void TextRenderer::AddText(const std::string& text, const glm::vec2& position, 
@@ -53,7 +53,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
     auto& fontManager = FontManager::GetInstance();
     auto font = fontManager.GetFont(fontName, fontSize, settings.quality);
     if (!font) {
-        LOG_ERROR("Font not found: {} (size: {})", fontName, fontSize);
+        LOG_ERROR("Font not found: " + fontName + " (size: " + std::to_string(fontSize) + ")");
         return;
     }
     
@@ -72,7 +72,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
     
     m_Batches[m_CurrentBatch].push_back(command);
     
-    LOG_DEBUG("Added text command: '{}' at ({}, {})", text, position.x, position.y);
+    LOG_DEBUG("Added text command: '" + text + "' at (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ")");
 }
 
 void TextRenderer::AddText(const std::string& text, float x, float y,
@@ -94,7 +94,7 @@ void TextRenderer::NextBatch() {
     }
     
     m_CurrentBatch++;
-    LOG_DEBUG("Moved to batch {}", m_CurrentBatch);
+    LOG_DEBUG("Moved to batch " + std::to_string(m_CurrentBatch));
 }
 
 void TextRenderer::ClearBatches() {
@@ -116,12 +116,11 @@ size_t TextRenderer::GetCommandCount() const {
 }
 
 void TextRenderer::ProcessBatches() {
-    LOG_INFO("Processing {} text batches with {} total commands", 
-             m_Batches.size(), GetCommandCount());
+    LOG_INFO("Processing " + std::to_string(m_Batches.size()) + " text batches with " + std::to_string(GetCommandCount()) + " total commands");
     
     for (size_t i = 0; i < m_Batches.size(); ++i) {
         const auto& batch = m_Batches[i];
-        LOG_DEBUG("Processing batch {} with {} commands", i, batch.size());
+        LOG_DEBUG("Processing batch " + std::to_string(i) + " with " + std::to_string(batch.size()) + " commands");
         
         for (const auto& command : batch) {
             ProcessTextCommand(command);
@@ -133,9 +132,7 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
     // Aqui seria implementada a lógica real de renderização
     // Por enquanto, vamos apenas simular o processamento
     
-    LOG_DEBUG("Processing text: '{}' at ({}, {}) with font '{}'", 
-              command.text, command.position.x, command.position.y, 
-              command.font->GetName());
+    LOG_DEBUG("Processing text: '" + command.text + "' at (" + std::to_string(command.position.x) + ", " + std::to_string(command.position.y) + ") with font '" + command.font->GetName() + "'");
     
     // Simular renderização de glyphs
     float currentX = command.position.x;
@@ -150,9 +147,7 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             float glyphX = currentX + glyph->offset.x;
             float glyphY = currentY - glyph->offset.y;
             
-            LOG_DEBUG("  Glyph '{}' at ({}, {}) size {}x{} uv ({}, {})-({}, {})",
-                      c, glyphX, glyphY, glyph->size.x, glyph->size.y,
-                      glyph->uvMin.x, glyph->uvMin.y, glyph->uvMax.x, glyph->uvMax.y);
+            LOG_DEBUG("  Glyph '" + std::string(1, static_cast<char>(c)) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y) + " uv (" + std::to_string(glyph->uvMin.x) + ", " + std::to_string(glyph->uvMin.y) + ")-(" + std::to_string(glyph->uvMax.x) + ", " + std::to_string(glyph->uvMax.y) + ")");
             
             currentX += glyph->advance;
             
@@ -219,7 +214,7 @@ void UIBatcherTextRenderer::SetScreenSize(int width, int height) {
     m_ScreenWidth = width;
     m_ScreenHeight = height;
     
-    LOG_DEBUG("Screen size set to {}x{}", width, height);
+    LOG_DEBUG("Screen size set to " + std::to_string(width) + "x" + std::to_string(height));
 }
 
 TextRenderer* UIBatcherTextRenderer::GetTextRenderer() const {
@@ -251,8 +246,7 @@ void TextRenderer::DrawText(const std::string& text, const glm::vec2& position,
     // Esta função seria chamada pelo sistema de renderização
     // Por enquanto, vamos apenas logar a chamada
     
-    LOG_DEBUG("DrawText called: '{}' at ({}, {}) with font '{}' size {}", 
-              text, position.x, position.y, fontName, fontSize);
+    LOG_DEBUG("DrawText called: '" + text + "' at (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ") with font '" + fontName + "' size " + std::to_string(fontSize));
 }
 
 glm::vec2 TextRenderer::MeasureText(const std::string& text, const std::string& fontName, float fontSize) {

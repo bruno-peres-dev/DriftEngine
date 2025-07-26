@@ -509,11 +509,12 @@ int main() {
     // Inicializa o gerenciador de fontes
     auto& fontManager = UI::FontManager::GetInstance();
     
-    // Carrega fontes padrão (se disponíveis)
-    // fontManager.LoadFont("default", "fonts/Roboto-Regular.ttf", 16.0f, UI::FontQuality::High);
-    // fontManager.LoadFont("bold", "fonts/Roboto-Bold.ttf", 16.0f, UI::FontQuality::High);
-    // fontManager.LoadFont("mono", "fonts/RobotoMono-Regular.ttf", 16.0f, UI::FontQuality::High);
+    // Configurar fonte padrão
+    fontManager.SetDefaultFontName("embedded_default");
+    fontManager.SetDefaultSize(16.0f);
+    fontManager.SetDefaultQuality(UI::FontQuality::High);
     
+    // A fonte padrão será criada automaticamente quando necessário
     Core::Log("[Font Test] 7. Sistema de fontes inicializado!");
 
     // ================================

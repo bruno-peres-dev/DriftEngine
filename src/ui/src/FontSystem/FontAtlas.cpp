@@ -13,7 +13,7 @@ FontAtlas::FontAtlas(const AtlasConfig& config)
     , m_LineHeight(0) {
     
     // Inicializar a textura (implementação stub)
-    LOG_INFO("Creating font atlas: {}x{}", m_Width, m_Height);
+    LOG_INFO("Creating font atlas: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
 }
 
 FontAtlas::~FontAtlas() {
@@ -31,7 +31,7 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
     
     // Verificar se ainda há espaço vertical
     if (m_CurrentY + height > m_Height) {
-        LOG_WARNING("Font atlas full, cannot allocate region for glyph: {}", glyphId);
+        LOG_WARNING("Font atlas full, cannot allocate region for glyph: " + std::to_string(glyphId));
         return nullptr;
     }
     
@@ -51,8 +51,7 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
     AtlasRegion* regionPtr = region.get();
     m_Regions[glyphId] = std::move(region);
     
-    LOG_DEBUG("Allocated atlas region for glyph {}: ({}, {}) {}x{}", 
-              glyphId, regionPtr->x, regionPtr->y, regionPtr->width, regionPtr->height);
+    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + ": (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ") " + std::to_string(region->width) + "x" + std::to_string(region->height));
     
     return regionPtr;
 }
@@ -72,8 +71,7 @@ bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, i
     // Aqui seria implementada a lógica real de upload para a textura
     // Por enquanto, vamos apenas simular o upload
     
-    LOG_DEBUG("Uploading MSDF data for glyph {}: {}x{} at ({}, {})", 
-              region->glyphId, width, height, region->x, region->y);
+    LOG_DEBUG("Uploading MSDF data for glyph " + std::to_string(region->glyphId) + ": " + std::to_string(width) + "x" + std::to_string(height) + " at (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
     
     return true;
 }
@@ -150,7 +148,7 @@ FontAtlas* MultiAtlasManager::CreateAtlas(const AtlasConfig& config) {
     FontAtlas* atlasPtr = atlas.get();
     m_Atlases.push_back(std::move(atlas));
     
-    LOG_INFO("Created new font atlas: {}x{}", config.width, config.height);
+    LOG_INFO("Created new font atlas: " + std::to_string(config.width) + "x" + std::to_string(config.height));
     
     return atlasPtr;
 }

@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "stb_truetype.h"
+#include "Drift/UI/FontSystem/FontAtlas.h"
 
 namespace Drift::UI {
 
@@ -59,6 +60,10 @@ public:
     float GetSize() const;
     FontQuality GetQuality() const;
     bool IsLoaded() const;
+    
+    // Métodos adicionais
+    const std::string& GetFilePath() const;
+    const std::unique_ptr<class FontAtlas>& GetAtlas() const;
 
 private:
     std::string m_Name;
@@ -80,6 +85,9 @@ private:
     stbtt_fontinfo m_FontInfo{};
 
     void LoadBasicGlyphs();
+    
+    // Permitir que FontManager acesse membros privados
+    friend class FontManager;
 }; 
 
 // Gerenciador principal de fontes
@@ -94,8 +102,15 @@ public:
     void SetDefaultSize(float size);
     void SetDefaultFontName(const std::string& name);
     void PreloadFont(const std::string& name, const std::string& filePath, const std::vector<float>& sizes, FontQuality quality = FontQuality::High);
+    
+    // Método para criar fonte padrão embutida
+    std::shared_ptr<Font> CreateEmbeddedDefaultFont(float size, FontQuality quality = FontQuality::High);
     void BeginTextRendering();
     void EndTextRendering();
+    
+    // Métodos utilitários
+    size_t GetLoadedFontCount() const;
+    std::vector<std::string> GetLoadedFontNames() const;
 
 private:
     FontManager();

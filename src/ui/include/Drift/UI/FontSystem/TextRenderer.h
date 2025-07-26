@@ -39,6 +39,10 @@ public:
     void ClearBatches();
     size_t GetBatchCount() const;
     size_t GetCommandCount() const;
+    
+    // Métodos adicionais
+    void ProcessBatches();
+    void ProcessTextCommand(const TextRenderCommand& command);
 
     void DrawText(const std::string& text, const glm::vec2& position,
                   const std::string& fontName = "default", float fontSize = 16.0f);

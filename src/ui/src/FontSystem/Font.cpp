@@ -1,4 +1,5 @@
 #include "Drift/UI/FontSystem/FontManager.h"
+#include "Drift/UI/FontSystem/FontAtlas.h"
 #include "Drift/Core/Log.h"
 #include <algorithm>
 #include <fstream>
@@ -24,11 +25,11 @@ bool Font::Load() {
         return true;
     }
 
-    LOG_INFO("Loading font: {} from {}", m_Name, m_FilePath);
+    LOG_INFO("Loading font: " + m_Name + " from " + m_FilePath);
 
     std::ifstream file(m_FilePath, std::ios::binary);
     if (!file) {
-        LOG_ERROR("Failed to open font file: {}", m_FilePath);
+        LOG_ERROR("Failed to open font file: " + m_FilePath);
         return false;
     }
     file.seekg(0, std::ios::end);
@@ -39,7 +40,7 @@ bool Font::Load() {
     file.close();
 
     if (!stbtt_InitFont(&m_FontInfo, m_TTFBuffer.data(), 0)) {
-        LOG_ERROR("stbtt_InitFont failed for {}", m_FilePath);
+        LOG_ERROR("stbtt_InitFont failed for " + m_FilePath);
         return false;
     }
 
@@ -87,7 +88,7 @@ bool Font::Load() {
     }
 
     m_IsLoaded = true;
-    LOG_INFO("Font loaded successfully: {} (size: {})", m_Name, m_Size);
+    LOG_INFO("Font loaded successfully: " + m_Name + " (size: " + std::to_string(m_Size) + ")");
     return true;
 }
 
@@ -102,7 +103,7 @@ void Font::Unload() {
     m_Atlas.reset();
     m_IsLoaded = false;
 
-    LOG_INFO("Font unloaded: {}", m_Name);
+    LOG_INFO("Font unloaded: " + m_Name);
 }
 
 const Glyph* Font::GetGlyph(uint32_t character) const {
@@ -115,8 +116,13 @@ const Glyph* Font::GetGlyph(uint32_t character) const {
         return &it->second;
     }
     
-    // Se o glyph não existe, retornar o glyph padrão (espaço)
-    return GetGlyph(' ');
+    // Se o glyph não existe, tentar retornar o glyph do espaço
+    if (character != ' ') {
+        return GetGlyph(' ');
+    }
+    
+    // Se nem o espaço existe, retornar nullptr
+    return nullptr;
 }
 
 float Font::GetKerning(uint32_t left, uint32_t right) const {
@@ -208,8 +214,6 @@ bool Font::IsLoaded() const {
     return m_IsLoaded;
 }
 
-FontAtlas* Font::GetAtlas() const {
-    return m_Atlas.get();
-}
+
 
 } // namespace Drift::UI 

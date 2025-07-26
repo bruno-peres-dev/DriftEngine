@@ -75,6 +75,11 @@ struct LayoutProperties {
     int gridRowSpan = 1;
     int gridColumnSpan = 1;
     
+    // Grid layout configuration
+    int gridColumns = 1;
+    int gridRows = 1;
+    float gridSpacing = 0.0f;
+    
     // Overflow handling
     bool clipContent = false;
 };
