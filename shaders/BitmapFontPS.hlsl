@@ -14,7 +14,13 @@ SamplerState fontSampler : register(s0);
 // Função principal do pixel shader
 float4 main(VertexOutput input) : SV_Target {
     // Amostra a textura bitmap (um canal)
-    float alpha = fontAtlas.Sample(fontSampler, input.texCoord).r;
+    float4 texColor = fontAtlas.Sample(fontSampler, input.texCoord);
+    float alpha = texColor.r;
+    
+    // Debug: se alpha for muito baixo, retorna vermelho para debug
+    if (alpha < 0.1f) {
+        return float4(1.0f, 0.0f, 0.0f, 1.0f); // Vermelho para debug
+    }
     
     // Aplica a cor do texto
     float4 finalColor = input.color;
