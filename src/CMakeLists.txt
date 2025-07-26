@@ -147,11 +147,6 @@ add_library(DriftUI STATIC
   ui/src/Widgets/Image.cpp
   ui/src/Widgets/StackPanel.cpp
   ui/src/Widgets/Grid.cpp
-  ui/src/FontSystem/FontManager.cpp
-  ui/src/FontSystem/Font.cpp
-  ui/src/FontSystem/FontAtlas.cpp
-  ui/src/FontSystem/MSDFGenerator.cpp
-  ui/src/FontSystem/TextRenderer.cpp
 )
 
 # Corrigir problema de PDB no Visual Studio

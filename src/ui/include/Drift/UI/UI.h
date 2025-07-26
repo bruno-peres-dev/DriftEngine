@@ -21,7 +21,16 @@
 // Data-Driven
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
 
+// Font System
+#include "Drift/UI/FontSystem/MSDFFont.h"
+
 namespace Drift::UI {
     // Namespace principal para todos os componentes de UI
     // Todos os componentes estão disponíveis através deste namespace
+    
+    // Alias para facilitar acesso ao sistema de fontes
+    using FontSystem = FontSystem::MSDFFontSystem;
+    using TextSettings = FontSystem::TextRenderSettings;
+    using TextLayout = FontSystem::TextLayoutInfo;
+    using TextResult = FontSystem::TextRenderResult;
 } 
