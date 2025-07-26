@@ -54,17 +54,24 @@ namespace Drift::RHI::DX11 {
     // Criação de buffer DX11 (vertex, index ou constant)
     std::shared_ptr<IBuffer> CreateBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const BufferDesc& desc) {
         if (desc.type == BufferType::Constant) {
-            // Constant buffer dinâmico
+            // Constant buffer dinâmico - deve ser alinhado a 16 bytes
             D3D11_BUFFER_DESC bd{};
-            bd.ByteWidth = static_cast<UINT>(desc.sizeBytes);
+            // Alinhar o tamanho para múltiplos de 16 bytes
+            UINT alignedSize = ((static_cast<UINT>(desc.sizeBytes) + 15) / 16) * 16;
+            bd.ByteWidth = alignedSize;
             bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
             bd.Usage = D3D11_USAGE_DYNAMIC;
             bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
             bd.MiscFlags = 0;
 
             ComPtr<ID3D11Buffer> buf;
-            if (FAILED(device->CreateBuffer(&bd, nullptr, buf.GetAddressOf())))
+            HRESULT hr = device->CreateBuffer(&bd, nullptr, buf.GetAddressOf());
+            if (FAILED(hr)) {
+                Drift::Core::Log("[DX11][ERROR] Failed to create ConstantBuffer. HRESULT: " + std::to_string(hr) + 
+                                ", Size: " + std::to_string(desc.sizeBytes) + 
+                                ", AlignedSize: " + std::to_string(alignedSize));
                 throw std::runtime_error("Failed to create ConstantBuffer");
+            }
             return std::make_shared<BufferDX11>(buf, context);
         }
         else {

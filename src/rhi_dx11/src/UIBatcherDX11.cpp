@@ -7,6 +7,7 @@
 #include "Drift/RHI/DX11/ContextDX11.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/DX11/SamplerDX11.h"
+#include "Drift/RHI/DX11/BufferDX11.h"
 #include "Drift/RHI/Texture.h"
 #include "Drift/RHI/Buffer.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
@@ -39,6 +40,9 @@ inline Drift::Color ConvertARGBtoBGRA(Drift::Color argb) {
     uint8_t g = (argb >> 8) & 0xFF;
     uint8_t b = argb & 0xFF;
     
+    // Converter ARGB para BGRA: A->A, R->B, G->G, B->R
+    // ARGB: AAAA RRRR GGGG BBBB
+    // BGRA: AAAA BBBB GGGG RRRR
     return (a << 24) | (b << 16) | (g << 8) | r;
 }
 
@@ -96,9 +100,21 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
         auto* device = static_cast<ID3D11Device*>(ctxDX11->GetNativeDevice());
         auto* devCtx = ctxDX11->GetDeviceContext();
         if (device && devCtx) {
+            Core::Log("[UIBatcherDX11] Criando buffer de constantes para texto...");
+            Core::Log("[UIBatcherDX11] Tamanho do TextConstants: " + std::to_string(sizeof(TextConstants)) + " bytes");
             BufferDesc cbd{ BufferType::Constant, sizeof(TextConstants), nullptr };
-            m_TextCB = CreateBufferDX11(device, devCtx, cbd);
+            try {
+                m_TextCB = CreateBufferDX11(device, devCtx, cbd);
+                Core::Log("[UIBatcherDX11] Buffer de constantes criado com sucesso");
+            } catch (const std::exception& e) {
+                Core::Log("[UIBatcherDX11] ERRO ao criar buffer de constantes: " + std::string(e.what()));
+                throw; // Re-throw para ser capturado pelo handler principal
+            }
+        } else {
+            Core::Log("[UIBatcherDX11] AVISO: Device ou DeviceContext não disponível");
         }
+    } else {
+        Core::Log("[UIBatcherDX11] AVISO: ContextDX11 não disponível");
     }
     
     Core::Log("[UIBatcherDX11] Inicializado com sucesso");
