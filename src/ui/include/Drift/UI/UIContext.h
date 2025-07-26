@@ -13,7 +13,7 @@
 #include <glm/vec2.hpp>
 
 #include "Drift/RHI/UIBatcher.h"
-#include "Drift/UI/FontSystem/FontSystem.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
 
 // Forward declaration para evitar include circular

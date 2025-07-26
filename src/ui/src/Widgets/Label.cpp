@@ -1,6 +1,6 @@
 #include "Drift/UI/Widgets/Label.h"
 #include "Drift/UI/UIContext.h"
-#include "Drift/UI/FontSystem/FontSystem.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
 #include "Drift/Core/Log.h"
 
