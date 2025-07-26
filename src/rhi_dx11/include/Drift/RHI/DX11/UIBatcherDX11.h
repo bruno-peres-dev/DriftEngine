@@ -33,16 +33,18 @@ struct UIBatch {
     std::vector<uint32_t> indices;
     uint32_t textureId;
     bool hasTexture;
+    bool isText;
     size_t vertexCount;
     size_t indexCount;
     
-    UIBatch() : textureId(0), hasTexture(false), vertexCount(0), indexCount(0) {}
+    UIBatch() : textureId(0), hasTexture(false), isText(false), vertexCount(0), indexCount(0) {}
     
     void Clear() {
         vertices.clear();
         indices.clear();
         textureId = 0;
         hasTexture = false;
+        isText = false;
         vertexCount = 0;
         indexCount = 0;
     }
@@ -138,6 +140,8 @@ private:
     // === Sistema de renderização de texto ===
     std::unique_ptr<Drift::UI::UIBatcherTextRenderer> m_TextRenderer;
     std::shared_ptr<ISampler> m_DefaultSampler;
+    std::shared_ptr<IBuffer> m_TextCB;
+    bool m_AddingText{false};
     
     // === Otimizações ===
     std::vector<UIVertex> m_VertexBuffer;

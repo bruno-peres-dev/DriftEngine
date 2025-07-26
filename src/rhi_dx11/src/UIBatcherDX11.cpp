@@ -8,9 +8,11 @@
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/DX11/SamplerDX11.h"
 #include "Drift/RHI/Texture.h"
+#include "Drift/RHI/Buffer.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
 #include "Drift/UI/FontSystem/FontSystem.h"
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 #include <cstring>
 #include <algorithm>
 #include <wrl/client.h>
@@ -18,6 +20,17 @@
 
 using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
+
+struct TextConstants {
+    glm::mat4 viewProjection{1.0f};
+    glm::vec2 screenSize{0.0f};
+    glm::vec2 atlasSize{0.0f};
+    float msdfRange{4.0f};
+    float smoothing{1.0f};
+    float contrast{1.0f};
+    float gamma{2.2f};
+    float padding[2]{0.0f, 0.0f};
+};
 
 // Conversão ARGB para BGRA otimizada (inline para performance)
 inline Drift::Color ConvertARGBtoBGRA(Drift::Color argb) {
@@ -76,6 +89,17 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     // Criar pipelines
     EnsurePipeline();
     CreateTextPipeline();
+
+    // Buffer de constantes para texto
+    auto* ctxDX11 = static_cast<ContextDX11*>(ctx);
+    if (ctxDX11) {
+        auto* device = static_cast<ID3D11Device*>(ctxDX11->GetNativeDevice());
+        auto* devCtx = ctxDX11->GetDeviceContext();
+        if (device && devCtx) {
+            BufferDesc cbd{ BufferType::Constant, sizeof(TextConstants), nullptr };
+            m_TextCB = CreateBufferDX11(device, devCtx, cbd);
+        }
+    }
     
     Core::Log("[UIBatcherDX11] Inicializado com sucesso");
 }
@@ -116,6 +140,17 @@ void UIBatcherDX11::Begin() {
     // Iniciar renderização de texto
     if (m_TextRenderer) {
         m_TextRenderer->BeginTextRendering();
+    }
+
+    // Atualizar constantes de texto
+    if (m_TextCB) {
+        TextConstants tc;
+        tc.screenSize = glm::vec2(m_ScreenW, m_ScreenH);
+        auto* ctxDX11 = static_cast<ContextDX11*>(m_Context);
+        if (ctxDX11) {
+            ctxDX11->UpdateConstantBuffer(static_cast<ID3D11Buffer*>(m_TextCB->GetBackendHandle()),
+                                        &tc, sizeof(TextConstants), 0);
+        }
     }
 }
 
@@ -178,10 +213,14 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, Drift::Color col
     float clipX1 = ToClipX(x + w);
     float clipY1 = ToClipY(y + h);
     
-    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(clipX1, clipY0, 1.0f, 0.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 1.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(clipX0, clipY1, 0.0f, 1.0f, bgra, 0);
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY0, 1.0f, 0.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 1.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY1, 0.0f, 1.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
     
     // Adicionar índices
     m_CurrentBatch.indices.push_back(baseIndex + 0);
@@ -231,10 +270,14 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
     // Adicionar vértices
     uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
     
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, bgra, 0);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, bgra, 0);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, bgra, 0,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
     
     // Adicionar índices
     m_CurrentBatch.indices.push_back(baseIndex + 0);
@@ -272,14 +315,19 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 
     m_CurrentBatch.textureId = textureId;
     m_CurrentBatch.hasTexture = true;
+    if (m_AddingText) m_CurrentBatch.isText = true;
 
     Drift::Color bgra = ConvertARGBtoBGRA(color);
 
     uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y), uvMin.x, uvMin.y, bgra, textureId);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y), uvMax.x, uvMin.y, bgra, textureId);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y + h), uvMax.x, uvMax.y, bgra, textureId);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y + h), uvMin.x, uvMax.y, bgra, textureId);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y), uvMin.x, uvMin.y, bgra, textureId,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y), uvMax.x, uvMin.y, bgra, textureId,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y + h), uvMax.x, uvMax.y, bgra, textureId,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y + h), uvMin.x, uvMax.y, bgra, textureId,
+                                        0.0f, 0.0f, 1.0f, 0.0f);
 
     m_CurrentBatch.indices.push_back(baseIndex + 0);
     m_CurrentBatch.indices.push_back(baseIndex + 1);
@@ -294,16 +342,22 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 }
 
 void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color color) {
-    
+
     if (m_TextRenderer) {
+        if (!m_CurrentBatch.IsEmpty()) {
+            FlushCurrentBatch();
+        }
+        m_AddingText = true;
         // Converter Drift::Color para glm::vec4
         float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
         float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
         float b = static_cast<float>(color & 0xFF) / 255.0f;
         float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
         glm::vec4 textColor(r, g, b, a);
-        
+
         m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "default", 16.0f, textColor);
+        FlushCurrentBatch();
+        m_AddingText = false;
     } else {
         Core::Log("[UIBatcherDX11] ERRO: m_TextRenderer é nullptr!");
     }
@@ -457,7 +511,47 @@ void UIBatcherDX11::EnsurePipeline() {
 }
 
 void UIBatcherDX11::CreateTextPipeline() {
-    m_TextPipeline = m_Pipeline; // Por enquanto, usar o mesmo pipeline
+    if (m_TextPipeline) {
+        return;
+    }
+
+    PipelineDesc textDesc;
+    textDesc.vsFile = "shaders/TextVS.hlsl";
+    textDesc.vsEntry = "main";
+    textDesc.psFile = "shaders/TextPS.hlsl";
+    textDesc.psEntry = "main";
+
+    textDesc.inputLayout = {
+        {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
+        {"TEXCOORD", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, u)},
+        {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
+        {"TEXCOORD", 1, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, offsetX)},
+        {"TEXCOORD", 2, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
+        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
+    };
+
+    textDesc.blend.enable = true;
+    textDesc.blend.srcColor = PipelineDesc::BlendDesc::BlendFactor::SrcAlpha;
+    textDesc.blend.dstColor = PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
+    textDesc.blend.colorOp = PipelineDesc::BlendDesc::BlendOp::Add;
+    textDesc.blend.srcAlpha = PipelineDesc::BlendDesc::BlendFactor::One;
+    textDesc.blend.dstAlpha = PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
+    textDesc.blend.alphaOp = PipelineDesc::BlendDesc::BlendOp::Add;
+    textDesc.blend.blendFactorSeparate = true;
+
+    textDesc.depthStencil.depthEnable = false;
+    textDesc.depthStencil.depthWrite = false;
+
+    auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
+    if (contextDX11) {
+        auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
+        if (device) {
+            m_TextPipeline = CreatePipelineDX11(device, textDesc);
+            if (!m_TextPipeline) {
+                Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline de texto!");
+            }
+        }
+    }
 }
 
 void UIBatcherDX11::FlushCurrentBatch() {
@@ -501,11 +595,15 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         return;
     }
     
-    // Configurar pipeline UI se necessário
+    // Configurar pipeline
     EnsureUIPipeline();
-    
-    // Aplicar pipeline UI
-    if (m_Pipeline) {
+    if (batch.isText && m_TextPipeline) {
+        m_TextPipeline->Apply(*contextDX11);
+        if (m_TextCB) {
+            contextDX11->VSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
+            contextDX11->PSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
+        }
+    } else if (m_Pipeline) {
         m_Pipeline->Apply(*contextDX11);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");
