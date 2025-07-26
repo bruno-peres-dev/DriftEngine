@@ -10,151 +10,190 @@ FontManager& FontManager::GetInstance() {
     return instance;
 }
 
-FontManager::FontManager() {
-    Core::Log("[FontManager] Inicializando FontManager...");
+FontManager::FontManager() 
+    : m_DefaultQuality(FontQuality::High)
+    , m_DefaultSize(16.0f)
+    , m_DefaultFontName("default")
+    , m_IsRendering(false)
+    , m_FrameCounter(0) {
     
-    // Inicializar configurações padrão
-    m_DefaultQuality = FontQuality::High;
-    m_DefaultSize = 16.0f;
-    m_DefaultFontName = "default";
-    m_CacheConfig = FontCacheConfig{};
+    // Configurar cache padrão otimizado para AAA
+    m_CacheConfig.maxFonts = 64;
+    m_CacheConfig.maxGlyphsPerFont = 4096;
+    m_CacheConfig.maxAtlasSize = 4096;
+    m_CacheConfig.enablePreloading = true;
+    m_CacheConfig.enableLazyLoading = true;
+    m_CacheConfig.memoryBudgetMB = 256.0f;
+    
+    // Pré-alocar espaço no mapa para evitar realocações
     m_Fonts.reserve(m_CacheConfig.maxFonts);
     
-    Core::Log("[FontManager] Configuracoes padrao:");
-    Core::Log("[FontManager]   - Qualidade: " + std::to_string(static_cast<int>(m_DefaultQuality)));
-    Core::Log("[FontManager]   - Tamanho: " + std::to_string(m_DefaultSize));
-    Core::Log("[FontManager]   - Nome padrão: " + m_DefaultFontName);
-    Core::Log("[FontManager] FontManager inicializado com sucesso!");
+    LOG_INFO("FontManager initialized with AAA optimizations");
 }
 
 FontManager::~FontManager() {
-    Core::Log("[FontManager] Destruindo FontManager...");
     UnloadAllFonts();
-    Core::Log("[FontManager] FontManager destruído!");
+    LOG_INFO("FontManager destroyed");
 }
 
-std::shared_ptr<Font> FontManager::LoadFont(const std::string& name, const std::string& filePath, float size, FontQuality quality) {
-    Core::Log("[FontManager] Carregando fonte: " + name + " (" + filePath + ")");
-    Core::Log("[FontManager]   - Tamanho: " + std::to_string(size));
-    Core::Log("[FontManager]   - Qualidade: " + std::to_string(static_cast<int>(quality)));
-    
+std::shared_ptr<Font> FontManager::LoadFont(const std::string& name, const std::string& filePath, 
+                                           float size, FontQuality quality) {
+    // Verificar se a fonte já está carregada (cache hit)
     FontKey key{name, size, quality};
     
-    // Verificar se a fonte já está carregada
-    auto it = m_Fonts.find(key);
-    if (it != m_Fonts.end()) {
-        Core::Log("[FontManager] Fonte já carregada, retornando cache: " + name);
-        return it->second;
+    {
+        std::lock_guard<std::mutex> lock(m_FontMutex);
+        auto it = m_Fonts.find(key);
+        if (it != m_Fonts.end()) {
+            m_Stats.cacheHits++;
+            UpdateFontUsage(key);
+            return it->second;
+        }
     }
+    
+    m_Stats.cacheMisses++;
     
     // Verificar se o arquivo existe
     if (!std::filesystem::exists(filePath)) {
-        Core::Log("[FontManager] ERRO: Arquivo de fonte não encontrado: " + filePath);
         LOG_ERROR("Font file not found: " + filePath);
         return nullptr;
     }
     
-    Core::Log("[FontManager] Criando nova fonte...");
     // Criar nova fonte
     auto font = std::make_shared<Font>(name, filePath, size, quality);
     if (!font->Load()) {
-        Core::Log("[FontManager] ERRO: Falha ao carregar fonte: " + filePath);
         LOG_ERROR("Failed to load font: " + filePath);
         return nullptr;
     }
     
-    m_Fonts[key] = font;
-    Core::Log("[FontManager] Fonte carregada com sucesso: " + name);
-    Core::Log("[FontManager] Total de fontes carregadas: " + std::to_string(m_Fonts.size()));
-    LOG_INFO("Font loaded successfully: " + name + " (size: " + std::to_string(size) + ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
+    // Adicionar ao cache com thread safety
+    {
+        std::lock_guard<std::mutex> lock(m_FontMutex);
+        
+        // Verificar novamente se não foi carregada por outra thread
+        auto it = m_Fonts.find(key);
+        if (it != m_Fonts.end()) {
+            m_Stats.cacheHits++;
+            UpdateFontUsage(key);
+            return it->second;
+        }
+        
+        // Verificar limites de cache
+        if (m_Fonts.size() >= m_CacheConfig.maxFonts) {
+            TrimCache();
+        }
+        
+        m_Fonts[key] = font;
+        UpdateFontUsage(key);
+        m_Stats.totalFonts = m_Fonts.size();
+    }
+    
+    LOG_INFO("Font loaded: " + name + " (size: " + std::to_string(size) + 
+             ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
     
     return font;
 }
 
 std::shared_ptr<Font> FontManager::GetFont(const std::string& name, float size, FontQuality quality) {
-    Core::Log("[FontManager] Buscando fonte: " + name + " (size: " + std::to_string(size) + ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
-    
     FontKey key{name, size, quality};
     
-    auto it = m_Fonts.find(key);
-    if (it != m_Fonts.end()) {
-        Core::Log("[FontManager] Fonte encontrada no cache: " + name);
-        return it->second;
+    {
+        std::lock_guard<std::mutex> lock(m_FontMutex);
+        auto it = m_Fonts.find(key);
+        if (it != m_Fonts.end()) {
+            m_Stats.cacheHits++;
+            UpdateFontUsage(key);
+            return it->second;
+        }
     }
+    
+    m_Stats.cacheMisses++;
     
     // Tentar carregar a fonte padrão se não encontrada
     if (name != m_DefaultFontName) {
-        Core::Log("[FontManager] Fonte nao encontrada, tentando fonte padrao: " + m_DefaultFontName);
         return GetFont(m_DefaultFontName, size, quality);
     }
     
     // Se não há fonte padrão carregada, criar uma fonte embutida simples
     if (m_Fonts.empty()) {
-        Core::Log("[FontManager] Nenhuma fonte carregada, criando fonte embutida padrao");
         LOG_INFO("No fonts loaded, creating embedded default font");
         return CreateEmbeddedDefaultFont(size, quality);
     }
     
-            Core::Log("[FontManager] AVISO: Fonte nao encontrada: " + name);
-    LOG_WARNING("Font not found: " + name + " (size: " + std::to_string(size) + ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
+    LOG_WARNING("Font not found: " + name + " (size: " + std::to_string(size) + 
+                ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
     return nullptr;
 }
 
 void FontManager::UnloadFont(const std::string& name, float size, FontQuality quality) {
-    Core::Log("[FontManager] Descarregando fonte: " + name + " (size: " + std::to_string(size) + ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
-    
     FontKey key{name, size, quality};
+    
+    std::lock_guard<std::mutex> lock(m_FontMutex);
     auto it = m_Fonts.find(key);
     if (it != m_Fonts.end()) {
         m_Fonts.erase(it);
-        Core::Log("[FontManager] Fonte descarregada com sucesso: " + name);
-        Core::Log("[FontManager] Total de fontes restantes: " + std::to_string(m_Fonts.size()));
-        LOG_INFO("Font unloaded: " + key.name + " (size: " + std::to_string(key.size) + ", quality: " + std::to_string(static_cast<int>(key.quality)) + ")");
-    } else {
-        Core::Log("[FontManager] AVISO: Fonte nao encontrada para descarregar: " + name);
+        m_Stats.totalFonts = m_Fonts.size();
+        LOG_INFO("Font unloaded: " + key.name + " (size: " + std::to_string(key.size) + 
+                 ", quality: " + std::to_string(static_cast<int>(key.quality)) + ")");
     }
 }
 
 void FontManager::UnloadAllFonts() {
-    Core::Log("[FontManager] Descarregando todas as fontes...");
+    std::lock_guard<std::mutex> lock(m_FontMutex);
     size_t count = m_Fonts.size();
     m_Fonts.clear();
-    Core::Log("[FontManager] " + std::to_string(count) + " fontes descarregadas");
-    LOG_INFO("All fonts unloaded");
+    m_Stats.totalFonts = 0;
+    LOG_INFO("All fonts unloaded (" + std::to_string(count) + " fonts)");
 }
 
 void FontManager::SetDefaultQuality(FontQuality quality) {
-    Core::Log("[FontManager] Configurando qualidade padrao: " + std::to_string(static_cast<int>(quality)));
     m_DefaultQuality = quality;
 }
 
 void FontManager::SetDefaultSize(float size) {
-    Core::Log("[FontManager] Configurando tamanho padrao: " + std::to_string(size));
     m_DefaultSize = size;
 }
 
 void FontManager::SetDefaultFontName(const std::string& name) {
-    Core::Log("[FontManager] Configurando fonte padrao: " + name);
     m_DefaultFontName = name;
 }
 
-void FontManager::PreloadFont(const std::string& name, const std::string& filePath, const std::vector<float>& sizes, FontQuality quality) {
-    Core::Log("[FontManager] Pré-carregando fonte: " + name + " (" + filePath + ")");
-    Core::Log("[FontManager]   - Tamanhos: " + std::to_string(sizes.size()) + " variações");
-    Core::Log("[FontManager]   - Qualidade: " + std::to_string(static_cast<int>(quality)));
+void FontManager::SetCacheConfig(const FontCacheConfig& config) {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    m_CacheConfig = config;
     
-    for (float size : sizes) {
-        Core::Log("[FontManager]   - Carregando tamanho: " + std::to_string(size));
-        LoadFont(name, filePath, size, quality);
+    // Ajustar tamanho do mapa se necessário
+    if (m_Fonts.size() > config.maxFonts) {
+        TrimCache();
     }
     
-    Core::Log("[FontManager] Pré-carregamento concluído para: " + name);
+    LOG_INFO("Font cache config updated: maxFonts=" + std::to_string(config.maxFonts) + 
+             ", memoryBudget=" + std::to_string(config.memoryBudgetMB) + "MB");
+}
+
+void FontManager::PreloadFont(const std::string& name, const std::string& filePath, 
+                             const std::vector<float>& sizes, FontQuality quality) {
+    LOG_INFO("Preloading font: " + name + " (" + std::to_string(sizes.size()) + " sizes)");
+    
+    for (float size : sizes) {
+        LoadFont(name, filePath, size, quality);
+    }
+}
+
+void FontManager::PreloadCharacters(const std::string& fontName, const std::vector<uint32_t>& characters,
+                                   float size, FontQuality quality) {
+    auto font = GetFont(fontName, size, quality);
+    if (font) {
+        font->PreloadGlyphs(characters);
+        LOG_INFO("Preloaded " + std::to_string(characters.size()) + " characters for font: " + fontName);
+    } else {
+        LOG_WARNING("Failed to preload characters: font not found: " + fontName);
+    }
 }
 
 std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQuality quality) {
-    Core::Log("[FontManager] Criando fonte embutida padrao...");
-    Core::Log("[FontManager]   - Tamanho: " + std::to_string(size));
-    Core::Log("[FontManager]   - Qualidade: " + std::to_string(static_cast<int>(quality)));
+    LOG_INFO("Creating embedded default font (size: " + std::to_string(size) + 
+             ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
     
     // Criar uma fonte simples embutida com caracteres básicos
     auto font = std::make_shared<Font>("embedded_default", "", size, quality);
@@ -166,7 +205,6 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
     font->m_Metrics.descender = -size * 0.2f;
     font->m_Scale = 1.0f;
     
-    Core::Log("[FontManager] Criando glyphs para caracteres ASCII (32-126)...");
     // Criar glyphs básicos para caracteres ASCII (32-126)
     for (uint32_t cp = 32; cp <= 126; ++cp) {
         Glyph glyph{};
@@ -182,7 +220,6 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
         font->m_Glyphs[cp] = glyph;
     }
     
-    Core::Log("[FontManager] Criando atlas de textura...");
     // Criar atlas simples
     AtlasConfig config;
     config.width = 512;
@@ -194,102 +231,66 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
     
     font->m_Atlas = std::make_unique<FontAtlas>(config);
     
-    Core::Log("[FontManager] Alocando regioes no atlas...");
-    Core::Log("[FontManager]   - Total de glyphs para alocar: " + std::to_string(font->m_Glyphs.size()));
     // Alocar regiões no atlas para cada glyph
-    int allocatedCount = 0;
-    int totalGlyphs = static_cast<int>(font->m_Glyphs.size());
-    try {
-        for (auto& [cp, glyph] : font->m_Glyphs) {
-            Core::Log("[FontManager]   - Progresso: " + std::to_string(allocatedCount + 1) + "/" + std::to_string(totalGlyphs));
-            std::string charStr;
-            if (cp >= 32 && cp <= 126) {
-                charStr = "'" + std::string(1, static_cast<char>(cp)) + "'";
-            } else {
-                charStr = "[nao-printavel]";
-            }
-            Core::Log("[FontManager]   - Alocando glyph para codepoint: " + std::to_string(cp) + " (char: " + charStr + ")");
-            Core::Log("[FontManager]   - Tamanho do glyph: " + std::to_string(glyph.size.x) + "x" + std::to_string(glyph.size.y));
+    for (auto& [cp, glyph] : font->m_Glyphs) {
+        AtlasRegion* region = font->m_Atlas->AllocateRegion(
+            static_cast<int>(glyph.size.x), 
+            static_cast<int>(glyph.size.y), 
+            cp
+        );
+        
+        if (region) {
+            glyph.position = glm::vec2(region->x, region->y);
             
-            AtlasRegion* region = font->m_Atlas->AllocateRegion(
-                static_cast<int>(glyph.size.x), 
-                static_cast<int>(glyph.size.y), 
-                cp
+            float atlasWidth = static_cast<float>(font->m_Atlas->GetWidth());
+            float atlasHeight = static_cast<float>(font->m_Atlas->GetHeight());
+            
+            glyph.uvMin = glm::vec2(
+                region->x / atlasWidth,
+                region->y / atlasHeight
             );
             
-            if (region) {
-                Core::Log("[FontManager]     - Configurando UVs do glyph...");
-                Core::Log("[FontManager]     - Configurando posicao...");
-                Core::Log("[FontManager]     - Valores da regiao: x=" + std::to_string(region->x) + ", y=" + std::to_string(region->y));
-                Core::Log("[FontManager]     - Criando glm::vec2...");
-                Core::Log("[FontManager]     - Antes de glyph.position = glm::vec2...");
-                glyph.position = glm::vec2(region->x, region->y);
-                Core::Log("[FontManager]     - Depois de glyph.position = glm::vec2...");
-                Core::Log("[FontManager]     - Posicao configurada: (" + std::to_string(glyph.position.x) + ", " + std::to_string(glyph.position.y) + ")");
-                
-                Core::Log("[FontManager]     - Calculando UVs...");
-                float atlasWidth = static_cast<float>(font->m_Atlas->GetWidth());
-                float atlasHeight = static_cast<float>(font->m_Atlas->GetHeight());
-                Core::Log("[FontManager]     - Tamanho do atlas: " + std::to_string(atlasWidth) + "x" + std::to_string(atlasHeight));
-                
-                glyph.uvMin = glm::vec2(
-                    region->x / atlasWidth,
-                    region->y / atlasHeight
-                );
-                Core::Log("[FontManager]     - UV min calculado: (" + std::to_string(glyph.uvMin.x) + ", " + std::to_string(glyph.uvMin.y) + ")");
-                
-                glyph.uvMax = glm::vec2(
-                    (region->x + region->width) / atlasWidth,
-                    (region->y + region->height) / atlasHeight
-                );
-                Core::Log("[FontManager]     - UV max calculado: (" + std::to_string(glyph.uvMax.x) + ", " + std::to_string(glyph.uvMax.y) + ")");
-                
-                allocatedCount++;
-                Core::Log("[FontManager]     - Glyph alocado com sucesso na posicao: (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
-                Core::Log("[FontManager]     - UVs configuradas: min(" + std::to_string(glyph.uvMin.x) + ", " + std::to_string(glyph.uvMin.y) + ") max(" + std::to_string(glyph.uvMax.x) + ", " + std::to_string(glyph.uvMax.y) + ")");
-            } else {
-                Core::Log("[FontManager]     - ERRO: Falha ao alocar glyph para codepoint: " + std::to_string(cp));
-            }
-            Core::Log("[FontManager]     - Glyph " + std::to_string(cp) + " processado. Proximo...");
+            glyph.uvMax = glm::vec2(
+                (region->x + region->width) / atlasWidth,
+                (region->y + region->height) / atlasHeight
+            );
         }
-        Core::Log("[FontManager] Total de glyphs alocados: " + std::to_string(allocatedCount) + "/" + std::to_string(font->m_Glyphs.size()));
-    } catch (const std::exception& e) {
-        Core::Log("[FontManager] ERRO CRITICO durante alocacao de glyphs: " + std::string(e.what()));
-        throw;
-    } catch (...) {
-        Core::Log("[FontManager] ERRO CRITICO desconhecido durante alocacao de glyphs!");
-        throw;
     }
     
     // Adicionar ao cache
     FontKey key{"embedded_default", size, quality};
-    m_Fonts[key] = font;
+    {
+        std::lock_guard<std::mutex> lock(m_FontMutex);
+        m_Fonts[key] = font;
+        m_Stats.totalFonts = m_Fonts.size();
+    }
     
-    Core::Log("[FontManager] Fonte embutida padrao criada com sucesso!");
-    Core::Log("[FontManager]   - Glyphs criados: " + std::to_string(font->m_Glyphs.size()));
-    Core::Log("[FontManager]   - Atlas: " + std::to_string(config.width) + "x" + std::to_string(config.height));
-    LOG_INFO("Created embedded default font (size: " + std::to_string(size) + ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
+    LOG_INFO("Created embedded default font with " + std::to_string(font->m_Glyphs.size()) + " glyphs");
     
     return font;
 }
 
 void FontManager::BeginTextRendering() {
-    Core::Log("[FontManager] Iniciando renderização de texto...");
     m_IsRendering = true;
+    m_FrameCounter++;
 }
 
 void FontManager::EndTextRendering() {
-    Core::Log("[FontManager] Finalizando renderização de texto...");
     m_IsRendering = false;
+    
+    // Atualizar cache periodicamente
+    if (m_FrameCounter % 60 == 0) { // A cada 60 frames
+        UpdateCache();
+    }
 }
 
 size_t FontManager::GetLoadedFontCount() const {
-    size_t count = m_Fonts.size();
-    Core::Log("[FontManager] Total de fontes carregadas: " + std::to_string(count));
-    return count;
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    return m_Fonts.size();
 }
 
 std::vector<std::string> FontManager::GetLoadedFontNames() const {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
     std::vector<std::string> names;
     names.reserve(m_Fonts.size());
     
@@ -301,13 +302,273 @@ std::vector<std::string> FontManager::GetLoadedFontNames() const {
     std::sort(names.begin(), names.end());
     names.erase(std::unique(names.begin(), names.end()), names.end());
     
-    Core::Log("[FontManager] Nomes das fontes carregadas:");
-    for (const auto& name : names) {
-        Core::Log("[FontManager]   - " + name);
-    }
-    
     return names;
 }
 
+bool FontManager::IsFontLoaded(const std::string& name, float size, FontQuality quality) const {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    FontKey key{name, size, quality};
+    return m_Fonts.find(key) != m_Fonts.end();
+}
+
+void FontManager::UpdateCache() {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    
+    // Calcular taxa de acerto do cache
+    size_t totalAccesses = m_Stats.cacheHits + m_Stats.cacheMisses;
+    if (totalAccesses > 0) {
+        m_Stats.cacheHitRate = static_cast<float>(m_Stats.cacheHits) / static_cast<float>(totalAccesses);
+    }
+    
+    // Atualizar uso de memória
+    m_Stats.memoryUsageBytes = 0;
+    m_Stats.totalGlyphs = 0;
+    m_Stats.totalAtlases = 0;
+    
+    for (const auto& pair : m_Fonts) {
+        m_Stats.memoryUsageBytes += CalculateFontMemoryUsage(pair.second);
+        m_Stats.totalGlyphs += pair.second->m_Glyphs.size();
+        if (pair.second->m_Atlas) {
+            m_Stats.totalAtlases++;
+        }
+    }
+    
+    // Verificar orçamento de memória
+    float memoryUsageMB = static_cast<float>(m_Stats.memoryUsageBytes) / (1024.0f * 1024.0f);
+    if (memoryUsageMB > m_CacheConfig.memoryBudgetMB) {
+        TrimCache();
+    }
+}
+
+void FontManager::ClearCache() {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    m_Fonts.clear();
+    m_Stats.Reset();
+    LOG_INFO("Font cache cleared");
+}
+
+void FontManager::TrimCache() {
+    if (m_Fonts.size() <= m_CacheConfig.maxFonts / 2) {
+        return; // Não precisa fazer trim se está bem abaixo do limite
+    }
+    
+    // Ordenar fontes por último uso (LRU)
+    std::vector<std::pair<FontKey, std::shared_ptr<Font>>> sortedFonts;
+    sortedFonts.reserve(m_Fonts.size());
+    
+    for (const auto& pair : m_Fonts) {
+        sortedFonts.emplace_back(pair.first, pair.second);
+    }
+    
+    std::sort(sortedFonts.begin(), sortedFonts.end(),
+              [](const auto& a, const auto& b) {
+                  return a.second->GetLastUsed() < b.second->GetLastUsed();
+              });
+    
+    // Remover 25% das fontes menos usadas
+    size_t toRemove = m_Fonts.size() / 4;
+    for (size_t i = 0; i < toRemove; ++i) {
+        m_Fonts.erase(sortedFonts[i].first);
+    }
+    
+    m_Stats.totalFonts = m_Fonts.size();
+    LOG_INFO("Font cache trimmed: removed " + std::to_string(toRemove) + " fonts");
+}
+
+FontStats FontManager::GetStats() const {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    return m_Stats;
+}
+
+void FontManager::ResetStats() {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    m_Stats.Reset();
+}
+
+void FontManager::UpdateFontUsage(const FontKey& key) {
+    // Atualizar timestamp da fonte
+    auto it = m_Fonts.find(key);
+    if (it != m_Fonts.end()) {
+        it->second->Touch();
+    }
+}
+
+void FontManager::UpdateStats() {
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    
+    // Calcular taxa de acerto do cache
+    size_t totalAccesses = m_Stats.cacheHits + m_Stats.cacheMisses;
+    if (totalAccesses > 0) {
+        m_Stats.cacheHitRate = static_cast<float>(m_Stats.cacheHits) / static_cast<float>(totalAccesses);
+    }
+    
+    // Atualizar uso de memória
+    m_Stats.memoryUsageBytes = 0;
+    m_Stats.totalGlyphs = 0;
+    m_Stats.totalAtlases = 0;
+    
+    for (const auto& pair : m_Fonts) {
+        m_Stats.memoryUsageBytes += CalculateFontMemoryUsage(pair.second);
+        m_Stats.totalGlyphs += pair.second->m_Glyphs.size();
+        if (pair.second->m_Atlas) {
+            m_Stats.totalAtlases++;
+        }
+    }
+}
+
+size_t FontManager::CalculateFontMemoryUsage(const std::shared_ptr<Font>& font) const {
+    if (!font) return 0;
+    return font->GetMemoryUsage();
+}
+
+void FontManager::SetMemoryBudget(float budgetMB) {
+    m_CacheConfig.memoryBudgetMB = budgetMB;
+}
+
+void FontManager::EnableAsyncLoading(bool enabled) {
+    m_AsyncLoadingEnabled = enabled;
+}
+
+void FontManager::SetWorkerThreadCount(size_t count) {
+    m_WorkerThreadCount = count;
+}
+
+// === Implementação dos utilitários TextUtils ===
+
+namespace TextUtils {
+
+glm::vec2 MeasureText(const std::string& text, const std::string& fontName, 
+                     float size, FontQuality quality) {
+    auto& fontManager = FontManager::GetInstance();
+    auto font = fontManager.GetFont(fontName, size, quality);
+    
+    if (font) {
+        return font->MeasureText(text);
+    }
+    
+    return glm::vec2(0.0f);
+}
+
+std::vector<std::string> WordWrap(const std::string& text, float maxWidth, 
+                                 const std::string& fontName, 
+                                 float size, FontQuality quality) {
+    auto& fontManager = FontManager::GetInstance();
+    auto font = fontManager.GetFont(fontName, size, quality);
+    
+    if (!font) {
+        return {text};
+    }
+    
+    std::vector<std::string> lines;
+    std::string currentLine;
+    std::string currentWord;
+    
+    for (char c : text) {
+        if (c == ' ' || c == '\n') {
+            if (!currentWord.empty()) {
+                std::string testLine = currentLine + currentWord;
+                glm::vec2 size = font->MeasureText(testLine);
+                
+                if (size.x > maxWidth && !currentLine.empty()) {
+                    lines.push_back(currentLine);
+                    currentLine = currentWord;
+                } else {
+                    currentLine = testLine;
+                }
+                currentWord.clear();
+            }
+            
+            if (c == '\n') {
+                lines.push_back(currentLine);
+                currentLine.clear();
+            } else {
+                currentLine += ' ';
+            }
+        } else {
+            currentWord += c;
+        }
+    }
+    
+    // Adicionar última palavra
+    if (!currentWord.empty()) {
+        std::string testLine = currentLine + currentWord;
+        glm::vec2 size = font->MeasureText(testLine);
+        
+        if (size.x > maxWidth && !currentLine.empty()) {
+            lines.push_back(currentLine);
+            currentLine = currentWord;
+        } else {
+            currentLine = testLine;
+        }
+    }
+    
+    if (!currentLine.empty()) {
+        lines.push_back(currentLine);
+    }
+    
+    return lines;
+}
+
+std::string TruncateText(const std::string& text, float maxWidth, 
+                        const std::string& fontName, 
+                        float size, FontQuality quality) {
+    auto& fontManager = FontManager::GetInstance();
+    auto font = fontManager.GetFont(fontName, size, quality);
+    
+    if (!font) {
+        return text;
+    }
+    
+    glm::vec2 textSize = font->MeasureText(text);
+    if (textSize.x <= maxWidth) {
+        return text;
+    }
+    
+    // Busca binária para encontrar o ponto de truncamento
+    size_t left = 0;
+    size_t right = text.length();
+    size_t best = 0;
+    
+    while (left <= right) {
+        size_t mid = (left + right) / 2;
+        std::string testText = text.substr(0, mid) + "...";
+        glm::vec2 size = font->MeasureText(testText);
+        
+        if (size.x <= maxWidth) {
+            best = mid;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return text.substr(0, best) + "...";
+}
+
+std::vector<uint32_t> StringToCodepoints(const std::string& text) {
+    std::vector<uint32_t> codepoints;
+    codepoints.reserve(text.length());
+    
+    for (char c : text) {
+        codepoints.push_back(static_cast<uint32_t>(c));
+    }
+    
+    return codepoints;
+}
+
+std::string CodepointsToString(const std::vector<uint32_t>& codepoints) {
+    std::string result;
+    result.reserve(codepoints.size());
+    
+    for (uint32_t cp : codepoints) {
+        if (cp <= 0x7F) { // ASCII
+            result += static_cast<char>(cp);
+        }
+    }
+    
+    return result;
+}
+
+} // namespace TextUtils
 
 } // namespace Drift::UI 

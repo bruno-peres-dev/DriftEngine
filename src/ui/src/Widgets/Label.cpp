@@ -32,7 +32,7 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         UIElement::Render(batch);
     }
 
-    // Renderiza o texto real
+    // Renderiza o texto real apenas se necessário
     if (!m_Text.empty()) {
         glm::vec2 absPos = GetAbsolutePosition();
         
@@ -51,8 +51,18 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
                 break;
         }
         
-        // Renderiza o texto real usando o sistema de fontes
-        batch.AddText(absPos.x + xOffset, absPos.y, m_Text.c_str(), m_TextColor);
+        glm::vec2 textPos = glm::vec2(absPos.x + xOffset, absPos.y);
+        
+        // Verifica se a posição ou cor mudaram desde o último frame
+        bool needsUpdate = (textPos != m_LastTextPos || m_TextColor != m_LastTextColor);
+        
+        if (needsUpdate) {
+            m_LastTextPos = textPos;
+            m_LastTextColor = m_TextColor;
+            
+            // Renderiza o texto real usando o sistema de fontes
+            batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor);
+        }
     }
 
     // Renderiza filhos

@@ -32,7 +32,7 @@ void Button::Render(Drift::RHI::IUIBatcher& batch)
     // Chama o render da classe base (UIElement)
     UIElement::Render(batch);
     
-    // Renderiza o texto do botão apenas se não estiver vazio
+    // Renderiza o texto do botão apenas se não estiver vazio e se a posição mudou
     if (!m_Text.empty()) {
         glm::vec2 absPos = GetAbsolutePosition();
         glm::vec2 size = GetSize();
@@ -40,12 +40,18 @@ void Button::Render(Drift::RHI::IUIBatcher& batch)
         // Centraliza o texto no botão
         glm::vec2 textPos = absPos + size * 0.5f;
         
-        // Renderiza o texto com a cor atual do botão
+        // Verifica se a posição ou cor mudaram desde o último frame
         Drift::Color textColor = GetCurrentColor();
+        bool needsUpdate = (textPos != m_LastTextPos || textColor != m_LastTextColor);
         
-        // Verificação adicional de segurança
-        if (m_Text.c_str() != nullptr) {
-            batch.AddText(textPos.x, textPos.y, m_Text.c_str(), textColor);
+        if (needsUpdate) {
+            m_LastTextPos = textPos;
+            m_LastTextColor = textColor;
+            
+            // Verificação adicional de segurança
+            if (m_Text.c_str() != nullptr) {
+                batch.AddText(textPos.x, textPos.y, m_Text.c_str(), textColor);
+            }
         }
     }
 }

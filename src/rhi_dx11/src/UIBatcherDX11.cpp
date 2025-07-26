@@ -78,8 +78,6 @@ void UIBatcherDX11::Begin() {
     if (m_TextRenderer) {
         m_TextRenderer->BeginTextRendering();
     }
-    
-    Core::Log("[UIBatcherDX11] Begin() - Frame iniciado");
 }
 
 void UIBatcherDX11::End() {
@@ -96,10 +94,6 @@ void UIBatcherDX11::End() {
         
         // Atualizar estatísticas
         UpdateStats(m_CurrentBatch);
-        
-        Core::Log("[UIBatcherDX11] End() - Frame finalizado. Stats: " + 
-                 std::to_string(m_Stats.drawCalls) + " draw calls, " +
-                 std::to_string(m_Stats.verticesRendered) + " vertices");
                  
     } catch (const std::exception& e) {
         Core::Log("[UIBatcherDX11] ERRO CRÍTICO no End(): " + std::string(e.what()));

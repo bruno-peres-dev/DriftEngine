@@ -6,6 +6,7 @@
 #include <glm/vec2.hpp>
 
 #include "Drift/RHI/UIBatcher.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 
 // Forward declaration para evitar include circular
 namespace Drift::Engine::Input {
@@ -60,6 +61,8 @@ public:
 
 private:
     UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& point) const;
+    void InitializeFontSystem();
+    
     std::shared_ptr<Drift::Engine::EventBus> m_EventBus;
 
     std::unique_ptr<LayoutEngine> m_LayoutEngine;

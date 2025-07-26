@@ -14,16 +14,7 @@ FontAtlas::FontAtlas(const AtlasConfig& config)
     , m_CurrentY(0)
     , m_LineHeight(0) {
     
-    Core::Log("[FontAtlas] Construtor chamado");
-    Core::Log("[FontAtlas]   - Configuracao: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
-    Core::Log("[FontAtlas]   - Padding: " + std::to_string(config.padding));
-    Core::Log("[FontAtlas]   - Canais: " + std::to_string(config.channels));
-    Core::Log("[FontAtlas]   - Usar MSDF: " + std::string(config.useMSDF ? "sim" : "nao"));
-    Core::Log("[FontAtlas]   - Tamanho MSDF: " + std::to_string(config.msdfSize));
-    
     // Criar textura real para o atlas
-    Core::Log("[FontAtlas] Criando textura do atlas...");
-    
     // Criar dados de textura simples (textura branca por enquanto)
     std::vector<uint8_t> textureData(m_Width * m_Height * config.channels, 255);
     
@@ -36,51 +27,32 @@ FontAtlas::FontAtlas(const AtlasConfig& config)
     
     // Criar a textura real usando o RHI
     try {
-        // Obter o device (assumindo que há um device global disponível)
-        // Por enquanto, vamos criar uma textura stub
-        Core::Log("[FontAtlas] Criando textura real: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
-        
         // TODO: Implementar criação real da textura quando o RHI estiver disponível
         // m_Texture = device->CreateTexture(textureDesc, textureData.data());
-        
-        Core::Log("[FontAtlas] Textura criada com sucesso");
     } catch (const std::exception& e) {
-        Core::Log("[FontAtlas] ERRO ao criar textura: " + std::string(e.what()));
+        LOG_ERROR("Failed to create atlas texture: " + std::string(e.what()));
     }
-    
-    Core::Log("[FontAtlas] Construtor concluido com sucesso");
 }
 
 FontAtlas::~FontAtlas() {
-    Core::Log("[FontAtlas] Destrutor chamado");
-    Core::Log("[FontAtlas]   - Total de regioes: " + std::to_string(m_Regions.size()));
     // Cleanup será feito automaticamente pelo unique_ptr
-    Core::Log("[FontAtlas] Destrutor concluido");
 }
 
 AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) {
-    Core::Log("[FontAtlas] AllocateRegion chamado para glyph " + std::to_string(glyphId) + " (" + std::to_string(width) + "x" + std::to_string(height) + ")");
-    Core::Log("[FontAtlas]   - Posicao atual: (" + std::to_string(m_CurrentX) + ", " + std::to_string(m_CurrentY) + ")");
-    Core::Log("[FontAtlas]   - Tamanho do atlas: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
-    
     // Verificar se há espaço suficiente
     if (m_CurrentX + width > m_Width) {
-        Core::Log("[FontAtlas]   - Movendo para proxima linha");
         // Mover para a próxima linha
         m_CurrentX = 0;
         m_CurrentY += m_LineHeight;
         m_LineHeight = 0;
-        Core::Log("[FontAtlas]   - Nova posicao: (" + std::to_string(m_CurrentX) + ", " + std::to_string(m_CurrentY) + ")");
     }
     
     // Verificar se ainda há espaço vertical
     if (m_CurrentY + height > m_Height) {
-        Core::Log("[FontAtlas] ERRO: Atlas cheio, nao pode alocar regiao para glyph: " + std::to_string(glyphId));
         LOG_WARNING("Font atlas full, cannot allocate region for glyph: " + std::to_string(glyphId));
         return nullptr;
     }
     
-    Core::Log("[FontAtlas]   - Criando nova regiao...");
     // Criar nova região
     auto region = std::make_unique<AtlasRegion>();
     region->x = m_CurrentX;
@@ -89,23 +61,17 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
     region->height = height;
     region->glyphId = glyphId;
     
-    Core::Log("[FontAtlas]   - Regiao criada: (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ") " + std::to_string(region->width) + "x" + std::to_string(region->height));
-    
     // Atualizar posição atual
     m_CurrentX += width;
     m_LineHeight = std::max(m_LineHeight, static_cast<int>(height));
-    
-    Core::Log("[FontAtlas]   - Nova posicao atual: (" + std::to_string(m_CurrentX) + ", " + std::to_string(m_CurrentY) + ")");
-    Core::Log("[FontAtlas]   - LineHeight atualizado: " + std::to_string(m_LineHeight));
     
     // Armazenar a região
     AtlasRegion* regionPtr = region.get();
     m_Regions[glyphId] = std::move(region);
 
-    Core::Log("[FontAtlas]   - Regiao armazenada no mapa. Total de regioes: " + std::to_string(m_Regions.size()));
-    Core::Log("[FontAtlas]   - Regiao alocada com sucesso para glyph " + std::to_string(glyphId));
-
-    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + ": (" + std::to_string(regionPtr->x) + ", " + std::to_string(regionPtr->y) + ") " + std::to_string(regionPtr->width) + "x" + std::to_string(regionPtr->height));
+    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + 
+              ": (" + std::to_string(regionPtr->x) + ", " + std::to_string(regionPtr->y) + 
+              ") " + std::to_string(regionPtr->width) + "x" + std::to_string(regionPtr->height));
     
     return regionPtr;
 }
@@ -125,7 +91,9 @@ bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, i
     // Aqui seria implementada a lógica real de upload para a textura
     // Por enquanto, vamos apenas simular o upload
     
-    LOG_DEBUG("Uploading MSDF data for glyph " + std::to_string(region->glyphId) + ": " + std::to_string(width) + "x" + std::to_string(height) + " at (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
+    LOG_DEBUG("Uploading MSDF data for glyph " + std::to_string(region->glyphId) + 
+              ": " + std::to_string(width) + "x" + std::to_string(height) + 
+              " at (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
     
     return true;
 }

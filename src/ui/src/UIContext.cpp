@@ -7,6 +7,7 @@
 #include "Drift/Engine/Input/InputManager.h"
 #include <glm/mat4x4.hpp>
 #include <mutex>
+#include <fstream>
 
 using namespace Drift::UI;
 
@@ -58,6 +59,9 @@ void UIContext::Initialize()
         UIComponentRegistry::GetInstance().RegisterDefaultWidgets();
     });
     
+    // Inicializar sistema de fontes
+    InitializeFontSystem();
+    
     // Carregar temas, preparar atlases, etc.
 }
 
@@ -94,6 +98,42 @@ void UIContext::Render(Drift::RHI::IUIBatcher& batch)
     if (m_Root) {
         m_Root->Render(batch);
         m_Root->PostRender();
+    }
+}
+
+void UIContext::InitializeFontSystem()
+{
+    Core::Log("[UIContext] Inicializando sistema de fontes...");
+    
+    auto& fontManager = UI::FontManager::GetInstance();
+    
+    // Configurar fonte padrão
+    fontManager.SetDefaultFontName("default");
+    fontManager.SetDefaultSize(16.0f);
+    fontManager.SetDefaultQuality(UI::FontQuality::High);
+    
+    // Tentar carregar fonte do arquivo
+    std::string fontPath = "fonts/Arial-Regular.ttf";
+    
+    // Verificar se o arquivo existe
+    std::ifstream testFile(fontPath);
+    if (!testFile.good()) {
+        Core::Log("[UIContext] ERRO: Arquivo de fonte não encontrado: " + fontPath);
+        Core::Log("[UIContext] Tentando caminho absoluto...");
+        fontPath = "C:/Users/Bruno/Desktop/DriftEngine/fonts/Arial-Regular.ttf";
+    } else {
+        testFile.close();
+        Core::Log("[UIContext] Arquivo de fonte encontrado: " + fontPath);
+    }
+    
+    auto font = fontManager.LoadFont("default", fontPath, 16.0f, UI::FontQuality::High);
+    
+    if (font) {
+        Core::Log("[UIContext] Fonte padrão carregada com sucesso: " + fontPath);
+        Core::Log("[UIContext] Sistema de fontes inicializado com sucesso!");
+    } else {
+        Core::Log("[UIContext] AVISO: Não foi possível carregar a fonte padrão: " + fontPath);
+        Core::Log("[UIContext] O sistema usará a fonte embutida padrão.");
     }
 }
 

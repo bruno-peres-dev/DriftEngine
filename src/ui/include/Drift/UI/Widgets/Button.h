@@ -116,6 +116,10 @@ private:
     static constexpr Drift::Color COLOR_BLACK = 0xFF000000;
     static constexpr Drift::Color COLOR_GRAY = 0xFF808080;
     static constexpr Drift::Color COLOR_TRANSPARENT = 0x00000000;
+    
+    // Otimização de renderização de texto
+    glm::vec2 m_LastTextPos{0.0f, 0.0f};
+    Drift::Color m_LastTextColor{0xFFFFFFFF};
 };
 
 } // namespace Drift::UI 

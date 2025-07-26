@@ -59,6 +59,9 @@ public:
                           const std::string& fontName = "default",
                           float fontSize = 16.0f);
 
+    // Método para configurar o UIBatcher
+    void SetUIBatcher(Drift::RHI::IUIBatcher* batcher) { m_UIBatcher = batcher; }
+
 private:
     bool m_IsRendering{false};
     size_t m_CurrentBatch{0};

@@ -29,12 +29,39 @@ bool MSDFGenerator::GenerateFromGlyph(const void* fontData, uint32_t codepoint, 
     }
 
     float scale = stbtt_ScaleForPixelHeight(&info, static_cast<float>(m_Config.height));
+    
+    // Verificar se o caractere tem dados visuais
+    int advance, lsb;
+    stbtt_GetCodepointHMetrics(&info, static_cast<int>(codepoint), &advance, &lsb);
+
+    // Para caracteres como espaço, criar um glyph vazio mas com métricas corretas
+    if (codepoint == 32 || advance == 0) {
+        // Criar um glyph 1x1 vazio para o espaço
+        output.width = 1;
+        output.height = 1;
+        output.range = static_cast<float>(m_Config.range);
+        output.red.resize(1, 0.0f);
+        output.green.resize(1, 0.0f);
+        output.blue.resize(1, 0.0f);
+        output.alpha.resize(1, 0.0f);
+        return true;
+    }
+
     int w, h, xoff, yoff;
     unsigned char* sdf = stbtt_GetCodepointSDF(&info, scale, static_cast<int>(codepoint), m_Config.range,
                                               128, 1.0f, &w, &h, &xoff, &yoff);
     if (!sdf) {
-        LOG_ERROR(std::string("stbtt_GetCodepointSDF failed for codepoint ") + std::to_string(codepoint));
-        return false;
+        // Se falhar, tentar criar um glyph vazio com métricas básicas
+        LOG_WARNING("stbtt_GetCodepointSDF failed for codepoint " + std::to_string(codepoint) + ", creating empty glyph");
+        
+        output.width = 1;
+        output.height = 1;
+        output.range = static_cast<float>(m_Config.range);
+        output.red.resize(1, 0.0f);
+        output.green.resize(1, 0.0f);
+        output.blue.resize(1, 0.0f);
+        output.alpha.resize(1, 0.0f);
+        return true;
     }
 
     output.width = w;
@@ -124,7 +151,7 @@ struct FontProcessor::FontData {
 bool FontProcessor::LoadFont(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {
-        LOG_ERROR(std::string("Failed to open font file ") + filePath);
+        LOG_ERROR("Failed to open font file " + filePath);
         return false;
     }
     file.seekg(0, std::ios::end);
@@ -147,7 +174,7 @@ bool FontProcessor::LoadFontFromMemory(const void* data, size_t dataSize) {
 bool FontProcessor::InitializeFont() {
     if (!m_FontData) return false;
     if (!stbtt_InitFont(&m_FontData->info, m_FontData->buffer.data(), 0)) {
-        LOG_ERROR("stbtt_InitFont failed in FontProcessor"); // já compatível
+        LOG_ERROR("stbtt_InitFont failed in FontProcessor");
         return false;
     }
     float scale = stbtt_ScaleForPixelHeight(&m_FontData->info, m_Size);
@@ -167,17 +194,31 @@ bool FontProcessor::ExtractGlyph(uint32_t codepoint, std::vector<Contour>&) {
 bool FontProcessor::ExtractGlyphMetrics(uint32_t codepoint, float& width, float& height,
                                         float& bearingX, float& bearingY, float& advance) {
     if (!m_FontData) return false;
+    
     int glyph = stbtt_FindGlyphIndex(&m_FontData->info, static_cast<int>(codepoint));
+    if (glyph == 0) {
+        // Glyph não encontrado
+        return false;
+    }
+    
     int ax, lsb;
     stbtt_GetGlyphHMetrics(&m_FontData->info, glyph, &ax, &lsb);
+    
     int x0, y0, x1, y1;
     stbtt_GetGlyphBitmapBox(&m_FontData->info, glyph, stbtt_ScaleForPixelHeight(&m_FontData->info, m_Size),
                             stbtt_ScaleForPixelHeight(&m_FontData->info, m_Size), &x0, &y0, &x1, &y1);
+    
     width = static_cast<float>(x1 - x0);
     height = static_cast<float>(y1 - y0);
     bearingX = static_cast<float>(x0);
     bearingY = static_cast<float>(y0);
     advance = static_cast<float>(ax);
+    
+    // Para caracteres como espaço, garantir que temos pelo menos um avanço
+    if (codepoint == 32 && advance == 0) {
+        advance = m_Size * 0.3f; // Espaço padrão de 30% do tamanho da fonte
+    }
+    
     return true;
 }
 

@@ -178,57 +178,11 @@ target_link_libraries(DriftUI PUBLIC
 # (se necessário futura integração)
 
 # ------------------------------------------------
-# 5) Executáveis de Teste
+# 5) Executável Principal
 # ------------------------------------------------
 
 add_executable(DriftEngineApp
   app/main.cpp
-)
-
-add_executable(FontTest
-  app/font_test.cpp
-)
-
-add_executable(PNGTest
-  app/png_test.cpp
-)
-target_include_directories(PNGTest PUBLIC
-  core/include
-  engine/include
-  rhi/include
-  rhi_dx11/include
-  ${CMAKE_SOURCE_DIR}/extern/stb
-)
-
-add_executable(UIDemo
-  app/ui_demo.cpp
-)
-target_include_directories(UIDemo PUBLIC
-  core/include
-  engine/include
-  rhi/include
-  rhi_dx11/include
-  ui/include
-  ${CMAKE_SOURCE_DIR}/extern/stb
-)
-target_link_libraries(UIDemo PUBLIC
-  DriftUI
-  DriftRHI_DX11
-  DriftCore
-  DriftMath
-  glm
-)
-target_link_libraries(PNGTest PUBLIC
-  DriftCore
-  DriftRHI_DX11
-  d3d11 dxgi D3DCompiler
-)
-
-add_executable(TexturePipeline
-  tools/texture_pipeline.cpp
-)
-target_include_directories(TexturePipeline PUBLIC
-  ${CMAKE_SOURCE_DIR}/extern/stb
 )
 
 target_include_directories(DriftEngineApp PUBLIC
@@ -252,26 +206,6 @@ target_link_libraries(DriftEngineApp PUBLIC
   d3d11 dxgi D3DCompiler
 )
 
-target_include_directories(FontTest PUBLIC
-  core/include
-  engine/include
-  ui/include
-  rhi/include
-  rhi_dx11/include
-  renderer/include
-)
-
-target_link_libraries(FontTest PUBLIC
-  DriftCore
-  DriftMath
-  DriftEngine
-  DriftRHI
-  DriftRHI_DX11
-  DriftUI
-  glfw
-  d3d11 dxgi D3DCompiler
-)
-
 # Garantir que os shaders estão disponíveis
 file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
 foreach(SHADER ${SHADERS})
@@ -279,22 +213,11 @@ foreach(SHADER ${SHADERS})
   configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
 endforeach()
 
-# Garantir que os shaders de texto estão disponíveis para os testes
-add_custom_command(TARGET FontTest POST_BUILD
+# Garantir que os shaders estão disponíveis para o executável principal
+add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/shaders
   ${CMAKE_BINARY_DIR}/shaders
-)
-
-target_include_directories(FontTest PRIVATE
-  ${glfw_SOURCE_DIR}/include
-)
-target_link_libraries(FontTest PRIVATE
-  DriftCore
-  DriftEngine
-  DriftRHI_DX11
-  DriftUI
-  glfw
 )
 
 # ------------------------------------------------

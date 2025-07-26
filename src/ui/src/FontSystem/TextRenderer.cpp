@@ -23,8 +23,6 @@ void TextRenderer::BeginTextRendering() {
     
     m_IsRendering = true;
     m_CurrentBatch = 0;
-    
-    LOG_DEBUG("Text rendering started");
 }
 
 void TextRenderer::EndTextRendering() {
@@ -38,7 +36,8 @@ void TextRenderer::EndTextRendering() {
     // Processar todos os batches
     ProcessBatches();
     
-    LOG_DEBUG("Text rendering ended, processed " + std::to_string(m_Batches.size()) + " batches");
+    // Limpar batches após processamento para evitar acúmulo
+    ClearBatches();
 }
 
 void TextRenderer::AddText(const std::string& text, const glm::vec2& position, 
@@ -51,7 +50,6 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
     
     // Verificação de segurança para texto vazio
     if (text.empty()) {
-        LOG_DEBUG("AddText: texto vazio, ignorando");
         return;
     }
     
@@ -77,8 +75,6 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
     }
     
     m_Batches[m_CurrentBatch].push_back(command);
-    
-    LOG_DEBUG("Added text command: '" + text + "' at (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ")");
 }
 
 void TextRenderer::AddText(const std::string& text, float x, float y,
@@ -86,7 +82,6 @@ void TextRenderer::AddText(const std::string& text, float x, float y,
                           Drift::Color color, const TextRenderSettings& settings) {
     // Verificação de segurança para texto vazio
     if (text.empty()) {
-        LOG_DEBUG("AddText: texto vazio, ignorando");
         return;
     }
     
@@ -106,13 +101,11 @@ void TextRenderer::NextBatch() {
     }
     
     m_CurrentBatch++;
-    LOG_DEBUG("Moved to batch " + std::to_string(m_CurrentBatch));
 }
 
 void TextRenderer::ClearBatches() {
     m_Batches.clear();
     m_CurrentBatch = 0;
-    LOG_DEBUG("Text batches cleared");
 }
 
 size_t TextRenderer::GetBatchCount() const {
@@ -128,11 +121,8 @@ size_t TextRenderer::GetCommandCount() const {
 }
 
 void TextRenderer::ProcessBatches() {
-    LOG_INFO("Processing " + std::to_string(m_Batches.size()) + " text batches with " + std::to_string(GetCommandCount()) + " total commands");
-    
     for (size_t i = 0; i < m_Batches.size(); ++i) {
         const auto& batch = m_Batches[i];
-        LOG_DEBUG("Processing batch " + std::to_string(i) + " with " + std::to_string(batch.size()) + " commands");
         
         for (const auto& command : batch) {
             ProcessTextCommand(command);
@@ -143,7 +133,6 @@ void TextRenderer::ProcessBatches() {
 void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
     // Verificações de segurança
     if (command.text.empty()) {
-        LOG_DEBUG("ProcessTextCommand: texto vazio, ignorando");
         return;
     }
     
@@ -151,8 +140,6 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         LOG_ERROR("ProcessTextCommand: fonte é nullptr!");
         return;
     }
-    
-    LOG_DEBUG("Processing text: '" + command.text + "' at (" + std::to_string(command.position.x) + ", " + std::to_string(command.position.y) + ") with font '" + command.font->GetName() + "'");
     
     // Renderização real de glyphs
     float currentX = command.position.x;
@@ -168,7 +155,6 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
     // Obtém a textura do atlas
     auto* texture = atlas->GetTexture();
     if (!texture) {
-        LOG_DEBUG("ProcessTextCommand: textura do atlas é nullptr, usando renderização de retângulos coloridos");
         // Continua mesmo sem textura - renderiza retângulos coloridos
     }
     
@@ -181,8 +167,6 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             // Calcula posição do glyph
             float glyphX = currentX + glyph->offset.x;
             float glyphY = currentY - glyph->offset.y;
-            
-            LOG_DEBUG("  Rendering glyph '" + std::string(1, c) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y));
             
             if (m_UIBatcher) {
                 Drift::Color color = static_cast<uint32_t>(command.color.a * 255) << 24 |
@@ -211,7 +195,15 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
                 currentX += command.font->GetKerning(character, nextChar);
             }
         } else {
-            LOG_WARNING("ProcessTextCommand: glyph não encontrado para caractere '" + std::string(1, c) + "' (codepoint: " + std::to_string(character) + ")");
+            // Para caracteres como espaço ou outros caracteres invisíveis, não gerar warning
+            if (character != 32 && character != '\t' && character != '\n' && character != '\r') {
+                LOG_WARNING("ProcessTextCommand: glyph não encontrado para caractere '" + 
+                           std::string(1, c) + "' (codepoint: " + std::to_string(character) + ")");
+            }
+            // Para espaço, adicionar avanço padrão
+            if (character == 32) {
+                currentX += command.font->GetSize() * 0.3f; // Espaço padrão
+            }
         }
     }
 }
@@ -246,7 +238,6 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::C
     // Verificar se a string não está vazia
     std::string textStr(text);
     if (textStr.empty()) {
-        LOG_DEBUG("UIBatcherTextRenderer::AddText: texto vazio, ignorando");
         return;
     }
     
@@ -285,8 +276,6 @@ void UIBatcherTextRenderer::EndTextRendering() {
 void UIBatcherTextRenderer::SetScreenSize(int width, int height) {
     m_ScreenWidth = width;
     m_ScreenHeight = height;
-    
-    LOG_DEBUG("Screen size set to " + std::to_string(width) + "x" + std::to_string(height));
 }
 
 TextRenderer* UIBatcherTextRenderer::GetTextRenderer() const {
@@ -317,8 +306,6 @@ void TextRenderer::DrawText(const std::string& text, const glm::vec2& position,
                            const glm::vec4& color, const TextRenderSettings& settings) {
     // Esta função seria chamada pelo sistema de renderização
     // Por enquanto, vamos apenas logar a chamada
-    
-    LOG_DEBUG("DrawText called: '" + text + "' at (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ") with font '" + fontName + "' size " + std::to_string(fontSize));
 }
 
 glm::vec2 TextRenderer::MeasureText(const std::string& text, const std::string& fontName, float fontSize) {
