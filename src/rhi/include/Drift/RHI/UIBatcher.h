@@ -65,6 +65,11 @@ public:
     virtual void AddQuad(float x0, float y0, float x1, float y1,
                          float x2, float y2, float x3, float y3,
                          Drift::Color color) = 0;
+
+    // Adiciona um retângulo texturizado especificando UVs e id de textura
+    virtual void AddTexturedRect(float x, float y, float w, float h,
+                                 const glm::vec2& uvMin, const glm::vec2& uvMax,
+                                 Drift::Color color, uint32_t textureId) = 0;
     virtual void AddQuad(const glm::mat4& transform, float w, float h, Drift::Color color) {
         glm::vec4 p0 = transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         glm::vec4 p1 = transform * glm::vec4(w, 0.0f, 0.0f, 1.0f);
