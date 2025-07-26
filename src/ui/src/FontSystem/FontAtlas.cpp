@@ -16,11 +16,10 @@ FontAtlas::FontAtlas(const AtlasConfig& config, Drift::RHI::IDevice* device)
     
     LOG_INFO("FontAtlas: criando atlas " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
     
-    // Criar textura real para o atlas
     // Criar dados de textura simples (textura branca por enquanto)
-    std::vector<uint8_t> textureData(m_Width * m_Height * config.channels, 255);
-    
-    LOG_INFO("FontAtlas: dados de textura criados (" + std::to_string(textureData.size()) + " bytes)");
+    m_TextureData.resize(m_Width * m_Height * m_Config.channels, 255);
+
+    LOG_INFO("FontAtlas: dados de textura criados (" + std::to_string(m_TextureData.size()) + " bytes)");
     
     // Criar descrição da textura
     Drift::RHI::TextureDesc textureDesc;
@@ -35,11 +34,13 @@ FontAtlas::FontAtlas(const AtlasConfig& config, Drift::RHI::IDevice* device)
         try {
             LOG_INFO("FontAtlas: criando textura real usando RHI");
             auto sharedTexture = device->CreateTexture(textureDesc);
-            
+
             if (sharedTexture) {
                 // Manter apenas a referência compartilhada para evitar double-free
                 m_SharedTexture = sharedTexture;
-                // Não usar m_Texture para evitar conflito de gerenciamento de memória
+                size_t rowPitch = static_cast<size_t>(m_Width * m_Config.channels);
+                size_t slicePitch = rowPitch * static_cast<size_t>(m_Height);
+                m_SharedTexture->UpdateSubresource(0, 0, m_TextureData.data(), rowPitch, slicePitch);
                 LOG_INFO("FontAtlas: textura criada com sucesso!");
             } else {
                 LOG_ERROR("FontAtlas: falha ao criar textura - retornou nullptr");
@@ -93,20 +94,33 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
 }
 
 bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, int width, int height) {
-    if (!region || !data) {
+    if (!region || !data || width <= 0 || height <= 0) {
         LOG_ERROR("Invalid parameters for MSDF data upload");
         return false;
     }
-    
-    // Verificar se a região é válida
-    if (region->x + region->width > m_Width || region->y + region->height > m_Height) {
+
+    if (!m_SharedTexture) {
+        LOG_ERROR("UploadMSDFData called with null texture");
+        return false;
+    }
+
+    if (region->x < 0 || region->y < 0 ||
+        region->x + width > m_Width || region->y + height > m_Height) {
         LOG_ERROR("Region outside atlas bounds");
         return false;
     }
-    
-    // Aqui seria implementada a lógica real de upload para a textura
-    // Por enquanto, vamos apenas simular o upload
-    
+
+    // Copiar dados recebidos para o armazenamento CPU
+    for (int row = 0; row < height; ++row) {
+        size_t destOffset = static_cast<size_t>((region->y + row) * m_Width + region->x) * m_Config.channels;
+        size_t srcOffset = static_cast<size_t>(row * width * m_Config.channels);
+        std::copy_n(data + srcOffset, width * m_Config.channels, m_TextureData.begin() + destOffset);
+    }
+
+    size_t rowPitch = static_cast<size_t>(m_Width * m_Config.channels);
+    size_t slicePitch = rowPitch * static_cast<size_t>(m_Height);
+    m_SharedTexture->UpdateSubresource(0, 0, m_TextureData.data(), rowPitch, slicePitch);
+
     return true;
 }
 
