@@ -33,17 +33,17 @@ struct TextConstants {
     float padding[2]{0.0f, 0.0f};
 };
 
-// Conversão ARGB para BGRA otimizada (inline para performance)
-inline Drift::Color ConvertARGBtoBGRA(Drift::Color argb) {
+// Conversão ARGB para RGBA otimizada (inline para performance)
+inline Drift::Color ConvertARGBtoRGBA(Drift::Color argb) {
     uint8_t a = (argb >> 24) & 0xFF;
     uint8_t r = (argb >> 16) & 0xFF;
     uint8_t g = (argb >> 8) & 0xFF;
     uint8_t b = argb & 0xFF;
     
-    // Converter ARGB para BGRA: A->A, R->B, G->G, B->R
+    // Converter ARGB para RGBA: A->A, R->R, G->G, B->B
     // ARGB: AAAA RRRR GGGG BBBB
-    // BGRA: AAAA BBBB GGGG RRRR
-    return (a << 24) | (b << 16) | (g << 8) | r;
+    // RGBA: AAAA RRRR GGGG BBBB (mesma ordem, mas para GPU)
+    return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
 // Construtor otimizado
@@ -219,7 +219,7 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, Drift::Color col
     }
     
     // Converter cor
-    Drift::Color bgra = ConvertARGBtoBGRA(color);
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
     
     // Adicionar vértices
     uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
@@ -229,13 +229,13 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, Drift::Color col
     float clipX1 = ToClipX(x + w);
     float clipY1 = ToClipY(y + h);
     
-    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(clipX1, clipY0, 1.0f, 0.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY0, 1.0f, 0.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 1.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 1.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(clipX0, clipY1, 0.0f, 1.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY1, 0.0f, 1.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
     
     // Adicionar índices
@@ -281,18 +281,18 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
     }
     
     // Converter cor
-    Drift::Color bgra = ConvertARGBtoBGRA(color);
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
     
     // Adicionar vértices
     uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
     
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, bgra, 0,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, rgba, 8,
                                         0.0f, 0.0f, 1.0f, 0.0f);
     
     // Adicionar índices
@@ -333,16 +333,16 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
     m_CurrentBatch.hasTexture = true;
     if (m_AddingText) m_CurrentBatch.isText = true;
 
-    Drift::Color bgra = ConvertARGBtoBGRA(color);
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
 
     uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y), uvMin.x, uvMin.y, bgra, textureId,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y), uvMin.x, uvMin.y, rgba, textureId,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y), uvMax.x, uvMin.y, bgra, textureId,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y), uvMax.x, uvMin.y, rgba, textureId,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y + h), uvMax.x, uvMax.y, bgra, textureId,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x + w), ToClipY(y + h), uvMax.x, uvMax.y, rgba, textureId,
                                         0.0f, 0.0f, 1.0f, 0.0f);
-    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y + h), uvMin.x, uvMax.y, bgra, textureId,
+    m_CurrentBatch.vertices.emplace_back(ToClipX(x), ToClipY(y + h), uvMin.x, uvMax.y, rgba, textureId,
                                         0.0f, 0.0f, 1.0f, 0.0f);
 
     m_CurrentBatch.indices.push_back(baseIndex + 0);
@@ -532,18 +532,20 @@ void UIBatcherDX11::CreateTextPipeline() {
     }
 
     PipelineDesc textDesc;
-    textDesc.vsFile = "shaders/TextVS.hlsl";
+    textDesc.vsFile = "shaders/BitmapFontVS.hlsl";
     textDesc.vsEntry = "main";
-    textDesc.psFile = "shaders/TextPS.hlsl";
+    textDesc.psFile = "shaders/BitmapFontPS.hlsl";
     textDesc.psEntry = "main";
 
     textDesc.inputLayout = {
         {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
         {"TEXCOORD", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, u)},
         {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
-        {"TEXCOORD", 1, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, offsetX)},
-        {"TEXCOORD", 2, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
-        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
+        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)},
+        {"TEXCOORD", 2, VertexFormat::R32_FLOAT, offsetof(UIVertex, offsetX)},
+        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, offsetY)},
+        {"TEXCOORD", 4, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
+        {"TEXCOORD", 5, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
     };
 
     textDesc.blend.enable = true;

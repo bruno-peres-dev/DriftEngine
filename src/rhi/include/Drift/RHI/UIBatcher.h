@@ -17,16 +17,16 @@ struct UIVertex {
     float x, y;           // Posição em coordenadas de tela
     float u, v;           // Coordenadas UV (para texturas)
     Drift::Color color;   // Cor RGBA
-    uint32_t textureId;   // ID da textura (0 = sem textura)
+    uint32_t textureId;   // ID da textura (8 = sem textura, 0-7 = slots de textura)
     float offsetX, offsetY; // Offset adicional para texto
     float scale;            // Escala para texto
     float rotation;         // Rotação para texto
 
     UIVertex()
-        : x(0), y(0), u(0), v(0), color(0xFFFFFFFF), textureId(0),
+        : x(0), y(0), u(0), v(0), color(0xFFFFFFFF), textureId(8),
           offsetX(0.0f), offsetY(0.0f), scale(1.0f), rotation(0.0f) {}
     UIVertex(float x, float y, float u, float v, Drift::Color color,
-             uint32_t textureId = 0,
+             uint32_t textureId = 8,
              float offsetX = 0.0f, float offsetY = 0.0f,
              float scale = 1.0f, float rotation = 0.0f)
         : x(x), y(y), u(u), v(v), color(color), textureId(textureId),

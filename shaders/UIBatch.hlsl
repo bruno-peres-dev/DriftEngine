@@ -2,14 +2,14 @@
 struct VSIn {
     float2 pos      : POSITION;
     float2 uv       : TEXCOORD0;
-    float4 col      : COLOR0; // BGRA format (convertido de ARGB)
+    float4 col      : COLOR0; // RGBA format (convertido de ARGB)
     uint textureId  : TEXCOORD1;
 };
 
 struct PSIn {
     float4 pos      : SV_POSITION;
     float2 uv       : TEXCOORD0;
-    float4 col      : COLOR0; // BGRA format
+    float4 col      : COLOR0; // RGBA format
     uint textureId  : TEXCOORD1;
 };
 
@@ -28,11 +28,10 @@ PSIn VSMain(VSIn v) {
 }
 
 float4 PSMain(PSIn i) : SV_TARGET { 
-    // Converter BGRA para RGBA para processamento correto
-    // BGRA: AAAA BBBB GGGG RRRR -> RGBA: AAAA RRRR GGGG BBBB
-    float4 rgbaColor = float4(i.col.a, i.col.r, i.col.g, i.col.b);
+    // Cor já está em formato RGBA, usar diretamente
+    float4 rgbaColor = i.col;
     
-    // Se tem textura (textureId < 8), usar a textura com a cor
+    // Se tem textura (textureId < 8), usar a textura com a cor (0-7 = slots de textura, 8+ = sem textura)
     if (i.textureId < 8) {
         float4 texColor;
         

@@ -37,12 +37,12 @@ struct UIBatch {
     size_t vertexCount;
     size_t indexCount;
     
-    UIBatch() : textureId(0), hasTexture(false), isText(false), vertexCount(0), indexCount(0) {}
+    UIBatch() : textureId(8), hasTexture(false), isText(false), vertexCount(0), indexCount(0) {}
     
     void Clear() {
         vertices.clear();
         indices.clear();
-        textureId = 0;
+        textureId = 8;
         hasTexture = false;
         isText = false;
         vertexCount = 0;
