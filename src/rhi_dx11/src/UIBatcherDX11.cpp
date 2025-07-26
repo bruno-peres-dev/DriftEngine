@@ -155,7 +155,13 @@ void UIBatcherDX11::AddRect(float x, float y, float w, float h, Drift::Color col
         h = clippedRect.height;
     }
     
-    // Verificar se precisa fazer flush do batch
+    // Garantir que retângulos sólidos fiquem em um batch separado de geometrias texturizadas
+    if (m_CurrentBatch.hasTexture) {
+        FlushCurrentBatch();
+        m_CurrentBatch.hasTexture = false;
+    }
+
+    // Verificar se precisa fazer flush do batch por limite de vértices/índices
     if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
         m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices) {
         FlushCurrentBatch();
@@ -207,7 +213,13 @@ void UIBatcherDX11::AddQuad(float x0, float y0, float x1, float y1,
         }
     }
     
-    // Verificar se precisa fazer flush do batch
+    // Garantir que quads sólidos fiquem em um batch separado de geometrias texturizadas
+    if (m_CurrentBatch.hasTexture) {
+        FlushCurrentBatch();
+        m_CurrentBatch.hasTexture = false;
+    }
+
+    // Verificar se precisa fazer flush do batch por limite de vértices/índices
     if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
         m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices) {
         FlushCurrentBatch();
