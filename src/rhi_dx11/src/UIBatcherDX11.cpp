@@ -5,7 +5,7 @@
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include "Drift/RHI/DX11/ContextDX11.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
-#include "Drift/UI/FontSystem/FontManager.h"
+#include "Drift/UI/FontSystem/FontSystem.h"
 #include <glm/vec2.hpp>
 #include <cstring>
 #include <algorithm>

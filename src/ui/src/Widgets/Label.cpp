@@ -1,6 +1,7 @@
 #include "Drift/UI/Widgets/Label.h"
 #include "Drift/UI/UIContext.h"
-#include "Drift/UI/FontSystem/FontManager.h"
+#include "Drift/UI/FontSystem/FontSystem.h"
+#include "Drift/UI/FontSystem/TextRenderer.h"
 #include "Drift/Core/Log.h"
 
 using namespace Drift::UI;
@@ -69,10 +70,13 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         LOG_DEBUG("Label::Render: chamando batch.AddText com cor 0x" + 
                  std::to_string(m_TextColor));
         
-        // Renderiza o texto real usando o sistema de fontes
-        Core::Log("[Label] Adicionando texto '" + m_Text + "' em (" + std::to_string(textPos.x) + ", " + std::to_string(textPos.y) + ")");
-        batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor);
-        Core::Log("[Label] Texto adicionado com sucesso");
+        // Renderiza o texto real usando o novo sistema de fontes
+        auto* textRenderer = m_Context ? m_Context->GetTextRenderer() : nullptr;
+        if (textRenderer) {
+            textRenderer->AddText(m_Text, textPos, m_FontFamily, m_FontSize, TextColorToVec4(m_TextColor));
+        } else {
+            batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor); // fallback
+        }
     } else {
         LOG_DEBUG("Label::Render: texto vazio, pulando renderização");
     }
@@ -88,17 +92,23 @@ glm::vec2 Label::CalculateTextSize() const
     if (m_Text.empty()) {
         return glm::vec2(0.0f, 0.0f);
     }
-
-    // Usa o sistema de fontes para calcular o tamanho real
-    auto& fontManager = Drift::UI::FontManager::GetInstance();
-    auto font = fontManager.GetFont(m_FontFamily, m_FontSize);
-    
-    if (font) {
-        return font->MeasureText(m_Text);
+    // Usa o novo sistema de fontes para calcular o tamanho real
+    auto* textRenderer = m_Context ? m_Context->GetTextRenderer() : nullptr;
+    if (textRenderer) {
+        return textRenderer->MeasureText(m_Text, m_FontFamily, m_FontSize);
     } else {
-        // Fallback para cálculo aproximado se a fonte não estiver disponível
-        float textWidth = m_Text.length() * m_FontSize * 0.6f; // Aproximação
-        float textHeight = m_FontSize * 1.2f; // Inclui line height
+        // Fallback para cálculo aproximado se o renderizador não estiver disponível
+        float textWidth = m_Text.length() * m_FontSize * 0.6f;
+        float textHeight = m_FontSize * 1.2f;
         return glm::vec2(textWidth, textHeight);
     }
+}
+
+// Função utilitária para converter Drift::Color para glm::vec4
+glm::vec4 Label::TextColorToVec4(Drift::Color color) const {
+    float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
+    float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
+    float b = static_cast<float>(color & 0xFF) / 255.0f;
+    float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
+    return glm::vec4(r, g, b, a);
 } 

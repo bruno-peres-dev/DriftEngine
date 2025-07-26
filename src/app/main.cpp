@@ -362,6 +362,28 @@ int main() {
         
         Core::Log("[App] Finalizando aplicação...");
         
+        // Estatísticas do sistema de fontes
+        if (appData.uiContext) {
+            auto* textRenderer = appData.uiContext->GetTextRenderer();
+            if (textRenderer) {
+                auto stats = textRenderer->GetStats();
+                Core::Log("[FontSystem] Estatísticas de renderização de texto:");
+                Core::Log("[FontSystem] - Comandos: " + std::to_string(stats.commandsRendered));
+                Core::Log("[FontSystem] - Batches: " + std::to_string(stats.batchesRendered));
+                Core::Log("[FontSystem] - Vértices: " + std::to_string(stats.verticesRendered));
+                Core::Log("[FontSystem] - Índices: " + std::to_string(stats.indicesRendered));
+                Core::Log("[FontSystem] - DrawCalls: " + std::to_string(stats.drawCalls));
+                Core::Log("[FontSystem] - Tempo de renderização: " + std::to_string(stats.renderTime) + " ms");
+            }
+            auto& fontManager = Drift::UI::FontManager::GetInstance();
+            auto fontStats = fontManager.GetStats();
+            Core::Log("[FontSystem] Estatísticas do cache de fontes:");
+            Core::Log("[FontSystem] - Fontes carregadas: " + std::to_string(fontStats.totalFonts));
+            Core::Log("[FontSystem] - Cache hits: " + std::to_string(fontStats.cacheHits));
+            Core::Log("[FontSystem] - Cache misses: " + std::to_string(fontStats.cacheMisses));
+            Core::Log("[FontSystem] - Memória usada: " + std::to_string(fontStats.memoryUsageMB) + " MB");
+        }
+        
         // ================================
         // 7.a DEMONSTRAÇÃO DO RESOURCE MANAGER
         // ================================

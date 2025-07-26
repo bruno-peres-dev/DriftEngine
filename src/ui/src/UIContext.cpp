@@ -5,6 +5,7 @@
 #include "Drift/UI/UIInputHandler.h"
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
 #include "Drift/Engine/Input/InputManager.h"
+#include "Drift/UI/FontSystem/TextRenderer.h"
 #include <glm/mat4x4.hpp>
 #include <mutex>
 #include <fstream>
@@ -31,6 +32,7 @@ UIContext::UIContext()
     : m_EventBus(std::make_shared<Drift::Engine::EventBus>())
     , m_LayoutEngine(std::make_unique<LayoutEngine>())
     , m_InputHandler(std::make_unique<UIInputHandler>(this))
+    , m_TextRenderer(std::make_unique<Drift::UI::TextRenderer>())
 {
     // Cria elemento raiz que cobre a tela inteira por padrão
     m_Root = std::make_shared<UIElement>(this);
