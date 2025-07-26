@@ -126,9 +126,21 @@ void UIContext::InitializeFontSystem()
         Core::Log("[UIContext] Arquivo de fonte encontrado: " + fontPath);
     }
     
-    auto font = fontManager.LoadFont("default", fontPath, 16.0f, UI::FontQuality::High);
+    // Pré-carregar múltiplos tamanhos de fonte para evitar warnings
+    std::vector<float> fontSizes = {12.0f, 14.0f, 16.0f, 18.0f, 20.0f, 24.0f, 28.0f, 32.0f};
     
-    if (font) {
+    for (float size : fontSizes) {
+        auto font = fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
+        if (font) {
+            Core::Log("[UIContext] Fonte carregada com sucesso: tamanho " + std::to_string(size));
+        } else {
+            Core::Log("[UIContext] AVISO: Falha ao carregar fonte tamanho " + std::to_string(size));
+        }
+    }
+    
+    // Verificar se pelo menos a fonte padrão foi carregada
+    auto defaultFont = fontManager.GetFont("default", 16.0f, UI::FontQuality::High);
+    if (defaultFont) {
         Core::Log("[UIContext] Fonte padrão carregada com sucesso: " + fontPath);
         Core::Log("[UIContext] Sistema de fontes inicializado com sucesso!");
     } else {

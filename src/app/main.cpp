@@ -12,8 +12,7 @@
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/UIElement.h"
 #include "Drift/UI/Widgets/Button.h"
-#include "Drift/UI/FontSystem/FontManager.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/Widgets/Label.h"
 #include "Drift/RHI/DX11/RingBufferDX11.h"
 #include "Drift/RHI/DX11/UIBatcherDX11.h"
 #include <d3d11.h>
@@ -39,13 +38,6 @@ struct AppData {
     std::shared_ptr<RHI::IRingBuffer> uiRingBuffer;
     std::unique_ptr<RHI::IUIBatcher> uiBatcher;
     std::unique_ptr<UI::UIContext> uiContext;
-    
-    // Teste direto de renderização de texto
-    std::unique_ptr<UI::TextRenderer> directTextRenderer;
-    std::shared_ptr<RHI::IRingBuffer> directTextRingBuffer;
-    std::unique_ptr<RHI::IUIBatcher> directTextBatcher;
-    bool enableDirectTextTest{false};
-    float textTestTimer{0.0f};
 };
 
 static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -116,42 +108,18 @@ int main() {
         // Conecta o sistema de input
         uiContext->SetInputManager(inputManager.get());
 
-        // Cria botões de teste
+        // Cria elementos de teste da UI
         {
             auto root = uiContext->GetRoot();
             
-            // Botão Play
-            auto playButton = std::make_shared<UI::Button>(uiContext.get());
-            playButton->SetText("Play Game");
-            playButton->SetPosition({100.0f, 100.0f});
-            playButton->SetSize({200.0f, 50.0f});
-            playButton->SetOnClick([](const UI::ButtonClickEvent& event) {
-                Core::Log("[UI] Play button clicked at: " + 
-                    std::to_string(event.clickPosition.x) + ", " + 
-                    std::to_string(event.clickPosition.y));
-            });
-            root->AddChild(playButton);
+            // Label de teste para renderizar texto
+            auto testLabel = std::make_shared<UI::Label>(uiContext.get());
+            testLabel->SetText("Teste do Sistema de Fontes - DriftEngine");
+            testLabel->SetPosition({100.0f, 50.0f});
+            testLabel->SetFontSize(24.0f);
+            testLabel->SetTextColor(Drift::Color(0xFFFFFFFF)); // Branco
+            root->AddChild(testLabel);
             
-            // Botão Settings
-            auto settingsButton = std::make_shared<UI::Button>(uiContext.get());
-            settingsButton->SetText("Settings");
-            settingsButton->SetPosition({100.0f, 170.0f});
-            settingsButton->SetSize({200.0f, 50.0f});
-            settingsButton->SetOnClick([](const UI::ButtonClickEvent& event) {
-                Core::Log("[UI] Settings button clicked!");
-            });
-            root->AddChild(settingsButton);
-            
-            // Botão Quit
-            auto quitButton = std::make_shared<UI::Button>(uiContext.get());
-            quitButton->SetText("Quit");
-            quitButton->SetPosition({100.0f, 240.0f});
-            quitButton->SetSize({200.0f, 50.0f});
-            quitButton->SetOnClick([](const UI::ButtonClickEvent& event) {
-                Core::Log("[UI] Quit button clicked!");
-                glfwSetWindowShouldClose(glfwGetCurrentContext(), GLFW_TRUE);
-            });
-            root->AddChild(quitButton);
         }
         
         // --------------------------------
@@ -250,15 +218,6 @@ int main() {
 
             appData.uiRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 2 * 1024 * 1024);
             appData.uiBatcher    = Drift::RHI::DX11::CreateUIBatcherDX11(appData.uiRingBuffer, appData.context.get());
-            
-            // Inicializar teste direto de renderização de texto com UIBatcher separado
-            appData.directTextRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 1 * 1024 * 1024);
-            appData.directTextBatcher = Drift::RHI::DX11::CreateUIBatcherDX11(appData.directTextRingBuffer, appData.context.get());
-            
-            Core::Log("[App] Teste direto de renderização de texto inicializado com UIBatcher separado");
-            
-            // Habilitar teste por padrão para demonstração
-            appData.enableDirectTextTest = true;
         }
 
         // Configura callback de resize
@@ -275,7 +234,7 @@ int main() {
         // ================================
 
         Core::Log("[App] Entrando no loop principal...");
-        Core::Log("[App] Controles: F1 = Wireframe, F2 = Toggle Teste de Geometria, ESC = Sair");
+        Core::Log("[App] Controles: F1 = Wireframe, ESC = Sair");
         
         double lastTime = glfwGetTime();
         double fpsTime = lastTime;
@@ -298,14 +257,12 @@ int main() {
                 
                 char title[256];
                 const char* activeVp = appData.renderManager->GetActiveViewport().c_str();
-                const char* directTextStatus = appData.enableDirectTextTest ? "ON" : "OFF";
                 snprintf(title, sizeof(title), 
-                    "DriftEngine AAA [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu] [Active: %s] [DirectText: %s]", 
+                    "DriftEngine AAA [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu] [Active: %s]", 
                     fps, 
                     appData.renderManager->GetStats().frameTime,
                     appData.renderManager->GetViewportCount(),
-                    activeVp,
-                    directTextStatus);
+                    activeVp);
                 glfwSetWindowTitle(window, title);
             }
             
@@ -325,13 +282,6 @@ int main() {
                 );
                 Core::Log("[App] Wireframe mode: " + 
                     std::string(appData.renderManager->IsWireframeMode() ? "ON" : "OFF"));
-            }
-            
-            // Toggle teste direto de texto with F2
-            if (input.IsKeyPressed(Engine::Input::Key::F2)) {
-                appData.enableDirectTextTest = !appData.enableDirectTextTest;
-                Core::Log("[App] Teste de geometria: " + 
-                    std::string(appData.enableDirectTextTest ? "ON" : "OFF"));
             }
             
             // ---- RENDER MANAGER UPDATE ----
@@ -357,35 +307,6 @@ int main() {
                 appData.uiBatcher->End();
             }
             
-            // ---- TESTE DIRETO DE GEOMETRIA (após UI) ----
-            if (appData.enableDirectTextTest && appData.directTextBatcher) {
-                appData.textTestTimer += deltaTime;
-                
-                // Renderizar geometria direta usando UIBatcher (sem texto para evitar deadlocks)
-                try {
-                    appData.directTextBatcher->Begin();
-                    
-                    // Retângulos coloridos para teste visual (mais visíveis)
-                    appData.directTextBatcher->AddRect(50.0f, 50.0f, 300.0f, 40.0f, 0xFFFF0000);  // Vermelho
-                    appData.directTextBatcher->AddRect(50.0f, 100.0f, 300.0f, 40.0f, 0xFF00FF00);  // Verde
-                    appData.directTextBatcher->AddRect(50.0f, 150.0f, 300.0f, 40.0f, 0xFF0000FF); // Azul
-                    appData.directTextBatcher->AddRect(50.0f, 200.0f, 300.0f, 40.0f, 0xFFFFFF00); // Amarelo
-                    appData.directTextBatcher->AddRect(50.0f, 250.0f, 300.0f, 40.0f, 0xFFFF00FF); // Magenta
-                    appData.directTextBatcher->AddRect(50.0f, 300.0f, 300.0f, 40.0f, 0xFF00FFFF); // Ciano
-                    
-                    // Retângulo animado baseado no timer (mais visível)
-                    float animX = 50.0f + (sin(appData.textTestTimer * 2.0f) * 200.0f);
-                    appData.directTextBatcher->AddRect(animX, 360.0f, 80.0f, 80.0f, 0xFFFFFFFF);
-                    
-                    // Retângulo de fundo para destacar
-                    appData.directTextBatcher->AddRect(40.0f, 40.0f, 320.0f, 420.0f, 0x80000000); // Fundo semi-transparente
-                    
-                    appData.directTextBatcher->End();
-                } catch (const std::exception& e) {
-                    Core::Log("[App] Erro no teste direto de geometria: " + std::string(e.what()));
-                    appData.enableDirectTextTest = false; // Desabilitar em caso de erro
-                }
-            }
             // ---- PRESENT ----
             appData.context->Present();
         }
