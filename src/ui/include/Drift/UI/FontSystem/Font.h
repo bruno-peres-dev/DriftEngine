@@ -31,6 +31,8 @@ public:
 
     float GetSize() const { return m_Size; }
     const std::string& GetName() const { return m_Name; }
+    float GetAscent() const { return m_Ascent; }
+    float GetDescent() const { return m_Descent; }
 
 private:
     std::string m_Name;
@@ -38,6 +40,9 @@ private:
     FontQuality m_Quality;
     std::unordered_map<uint32_t, GlyphInfo> m_Glyphs;
     std::shared_ptr<Drift::RHI::ITexture> m_Texture;
+
+    float m_Ascent{0.0f};
+    float m_Descent{0.0f};
 };
 
 } // namespace Drift::UI

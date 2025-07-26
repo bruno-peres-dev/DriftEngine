@@ -37,6 +37,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     
     m_Batcher->SetTexture(0, const_cast<Drift::RHI::ITexture*>(texture));
 
+    float baseline = pos.y + font->GetAscent();
     float x = pos.x;
     for (char c : text) {
         const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
@@ -45,7 +46,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         }
 
         float xpos = x + g->bearing.x;
-        float ypos = pos.y - g->bearing.y;
+        float ypos = baseline - g->bearing.y;
 
         glm::vec2 uv0 = g->uv0;
         glm::vec2 uv1 = g->uv1;
@@ -68,12 +69,11 @@ glm::vec2 TextRenderer::MeasureText(const std::string& text, const std::string& 
     if (!font) return glm::vec2(0.0f);
 
     float width = 0.0f;
-    float height = 0.0f;
+    float height = font->GetAscent() - font->GetDescent();
     for (char c : text) {
         const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
         if (!g) continue;
         width += g->advance;
-        height = std::max(height, g->size.y);
     }
     return glm::vec2(width, height);
 }
