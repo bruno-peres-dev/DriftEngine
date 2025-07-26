@@ -113,8 +113,15 @@ bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, i
     // Copiar dados recebidos para o armazenamento CPU
     for (int row = 0; row < height; ++row) {
         size_t destOffset = static_cast<size_t>((region->y + row) * m_Width + region->x) * m_Config.channels;
-        size_t srcOffset = static_cast<size_t>(row * width * m_Config.channels);
-        std::copy_n(data + srcOffset, width * m_Config.channels, m_TextureData.begin() + destOffset);
+        size_t rowSize = static_cast<size_t>(width * m_Config.channels);
+        size_t endOffset = destOffset + rowSize;
+        if (endOffset > m_TextureData.size()) {
+            LOG_ERROR("MSDF upload exceeds atlas bounds");
+            return false;
+        }
+
+        size_t srcOffset = static_cast<size_t>(row * rowSize);
+        std::copy_n(data + srcOffset, rowSize, m_TextureData.begin() + destOffset);
     }
 
     size_t rowPitch = static_cast<size_t>(m_Width * m_Config.channels);

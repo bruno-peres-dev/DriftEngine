@@ -87,7 +87,10 @@ bool Font::Load(Drift::RHI::IDevice* device) {
         if (!region) {
             continue;
         }
-        m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height);
+        if (!m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height)) {
+            LOG_ERROR("Failed to upload MSDF data for glyph: " + std::to_string(cp));
+            continue;
+        }
 
         // Calcular métricas do glyph
         int ax, lsb;
@@ -400,7 +403,24 @@ void Font::LoadGlyph(uint32_t character) {
         return;
     }
     
-    m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height);
+    if (!m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height)) {
+        LOG_ERROR("Failed to upload MSDF data for glyph: " + std::to_string(character));
+        // Criar glyph como se não estivesse no atlas
+        Glyph g{};
+        g.codepoint = character;
+        g.position = {0.0f, 0.0f};
+        g.size = {static_cast<float>(msdf.width), static_cast<float>(msdf.height)};
+        g.offset = {static_cast<float>(x0), static_cast<float>(y0)};
+        g.advance = static_cast<float>(ax) * m_Scale;
+        g.uvMin = {0.0f, 0.0f};
+        g.uvMax = {0.0f, 0.0f};
+        g.isValid = true;
+        g.atlasId = 0;
+
+        std::lock_guard<std::mutex> lock(m_GlyphMutex);
+        m_Glyphs[g.codepoint] = g;
+        return;
+    }
 
     // Criar e configurar glyph
     Glyph g{};
