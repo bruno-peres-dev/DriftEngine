@@ -36,6 +36,9 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
     if (!m_Text.empty()) {
         glm::vec2 absPos = GetAbsolutePosition();
         
+        LOG_DEBUG("Label::Render: renderizando texto '" + m_Text + "' em (" + 
+                 std::to_string(absPos.x) + ", " + std::to_string(absPos.y) + ")");
+        
         // Calcula posição baseado no alinhamento
         float xOffset = 0.0f;
         switch (m_TextAlign) {
@@ -53,16 +56,20 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         
         glm::vec2 textPos = glm::vec2(absPos.x + xOffset, absPos.y);
         
-        // Verifica se a posição ou cor mudaram desde o último frame
-        bool needsUpdate = (textPos != m_LastTextPos || m_TextColor != m_LastTextColor);
+        LOG_DEBUG("Label::Render: posição final do texto: (" + 
+                 std::to_string(textPos.x) + ", " + std::to_string(textPos.y) + ")");
         
-        if (needsUpdate) {
-            m_LastTextPos = textPos;
-            m_LastTextColor = m_TextColor;
-            
-            // Renderiza o texto real usando o sistema de fontes
-            batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor);
-        }
+        // FORÇAR RENDERIZAÇÃO SEMPRE PARA DEBUG
+        m_LastTextPos = textPos;
+        m_LastTextColor = m_TextColor;
+        
+        LOG_DEBUG("Label::Render: chamando batch.AddText com cor 0x" + 
+                 std::to_string(m_TextColor));
+        
+        // Renderiza o texto real usando o sistema de fontes
+        batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor);
+    } else {
+        LOG_DEBUG("Label::Render: texto vazio, pulando renderização");
     }
 
     // Renderiza filhos

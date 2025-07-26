@@ -61,7 +61,7 @@ std::shared_ptr<Font> FontManager::LoadFont(const std::string& name, const std::
     
     // Criar nova fonte
     auto font = std::make_shared<Font>(name, filePath, size, quality);
-    if (!font->Load()) {
+    if (!font->Load(m_Device)) {
         LOG_ERROR("Failed to load font: " + filePath);
         return nullptr;
     }
@@ -87,9 +87,6 @@ std::shared_ptr<Font> FontManager::LoadFont(const std::string& name, const std::
         UpdateFontUsage(key);
         m_Stats.totalFonts = m_Fonts.size();
     }
-    
-    LOG_INFO("Font loaded: " + name + " (size: " + std::to_string(size) + 
-             ", quality: " + std::to_string(static_cast<int>(quality)) + ")");
     
     return font;
 }
@@ -133,8 +130,7 @@ void FontManager::UnloadFont(const std::string& name, float size, FontQuality qu
     if (it != m_Fonts.end()) {
         m_Fonts.erase(it);
         m_Stats.totalFonts = m_Fonts.size();
-        LOG_INFO("Font unloaded: " + key.name + " (size: " + std::to_string(key.size) + 
-                 ", quality: " + std::to_string(static_cast<int>(key.quality)) + ")");
+            // Font unloaded silently
     }
 }
 
@@ -143,7 +139,7 @@ void FontManager::UnloadAllFonts() {
     size_t count = m_Fonts.size();
     m_Fonts.clear();
     m_Stats.totalFonts = 0;
-    LOG_INFO("All fonts unloaded (" + std::to_string(count) + " fonts)");
+    // All fonts unloaded silently
 }
 
 void FontManager::SetDefaultQuality(FontQuality quality) {
@@ -167,14 +163,11 @@ void FontManager::SetCacheConfig(const FontCacheConfig& config) {
         TrimCache();
     }
     
-    LOG_INFO("Font cache config updated: maxFonts=" + std::to_string(config.maxFonts) + 
-             ", memoryBudget=" + std::to_string(config.memoryBudgetMB) + "MB");
+    // Font cache config updated silently
 }
 
 void FontManager::PreloadFont(const std::string& name, const std::string& filePath, 
                              const std::vector<float>& sizes, FontQuality quality) {
-    LOG_INFO("Preloading font: " + name + " (" + std::to_string(sizes.size()) + " sizes)");
-    
     for (float size : sizes) {
         LoadFont(name, filePath, size, quality);
     }
@@ -205,6 +198,8 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
     font->m_Metrics.descender = -size * 0.2f;
     font->m_Scale = 1.0f;
     
+    LOG_INFO("Creating embedded default font: métricas configuradas");
+    
     // Criar glyphs básicos para caracteres ASCII (32-126)
     for (uint32_t cp = 32; cp <= 126; ++cp) {
         Glyph glyph{};
@@ -220,6 +215,8 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
         font->m_Glyphs[cp] = glyph;
     }
     
+    LOG_INFO("Creating embedded default font: " + std::to_string(font->m_Glyphs.size()) + " glyphs criados");
+    
     // Criar atlas simples
     AtlasConfig config;
     config.width = 512;
@@ -229,7 +226,9 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
     config.useMSDF = false; // Fonte simples não usa MSDF
     config.msdfSize = 32;
     
-    font->m_Atlas = std::make_unique<FontAtlas>(config);
+    font->m_Atlas = std::make_unique<FontAtlas>(config, m_Device);
+    
+    LOG_INFO("Creating embedded default font: atlas criado");
     
     // Alocar regiões no atlas para cada glyph
     for (auto& [cp, glyph] : font->m_Glyphs) {
@@ -254,8 +253,15 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
                 (region->x + region->width) / atlasWidth,
                 (region->y + region->height) / atlasHeight
             );
+            
+            LOG_DEBUG("Glyph " + std::to_string(cp) + " alocado no atlas: (" + 
+                     std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
+        } else {
+            LOG_ERROR("Falha ao alocar região no atlas para glyph " + std::to_string(cp));
         }
     }
+    
+    LOG_INFO("Creating embedded default font: regiões do atlas alocadas");
     
     // Adicionar ao cache
     FontKey key{"embedded_default", size, quality};
@@ -431,6 +437,11 @@ void FontManager::EnableAsyncLoading(bool enabled) {
 
 void FontManager::SetWorkerThreadCount(size_t count) {
     m_WorkerThreadCount = count;
+}
+
+void FontManager::SetDevice(Drift::RHI::IDevice* device) {
+    m_Device = device;
+    LOG_INFO("FontManager: device configurado");
 }
 
 // === Implementação dos utilitários TextUtils ===

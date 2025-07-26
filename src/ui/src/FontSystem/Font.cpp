@@ -22,7 +22,7 @@ Font::~Font() {
     Unload();
 }
 
-bool Font::Load() {
+bool Font::Load(Drift::RHI::IDevice* device) {
     if (m_IsLoaded) {
         return true;
     }
@@ -57,8 +57,8 @@ bool Font::Load() {
     m_Metrics.descender = -descent * m_Scale;
     m_Metrics.lineHeight = (ascent - descent + lineGap) * m_Scale;
 
-    // Criar atlas e gerar glyphs essenciais
-    m_Atlas = std::make_unique<FontAtlas>();
+    // Criar atlas com device se disponível
+    m_Atlas = std::make_unique<FontAtlas>(AtlasConfig{}, device);
     MSDFGenerator generator;
     
     // Carregar apenas caracteres essenciais inicialmente para melhor performance
@@ -111,8 +111,6 @@ bool Font::Load() {
     }
 
     m_IsLoaded = true;
-    LOG_INFO("Font loaded successfully: " + m_Name + " (size: " + std::to_string(m_Size) + 
-             ", glyphs: " + std::to_string(m_Glyphs.size()) + ")");
     return true;
 }
 
@@ -125,8 +123,6 @@ void Font::Unload() {
     m_TTFBuffer.clear();
     m_Atlas.reset();
     m_IsLoaded = false;
-
-    LOG_INFO("Font unloaded: " + m_Name);
 }
 
 const Glyph* Font::GetGlyph(uint32_t character) const {

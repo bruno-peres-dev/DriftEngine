@@ -5,6 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Drift/RHI/Texture.h"
+#include "Drift/RHI/Device.h"
 
 namespace Drift::UI {
 
@@ -27,7 +28,7 @@ struct AtlasConfig {
 
 class FontAtlas {
 public:
-    FontAtlas(const AtlasConfig& config = AtlasConfig{});
+    FontAtlas(const AtlasConfig& config = AtlasConfig{}, Drift::RHI::IDevice* device = nullptr);
     ~FontAtlas();
 
     AtlasRegion* AllocateRegion(int width, int height, uint32_t glyphId);
@@ -47,6 +48,7 @@ public:
 private:
     AtlasConfig m_Config;
     std::unique_ptr<Drift::RHI::ITexture> m_Texture;
+    std::shared_ptr<Drift::RHI::ITexture> m_SharedTexture; // Manter referência compartilhada
     int m_Width{0};
     int m_Height{0};
     int m_CurrentX{0};

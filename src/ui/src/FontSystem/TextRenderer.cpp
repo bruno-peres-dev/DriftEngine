@@ -133,6 +133,7 @@ void TextRenderer::ProcessBatches() {
 void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
     // Verificações de segurança
     if (command.text.empty()) {
+        LOG_WARNING("ProcessTextCommand: texto vazio!");
         return;
     }
     
@@ -140,6 +141,8 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         LOG_ERROR("ProcessTextCommand: fonte é nullptr!");
         return;
     }
+    
+    LOG_INFO("ProcessTextCommand: processando texto '" + command.text + "'");
     
     // Renderização real de glyphs
     float currentX = command.position.x;
@@ -152,10 +155,12 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         return;
     }
     
+    LOG_INFO("ProcessTextCommand: atlas válido, processando " + std::to_string(command.text.length()) + " caracteres");
+    
     // Obtém a textura do atlas
     auto* texture = atlas->GetTexture();
     if (!texture) {
-        // Continua mesmo sem textura - renderiza retângulos coloridos
+        LOG_WARNING("ProcessTextCommand: textura do atlas é nullptr - continuando sem textura");
     }
     
     for (size_t i = 0; i < command.text.length(); ++i) {
@@ -185,6 +190,8 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
                     glyph->size.x, glyph->size.y,
                     glyph->uvMin, glyph->uvMax,
                     color, texId);
+            } else {
+                LOG_ERROR("ProcessTextCommand: m_UIBatcher é nullptr!");
             }
             
             currentX += glyph->advance;
@@ -198,9 +205,9 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             // Para caracteres como espaço ou outros caracteres invisíveis, não gerar warning
             if (character != 32 && character != '\t' && character != '\n' && character != '\r') {
                 LOG_WARNING("ProcessTextCommand: glyph não encontrado para caractere '" + 
-                           std::string(1, c) + "' (codepoint: " + std::to_string(character) + ")");
+                           std::string(1, c) + "' (codepoint " + std::to_string(character) + ")");
             }
-            // Para espaço, adicionar avanço padrão
+            // Para espaços, avançar uma distância padrão
             if (character == 32) {
                 currentX += command.font->GetSize() * 0.3f; // Espaço padrão
             }
@@ -248,7 +255,9 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::C
     settings.gamma = 2.2f;
     settings.enableSubpixel = true;
     
+    LOG_INFO("UIBatcherTextRenderer::AddText: chamando m_TextRenderer->AddText");
     m_TextRenderer->AddText(textStr, x, y, "default", 16.0f, color, settings);
+    LOG_INFO("UIBatcherTextRenderer::AddText: chamada concluída");
 }
 
 void UIBatcherTextRenderer::AddText(const std::string& text, const glm::vec2& position, 

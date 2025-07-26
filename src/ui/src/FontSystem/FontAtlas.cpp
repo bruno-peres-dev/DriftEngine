@@ -6,7 +6,7 @@
 
 namespace Drift::UI {
 
-FontAtlas::FontAtlas(const AtlasConfig& config)
+FontAtlas::FontAtlas(const AtlasConfig& config, Drift::RHI::IDevice* device)
     : m_Config(config)
     , m_Width(config.width)
     , m_Height(config.height)
@@ -14,24 +14,44 @@ FontAtlas::FontAtlas(const AtlasConfig& config)
     , m_CurrentY(0)
     , m_LineHeight(0) {
     
+    LOG_INFO("FontAtlas: criando atlas " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
+    
     // Criar textura real para o atlas
     // Criar dados de textura simples (textura branca por enquanto)
     std::vector<uint8_t> textureData(m_Width * m_Height * config.channels, 255);
+    
+    LOG_INFO("FontAtlas: dados de textura criados (" + std::to_string(textureData.size()) + " bytes)");
     
     // Criar descrição da textura
     Drift::RHI::TextureDesc textureDesc;
     textureDesc.width = m_Width;
     textureDesc.height = m_Height;
     textureDesc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
-    // TODO: Adicionar campos usage e mipLevels quando disponíveis no RHI
+    
+    LOG_INFO("FontAtlas: descrição da textura criada");
     
     // Criar a textura real usando o RHI
-    try {
-        // TODO: Implementar criação real da textura quando o RHI estiver disponível
-        // m_Texture = device->CreateTexture(textureDesc, textureData.data());
-    } catch (const std::exception& e) {
-        LOG_ERROR("Failed to create atlas texture: " + std::string(e.what()));
+    if (device) {
+        try {
+            LOG_INFO("FontAtlas: criando textura real usando RHI");
+            auto sharedTexture = device->CreateTexture(textureDesc);
+            
+            if (sharedTexture) {
+                // Manter apenas a referência compartilhada para evitar double-free
+                m_SharedTexture = sharedTexture;
+                // Não usar m_Texture para evitar conflito de gerenciamento de memória
+                LOG_INFO("FontAtlas: textura criada com sucesso!");
+            } else {
+                LOG_ERROR("FontAtlas: falha ao criar textura - retornou nullptr");
+            }
+        } catch (const std::exception& e) {
+            LOG_ERROR("Failed to create atlas texture: " + std::string(e.what()));
+        }
+    } else {
+        LOG_WARNING("FontAtlas: device não disponível - usando placeholder");
     }
+    
+    LOG_INFO("FontAtlas: atlas criado com sucesso");
 }
 
 FontAtlas::~FontAtlas() {
@@ -68,10 +88,6 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
     // Armazenar a região
     AtlasRegion* regionPtr = region.get();
     m_Regions[glyphId] = std::move(region);
-
-    LOG_DEBUG("Allocated atlas region for glyph " + std::to_string(glyphId) + 
-              ": (" + std::to_string(regionPtr->x) + ", " + std::to_string(regionPtr->y) + 
-              ") " + std::to_string(regionPtr->width) + "x" + std::to_string(regionPtr->height));
     
     return regionPtr;
 }
@@ -90,10 +106,6 @@ bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, i
     
     // Aqui seria implementada a lógica real de upload para a textura
     // Por enquanto, vamos apenas simular o upload
-    
-    LOG_DEBUG("Uploading MSDF data for glyph " + std::to_string(region->glyphId) + 
-              ": " + std::to_string(width) + "x" + std::to_string(height) + 
-              " at (" + std::to_string(region->x) + ", " + std::to_string(region->y) + ")");
     
     return true;
 }
@@ -140,7 +152,12 @@ float FontAtlas::GetUsagePercentage() const {
 }
 
 Drift::RHI::ITexture* FontAtlas::GetTexture() const {
-    return m_Texture.get();
+    if (m_SharedTexture) {
+        return m_SharedTexture.get();
+    } else {
+        LOG_WARNING("FontAtlas::GetTexture: textura é nullptr!");
+        return nullptr;
+    }
 }
 
 int FontAtlas::GetWidth() const {

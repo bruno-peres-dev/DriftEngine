@@ -65,6 +65,18 @@ void UIContext::Initialize()
     // Carregar temas, preparar atlases, etc.
 }
 
+void UIContext::SetDevice(Drift::RHI::IDevice* device)
+{
+    m_Device = device;
+    
+    // Configurar device no FontManager e carregar fontes
+    if (m_Device) {
+        auto& fontManager = UI::FontManager::GetInstance();
+        fontManager.SetDevice(m_Device);
+        LoadFonts(); // Carregar fontes agora que o device está disponível
+    }
+}
+
 void UIContext::Update(float deltaSeconds)
 {
     // Atualiza o sistema de input
@@ -103,14 +115,25 @@ void UIContext::Render(Drift::RHI::IUIBatcher& batch)
 
 void UIContext::InitializeFontSystem()
 {
-    Core::Log("[UIContext] Inicializando sistema de fontes...");
-    
     auto& fontManager = UI::FontManager::GetInstance();
     
     // Configurar fonte padrão
     fontManager.SetDefaultFontName("default");
     fontManager.SetDefaultSize(16.0f);
     fontManager.SetDefaultQuality(UI::FontQuality::High);
+    
+    // Configurar device se disponível
+    if (m_Device) {
+        fontManager.SetDevice(m_Device);
+        LoadFonts(); // Carregar fontes apenas se o device estiver disponível
+    } else {
+        Core::Log("[UIContext] AVISO: Device não disponível - fontes serão carregadas quando o device for configurado");
+    }
+}
+
+void UIContext::LoadFonts()
+{
+    auto& fontManager = UI::FontManager::GetInstance();
     
     // Tentar carregar fonte do arquivo
     std::string fontPath = "fonts/Arial-Regular.ttf";
@@ -119,33 +142,22 @@ void UIContext::InitializeFontSystem()
     std::ifstream testFile(fontPath);
     if (!testFile.good()) {
         Core::Log("[UIContext] ERRO: Arquivo de fonte não encontrado: " + fontPath);
-        Core::Log("[UIContext] Tentando caminho absoluto...");
         fontPath = "C:/Users/Bruno/Desktop/DriftEngine/fonts/Arial-Regular.ttf";
     } else {
         testFile.close();
-        Core::Log("[UIContext] Arquivo de fonte encontrado: " + fontPath);
     }
     
-    // Pré-carregar múltiplos tamanhos de fonte para evitar warnings
+    // Pré-carregar múltiplos tamanhos de fonte
     std::vector<float> fontSizes = {12.0f, 14.0f, 16.0f, 18.0f, 20.0f, 24.0f, 28.0f, 32.0f};
     
     for (float size : fontSizes) {
-        auto font = fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
-        if (font) {
-            Core::Log("[UIContext] Fonte carregada com sucesso: tamanho " + std::to_string(size));
-        } else {
-            Core::Log("[UIContext] AVISO: Falha ao carregar fonte tamanho " + std::to_string(size));
-        }
+        fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
     }
     
     // Verificar se pelo menos a fonte padrão foi carregada
     auto defaultFont = fontManager.GetFont("default", 16.0f, UI::FontQuality::High);
-    if (defaultFont) {
-        Core::Log("[UIContext] Fonte padrão carregada com sucesso: " + fontPath);
-        Core::Log("[UIContext] Sistema de fontes inicializado com sucesso!");
-    } else {
-        Core::Log("[UIContext] AVISO: Não foi possível carregar a fonte padrão: " + fontPath);
-        Core::Log("[UIContext] O sistema usará a fonte embutida padrão.");
+    if (!defaultFont) {
+        Core::Log("[UIContext] AVISO: Não foi possível carregar a fonte padrão");
     }
 }
 

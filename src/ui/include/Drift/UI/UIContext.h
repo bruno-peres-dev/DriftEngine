@@ -1,6 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <functional>
+#include "Drift/UI/UIElement.h"
+#include "Drift/UI/LayoutEngine.h"
+#include "Drift/UI/UIInputHandler.h"
+#include "Drift/Engine/EventBus.h"
+#include "Drift/RHI/Device.h"
 #include "Drift/Core/Log.h"
 #include <vector>
 #include <glm/vec2.hpp>
@@ -32,6 +39,9 @@ public:
     // Inicializa subsistemas de UI (por ex. tema, cache, atlas etc.)
     void Initialize();
 
+    // Configurar device para o sistema de fontes
+    void SetDevice(Drift::RHI::IDevice* device);
+    
     // Loop de atualização
     void Update(float deltaSeconds);
 
@@ -62,8 +72,10 @@ public:
 private:
     UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& point) const;
     void InitializeFontSystem();
+    void LoadFonts();
     
     std::shared_ptr<Drift::Engine::EventBus> m_EventBus;
+    Drift::RHI::IDevice* m_Device{nullptr}; // Device para o sistema de fontes
 
     std::unique_ptr<LayoutEngine> m_LayoutEngine;
     std::unique_ptr<UIInputHandler> m_InputHandler;

@@ -105,6 +105,9 @@ int main() {
         auto uiContext = std::make_unique<UI::UIContext>();
         uiContext->Initialize();
         
+        // Configurar device para o sistema de fontes
+        uiContext->SetDevice(device.get());
+        
         // Conecta o sistema de input
         uiContext->SetInputManager(inputManager.get());
 
@@ -114,12 +117,38 @@ int main() {
             
             // Label de teste para renderizar texto
             auto testLabel = std::make_shared<UI::Label>(uiContext.get());
+            testLabel->SetName("TestLabel"); // Adiciona nome para debug
             testLabel->SetText("Teste do Sistema de Fontes - DriftEngine");
             testLabel->SetPosition({100.0f, 50.0f});
             testLabel->SetFontSize(24.0f);
             testLabel->SetTextColor(Drift::Color(0xFFFFFFFF)); // Branco
+            testLabel->MarkDirty(); // Força recálculo da transformação
             root->AddChild(testLabel);
             
+            // Debug: Verificar posição do Label
+            Core::Log("[App] Label criado com posição: (" + 
+                     std::to_string(testLabel->GetPosition().x) + ", " + 
+                     std::to_string(testLabel->GetPosition().y) + ")");
+            Core::Log("[App] Label posição absoluta: (" + 
+                     std::to_string(testLabel->GetAbsolutePosition().x) + ", " + 
+                     std::to_string(testLabel->GetAbsolutePosition().y) + ")");
+            
+            // Debug: Verificar se o sistema de fontes está funcionando
+            Core::Log("[App] Verificando sistema de fontes...");
+            auto& fontManager = UI::FontManager::GetInstance();
+            auto defaultFont = fontManager.GetFont("default", 24.0f);
+            if (defaultFont) {
+                Core::Log("[App] Fonte padrão encontrada!");
+                Core::Log("[App] Atlas válido: " + std::string(defaultFont->GetAtlas() ? "SIM" : "NÃO"));
+            } else {
+                Core::Log("[App] ERRO: Fonte padrão não encontrada!");
+            }
+            
+            // Teste de medida de texto
+            if (defaultFont) {
+                auto textSize = defaultFont->MeasureText("Teste do Sistema de Fontes - DriftEngine");
+                Core::Log("[App] Tamanho do texto: " + std::to_string(textSize.x) + " x " + std::to_string(textSize.y));
+            }
         }
         
         // --------------------------------

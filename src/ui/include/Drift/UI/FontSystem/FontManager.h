@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include "stb_truetype.h"
 #include "Drift/UI/FontSystem/FontAtlas.h"
+#include "Drift/RHI/Device.h"
 
 namespace Drift::UI {
 
@@ -166,10 +167,11 @@ public:
     ~Font();
 
     /**
-     * @brief Carrega a fonte do arquivo
+     * @brief Carrega a fonte do arquivo com device específico
+     * @param device Device para criar texturas
      * @return true se carregado com sucesso
      */
-    bool Load();
+    bool Load(Drift::RHI::IDevice* device);
     
     /**
      * @brief Descarrega a fonte da memória
@@ -320,6 +322,24 @@ public:
      */
     size_t GetMemoryUsage() const;
 
+    // === Métodos privados para carregamento ===
+    
+    /**
+     * @brief Carrega um glyph específico
+     * @param character Código Unicode do caractere
+     */
+    void LoadGlyph(uint32_t character);
+    
+    /**
+     * @brief Carrega glyphs básicos (ASCII)
+     */
+    void LoadBasicGlyphs();
+    
+    /**
+     * @brief Calcula métricas da fonte
+     */
+    void CalculateMetrics();
+
 private:
     std::string m_Name;                    ///< Nome da fonte
     std::string m_FilePath;                ///< Caminho do arquivo
@@ -335,16 +355,11 @@ private:
     // Dados da fonte TTF
     std::vector<unsigned char> m_TTFBuffer; ///< Buffer com dados TTF
     stbtt_fontinfo m_FontInfo{};           ///< Informações da fonte STB
-    float m_Scale{1.0f};                   ///< Escala da fonte
     
-    // Cache e otimizações
+    // Thread safety e cache
+    mutable std::mutex m_GlyphMutex;       ///< Mutex para acesso thread-safe aos glyphs
     size_t m_LastUsed{0};                  ///< Timestamp do último uso
-    mutable std::mutex m_GlyphMutex;       ///< Mutex para thread safety
-    
-    // Métodos internos
-    void LoadBasicGlyphs();
-    void LoadGlyph(uint32_t character);
-    void CalculateMetrics();
+    float m_Scale{1.0f};                   ///< Escala da fonte
     
     // Permitir que FontManager acesse membros privados
     friend class FontManager;
@@ -551,6 +566,12 @@ public:
      * @param count Número de threads
      */
     void SetWorkerThreadCount(size_t count);
+    
+    /**
+     * @brief Define o device para criação de texturas
+     * @param device Ponteiro para o device RHI
+     */
+    void SetDevice(Drift::RHI::IDevice* device);
 
 private:
     FontManager();
@@ -599,6 +620,9 @@ private:
     mutable std::mutex m_FontMutex;
     std::atomic<bool> m_AsyncLoadingEnabled{false};
     size_t m_WorkerThreadCount{4};
+    
+    // Device para criação de texturas
+    Drift::RHI::IDevice* m_Device{nullptr};
     
     // Métodos internos
     void UpdateFontUsage(const FontKey& key);
