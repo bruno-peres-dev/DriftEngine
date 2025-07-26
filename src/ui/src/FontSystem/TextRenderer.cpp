@@ -49,7 +49,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         }
 
         float xpos = x + g->bearing.x;
-        float ypos = baseline - g->bearing.y;
+        float ypos = baseline + g->bearing.y;
 
         glm::vec2 uv0 = g->uv0;
         glm::vec2 uv1 = g->uv1;
