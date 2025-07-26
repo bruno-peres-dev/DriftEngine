@@ -6,7 +6,10 @@
 using namespace Drift::UI;
 
 Font::Font(std::string name, float size, FontQuality quality)
-    : m_Name(std::move(name)), m_Size(size), m_Quality(quality) {}
+    : m_Name(std::move(name)), m_Size(size), m_Quality(quality) {
+    m_Ascent = 0.0f;
+    m_Descent = 0.0f;
+}
 
 const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
     auto it = m_Glyphs.find(codepoint);
@@ -48,6 +51,12 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
         Drift::Core::LogError("[Font] stbtt_InitFont falhou");
         return false;
     }
+
+    int ascent = 0, descent = 0, lineGap = 0;
+    stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
+    float scale = stbtt_ScaleForPixelHeight(&info, m_Size);
+    m_Ascent = ascent * scale;
+    m_Descent = descent * scale;
     
     Drift::Core::LogRHIDebug("[Font] stb_truetype inicializado com sucesso");
 
