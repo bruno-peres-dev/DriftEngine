@@ -6,6 +6,7 @@
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
 #include "Drift/Engine/Input/InputManager.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 #include <glm/mat4x4.hpp>
 #include <mutex>
 #include <fstream>

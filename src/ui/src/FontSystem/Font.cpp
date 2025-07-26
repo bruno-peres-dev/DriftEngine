@@ -1,0 +1,73 @@
+#include "Drift/UI/FontSystem/Font.h"
+#include "Drift/Core/Log.h"
+#include "stb_truetype.h"
+#include <fstream>
+
+using namespace Drift::UI;
+
+Font::Font(std::string name, float size, FontQuality quality)
+    : m_Name(std::move(name)), m_Size(size), m_Quality(quality) {}
+
+const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
+    auto it = m_Glyphs.find(codepoint);
+    if (it != m_Glyphs.end()) {
+        return &it->second;
+    }
+    return nullptr;
+}
+
+bool Font::LoadFromFile(const std::string& path, Drift::RHI::IDevice* device) {
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        Drift::Core::LogError("[Font] Falha ao abrir arquivo: " + path);
+        return false;
+    }
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<unsigned char> buffer(size);
+    if (!file.read(reinterpret_cast<char*>(buffer.data()), size)) {
+        Drift::Core::LogError("[Font] Falha ao ler arquivo: " + path);
+        return false;
+    }
+
+    stbtt_fontinfo info;
+    if (!stbtt_InitFont(&info, buffer.data(), stbtt_GetFontOffsetForIndex(buffer.data(), 0))) {
+        Drift::Core::LogError("[Font] stbtt_InitFont falhou: " + path);
+        return false;
+    }
+
+    const int atlasSize = 512;
+    std::vector<unsigned char> bitmap(atlasSize * atlasSize);
+    std::vector<stbtt_bakedchar> baked(96);
+    int result = stbtt_BakeFontBitmap(buffer.data(), 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 96, baked.data());
+    if (result <= 0) {
+        Drift::Core::LogError("[Font] stbtt_BakeFontBitmap falhou: " + path);
+        return false;
+    }
+
+    // Converter baked data para GlyphInfo
+    for (int i = 0; i < 96; ++i) {
+        stbtt_bakedchar& bc = baked[i];
+        GlyphInfo g;
+        g.uv0 = glm::vec2(bc.x0 / float(atlasSize), bc.y0 / float(atlasSize));
+        g.uv1 = glm::vec2(bc.x1 / float(atlasSize), bc.y1 / float(atlasSize));
+        g.size = glm::vec2(bc.x1 - bc.x0, bc.y1 - bc.y0);
+        g.bearing = glm::vec2(bc.xoff, bc.yoff);
+        g.advance = bc.xadvance;
+        m_Glyphs[32 + i] = g;
+    }
+
+    if (device) {
+        Drift::RHI::TextureDesc desc;
+        desc.width = atlasSize;
+        desc.height = atlasSize;
+        desc.format = Drift::RHI::Format::R8_UNORM;
+        m_Texture = device->CreateTexture(desc);
+        if (m_Texture) {
+            m_Texture->UpdateSubresource(0, 0, bitmap.data(), atlasSize, atlasSize * atlasSize);
+        }
+    }
+
+    return true;
+}
+
