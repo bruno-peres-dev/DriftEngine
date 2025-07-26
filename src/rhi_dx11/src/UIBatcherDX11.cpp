@@ -128,38 +128,84 @@ void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color col
 
 // Finaliza o batch e envia draw calls para a UI
 void UIBatcherDX11::End() {
-    // Renderiza elementos básicos (retângulos)
-    if (!_vertices.empty() && !_indices.empty()) {
-        EnsurePipeline();
+    try {
+        // Renderiza elementos básicos (retângulos)
+        if (!_vertices.empty() && !_indices.empty()) {
+            Core::Log("[UIBatcher] Renderizando " + std::to_string(_vertices.size()) + " vertices e " + std::to_string(_indices.size()) + " indices");
+            
+            // Garante que o pipeline está criado
+            EnsurePipeline();
+            if (!_pipeline) {
+                Core::Log("[UIBatcher] ERRO: Pipeline não foi criado!");
+                return;
+            }
 
-        // Desabilita depth
-        _ctx->SetDepthTestEnabled(false);
-        // Assume viewport já configurado pelo RenderManager
-        _pipeline->Apply(*_ctx);
+            // Desabilita depth
+            _ctx->SetDepthTestEnabled(false);
+            
+            // Aplica o pipeline
+            _pipeline->Apply(*_ctx);
 
-        // Garante que o ring buffer está pronto para o próximo frame
-        _ringBuffer->NextFrame();
+            // Garante que o ring buffer está pronto para o próximo frame
+            if (!_ringBuffer) {
+                Core::Log("[UIBatcher] ERRO: Ring buffer é nullptr!");
+                return;
+            }
+            
+            _ringBuffer->NextFrame();
 
-        size_t vtxSize = _vertices.size() * sizeof(Vertex);
-        size_t idxSize = _indices.size() * sizeof(unsigned);
-        size_t vtxOffset = 0, idxOffset = 0;
-        void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
-        void* idxPtr = _ringBuffer->Allocate(idxSize, 4, idxOffset);
+            // Calcula tamanhos
+            size_t vtxSize = _vertices.size() * sizeof(Vertex);
+            size_t idxSize = _indices.size() * sizeof(unsigned);
+            
+            Core::Log("[UIBatcher] Alocando " + std::to_string(vtxSize) + " bytes para vertices e " + std::to_string(idxSize) + " bytes para indices");
+            
+            // Aloca memória no ring buffer
+            size_t vtxOffset = 0, idxOffset = 0;
+            void* vtxPtr = _ringBuffer->Allocate(vtxSize, 16, vtxOffset);
+            void* idxPtr = _ringBuffer->Allocate(idxSize, 4, idxOffset);
+            
+            if (!vtxPtr || !idxPtr) {
+                Core::Log("[UIBatcher] ERRO: Falha ao alocar memória no ring buffer!");
+                return;
+            }
+            
+            // Copia dados
+            std::memcpy(vtxPtr, _vertices.data(), vtxSize);
+            std::memcpy(idxPtr, _indices.data(), idxSize);
+            
+            // Obtém o buffer do ring buffer
+            IBuffer* buffer = _ringBuffer->GetBuffer();
+            if (!buffer) {
+                Core::Log("[UIBatcher] ERRO: Buffer do ring buffer é nullptr!");
+                return;
+            }
+            
+            // Configura os buffers (mesmo buffer, offsets diferentes)
+            _ctx->IASetVertexBuffer(buffer->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
+            _ctx->IASetIndexBuffer(buffer->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
+            _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
+            
+            // Executa o draw call
+            Core::Log("[UIBatcher] Executando DrawIndexed com " + std::to_string(_indices.size()) + " indices");
+            _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
+            
+            Core::Log("[UIBatcher] Renderização de elementos básicos concluída");
+        }
+
+        // Renderiza texto se houver renderizador de texto
+        if (_textRenderer) {
+            Core::Log("[UIBatcher] Finalizando renderização de texto");
+            _textRenderer->EndTextRendering();
+            Core::Log("[UIBatcher] Renderização de texto finalizada");
+        }
         
-        std::memcpy(vtxPtr, _vertices.data(), vtxSize);
-        std::memcpy(idxPtr, _indices.data(), idxSize);
-        IBuffer* vtxBuf = _ringBuffer->GetBuffer();
-        IBuffer* idxBuf = _ringBuffer->GetBuffer();
+        Core::Log("[UIBatcher] End() concluído com sucesso");
         
-        _ctx->IASetVertexBuffer(vtxBuf->GetBackendHandle(), sizeof(Vertex), (UINT)vtxOffset);
-        _ctx->IASetIndexBuffer(idxBuf->GetBackendHandle(), Format::R32_UINT, (UINT)idxOffset);
-        _ctx->IASetPrimitiveTopology(PrimitiveTopology::TriangleList);
-        _ctx->DrawIndexed((UINT)_indices.size(), 0, 0);
-    }
-
-    // Renderiza texto se houver renderizador de texto
-    if (_textRenderer) {
-        _textRenderer->EndTextRendering();
+    } catch (const std::exception& e) {
+        Core::Log("[UIBatcher] ERRO CRITICO no End(): " + std::string(e.what()));
+    } catch (...) {
+        Core::Log("[UIBatcher] ERRO CRITICO desconhecido no End()");
     }
 }
 
@@ -174,34 +220,57 @@ void UIBatcherDX11::SetScreenSize(float w, float h) {
 }
 
 void UIBatcherDX11::EnsurePipeline() {
-    if (_pipeline) return;
+    if (_pipeline) {
+        Core::Log("[UIBatcher] Pipeline já existe, reutilizando");
+        return;
+    }
 
-    // Cria pipeline simples
-    ID3D11Device* device = static_cast<ID3D11Device*>(_ctx->GetNativeDevice());
-    Drift::RHI::PipelineDesc desc;
-    desc.vsFile = "shaders/UIBatch.hlsl";
-    desc.psFile = "shaders/UIBatch.hlsl";
-    desc.vsEntry = "VSMain";
-    desc.psEntry = "PSMain";
-    desc.inputLayout = {
-        {"POSITION", 0, VertexFormat::R32G32_FLOAT, 0},
-        {"COLOR",   0, VertexFormat::R8G8B8A8_UNORM, 8}
-    };
+    Core::Log("[UIBatcher] Criando pipeline UI...");
+    
+    try {
+        // Cria pipeline simples
+        ID3D11Device* device = static_cast<ID3D11Device*>(_ctx->GetNativeDevice());
+        if (!device) {
+            Core::Log("[UIBatcher] ERRO: Device é nullptr!");
+            return;
+        }
+        
+        Drift::RHI::PipelineDesc desc;
+        desc.vsFile = "shaders/UIBatch.hlsl";
+        desc.psFile = "shaders/UIBatch.hlsl";
+        desc.vsEntry = "VSMain";
+        desc.psEntry = "PSMain";
+        desc.inputLayout = {
+            {"POSITION", 0, VertexFormat::R32G32_FLOAT, 0},
+            {"COLOR",   0, VertexFormat::R8G8B8A8_UNORM, 8}
+        };
 
-    // Sem defines de debug por padrão
-    desc.blend.enable = true;
-    desc.blend.srcColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
-    desc.blend.dstColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
-    desc.blend.srcAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
-    desc.blend.dstAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
-    desc.blend.blendFactorSeparate = true;
+        // Sem defines de debug por padrão
+        desc.blend.enable = true;
+        desc.blend.srcColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
+        desc.blend.dstColor = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
+        desc.blend.srcAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::One;
+        desc.blend.dstAlpha = Drift::RHI::PipelineDesc::BlendDesc::BlendFactor::Zero;
+        desc.blend.blendFactorSeparate = true;
 
-    desc.depthStencil.depthEnable = false;
-    desc.depthStencil.depthWrite = false;
-    desc.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
+        desc.depthStencil.depthEnable = false;
+        desc.depthStencil.depthWrite = false;
+        desc.rasterizer.cullMode = Drift::RHI::PipelineDesc::RasterizerDesc::CullMode::None;
 
-    _pipeline = Drift::RHI::DX11::CreatePipelineDX11(device, desc);
-
+        Core::Log("[UIBatcher] Chamando CreatePipelineDX11...");
+        _pipeline = Drift::RHI::DX11::CreatePipelineDX11(device, desc);
+        
+        if (_pipeline) {
+            Core::Log("[UIBatcher] Pipeline criado com sucesso!");
+        } else {
+            Core::Log("[UIBatcher] ERRO: CreatePipelineDX11 retornou nullptr!");
+        }
+        
+    } catch (const std::exception& e) {
+        Core::Log("[UIBatcher] ERRO ao criar pipeline: " + std::string(e.what()));
+    } catch (...) {
+        Core::Log("[UIBatcher] ERRO desconhecido ao criar pipeline");
+    }
 }
 
 // Fábrica de UIBatcherDX11

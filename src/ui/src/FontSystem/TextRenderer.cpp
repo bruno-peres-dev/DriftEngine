@@ -49,6 +49,12 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
         return;
     }
     
+    // Verificação de segurança para texto vazio
+    if (text.empty()) {
+        LOG_DEBUG("AddText: texto vazio, ignorando");
+        return;
+    }
+    
     // Obter a fonte
     auto& fontManager = FontManager::GetInstance();
     auto font = fontManager.GetFont(fontName, fontSize, settings.quality);
@@ -78,6 +84,12 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& position,
 void TextRenderer::AddText(const std::string& text, float x, float y,
                           const std::string& fontName, float fontSize,
                           Drift::Color color, const TextRenderSettings& settings) {
+    // Verificação de segurança para texto vazio
+    if (text.empty()) {
+        LOG_DEBUG("AddText: texto vazio, ignorando");
+        return;
+    }
+    
     glm::vec4 colorVec;
     colorVec.r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
     colorVec.g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
@@ -129,6 +141,17 @@ void TextRenderer::ProcessBatches() {
 }
 
 void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
+    // Verificações de segurança
+    if (command.text.empty()) {
+        LOG_DEBUG("ProcessTextCommand: texto vazio, ignorando");
+        return;
+    }
+    
+    if (!command.font) {
+        LOG_ERROR("ProcessTextCommand: fonte é nullptr!");
+        return;
+    }
+    
     // Aqui seria implementada a lógica real de renderização
     // Por enquanto, vamos apenas simular o processamento
     
@@ -138,7 +161,8 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
     float currentX = command.position.x;
     float currentY = command.position.y;
     
-    for (char c : command.text) {
+    for (size_t i = 0; i < command.text.length(); ++i) {
+        char c = command.text[i];
         uint32_t character = static_cast<uint32_t>(c);
         const Glyph* glyph = command.font->GetGlyph(character);
         
@@ -147,15 +171,17 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
             float glyphX = currentX + glyph->offset.x;
             float glyphY = currentY - glyph->offset.y;
             
-            LOG_DEBUG("  Glyph '" + std::string(1, static_cast<char>(c)) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y) + " uv (" + std::to_string(glyph->uvMin.x) + ", " + std::to_string(glyph->uvMin.y) + ")-(" + std::to_string(glyph->uvMax.x) + ", " + std::to_string(glyph->uvMax.y) + ")");
+            LOG_DEBUG("  Glyph '" + std::string(1, c) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y) + " uv (" + std::to_string(glyph->uvMin.x) + ", " + std::to_string(glyph->uvMin.y) + ")-(" + std::to_string(glyph->uvMax.x) + ", " + std::to_string(glyph->uvMax.y) + ")");
             
             currentX += glyph->advance;
             
             // Aplicar kerning se não for o último caractere
-            if (c != command.text.back()) {
-                currentX += command.font->GetKerning(character, 
-                    static_cast<uint32_t>(command.text[&c - &command.text[0] + 1]));
+            if (i + 1 < command.text.length()) {
+                uint32_t nextChar = static_cast<uint32_t>(command.text[i + 1]);
+                currentX += command.font->GetKerning(character, nextChar);
             }
+        } else {
+            LOG_WARNING("ProcessTextCommand: glyph não encontrado para caractere '" + std::string(1, c) + "' (codepoint: " + std::to_string(character) + ")");
         }
     }
 }
@@ -174,7 +200,20 @@ UIBatcherTextRenderer::UIBatcherTextRenderer(Drift::RHI::IUIBatcher* batcher)
 UIBatcherTextRenderer::~UIBatcherTextRenderer() = default;
 
 void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::Color color) {
-    if (!m_TextRenderer || !text) {
+    if (!m_TextRenderer) {
+        LOG_ERROR("UIBatcherTextRenderer::AddText: m_TextRenderer é nullptr");
+        return;
+    }
+    
+    if (!text) {
+        LOG_ERROR("UIBatcherTextRenderer::AddText: text é nullptr");
+        return;
+    }
+    
+    // Verificar se a string não está vazia
+    std::string textStr(text);
+    if (textStr.empty()) {
+        LOG_DEBUG("UIBatcherTextRenderer::AddText: texto vazio, ignorando");
         return;
     }
     
@@ -185,7 +224,7 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::C
     settings.gamma = 2.2f;
     settings.enableSubpixel = true;
     
-    m_TextRenderer->AddText(text, x, y, "default", 16.0f, color, settings);
+    m_TextRenderer->AddText(textStr, x, y, "default", 16.0f, color, settings);
 }
 
 void UIBatcherTextRenderer::AddText(const std::string& text, const glm::vec2& position, 

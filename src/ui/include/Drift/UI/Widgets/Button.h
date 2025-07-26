@@ -37,7 +37,15 @@ public:
     ~Button() override = default;
 
     // Propriedades do botão
-    void SetText(const std::string& text) { m_Text = text; MarkDirty(); }
+    void SetText(const std::string& text) { 
+        // Verificação de segurança para evitar strings inválidas
+        if (!text.empty()) {
+            m_Text = text; 
+        } else {
+            m_Text.clear(); // Garante que a string está vazia mas válida
+        }
+        MarkDirty(); 
+    }
     const std::string& GetText() const { return m_Text; }
 
     void SetEnabled(bool enabled) { m_Enabled = enabled; UpdateState(); }
