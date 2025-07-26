@@ -59,6 +59,11 @@ bool Font::Load(Drift::RHI::IDevice* device) {
 
     // Criar atlas com device se disponível
     m_Atlas = std::make_unique<FontAtlas>(AtlasConfig{}, device);
+    
+    // Se o device não estiver pronto, logar aviso
+    if (device && !m_Atlas->IsDeviceReady()) {
+        LOG_WARNING("Font::Load: device não está pronto - uploads serão enfileirados até o device estar disponível");
+    }
     MSDFGenerator generator;
     
     // Carregar apenas caracteres essenciais inicialmente para melhor performance
@@ -87,8 +92,9 @@ bool Font::Load(Drift::RHI::IDevice* device) {
         if (!region) {
             continue;
         }
+        // UploadMSDFData agora usa batching automaticamente
         if (!m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height)) {
-            LOG_ERROR("Failed to upload MSDF data for glyph: " + std::to_string(cp));
+            LOG_ERROR("Failed to queue MSDF data for glyph: " + std::to_string(cp));
             continue;
         }
 
@@ -111,6 +117,19 @@ bool Font::Load(Drift::RHI::IDevice* device) {
                    (region->y + region->height) / static_cast<float>(m_Atlas->GetHeight())};
         g.isValid = true;
         m_Glyphs[g.codepoint] = g;
+    }
+
+    // Fazer flush de todos os uploads pendentes após carregar todos os glifos essenciais
+    if (m_Atlas && m_Atlas->HasPendingUploads()) {
+        if (!m_Atlas->IsDeviceReady()) {
+            LOG_INFO("Font::Load: device não está pronto - " + std::to_string(m_Glyphs.size()) + " glyphs enfileirados para " + m_Name);
+        } else {
+            if (!m_Atlas->FlushPendingUploads()) {
+                LOG_WARNING("Failed to flush pending uploads for font: " + m_Name);
+            } else {
+                LOG_INFO("Successfully flushed " + std::to_string(m_Glyphs.size()) + " glyphs for font: " + m_Name);
+            }
+        }
     }
 
     m_IsLoaded = true;
@@ -403,8 +422,14 @@ void Font::LoadGlyph(uint32_t character) {
         return;
     }
     
+    // UploadMSDFData agora usa batching automaticamente - não faz upload imediato
+    // Verificar se o device está pronto antes de fazer upload
+    if (!m_Atlas->IsDeviceReady()) {
+        LOG_DEBUG("Font::LoadGlyph: device não está pronto para glyph " + std::to_string(character) + " - enfileirando");
+    }
+    
     if (!m_Atlas->UploadMSDFData(region, pixels.data(), msdf.width, msdf.height)) {
-        LOG_ERROR("Failed to upload MSDF data for glyph: " + std::to_string(character));
+        LOG_ERROR("Failed to queue MSDF data for glyph: " + std::to_string(character));
         // Criar glyph como se não estivesse no atlas
         Glyph g{};
         g.codepoint = character;

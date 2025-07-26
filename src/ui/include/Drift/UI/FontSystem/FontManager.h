@@ -496,6 +496,19 @@ public:
      */
     void EndTextRendering();
     
+    // === Batching e uploads ===
+    
+    /**
+     * @brief Força o flush de todos os uploads pendentes
+     */
+    void FlushAllPendingUploads();
+    
+    /**
+     * @brief Verifica se há uploads pendentes
+     * @return true se há uploads pendentes
+     */
+    bool HasPendingUploads() const;
+    
     // === Cache e memória ===
     
     /**
@@ -623,6 +636,9 @@ private:
     
     // Device para criação de texturas
     Drift::RHI::IDevice* m_Device{nullptr};
+    
+    // Sistema de batching
+    std::unique_ptr<MultiAtlasManager> m_AtlasManager;
     
     // Métodos internos
     void UpdateFontUsage(const FontKey& key);

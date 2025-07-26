@@ -28,7 +28,14 @@ FontManager::FontManager()
     // Pré-alocar espaço no mapa para evitar realocações
     m_Fonts.reserve(m_CacheConfig.maxFonts);
     
-    LOG_INFO("FontManager initialized with AAA optimizations");
+    // Inicializar o gerenciador de atlas com configuração otimizada para batching
+    AtlasConfig atlasConfig;
+    atlasConfig.width = 2048;
+    atlasConfig.height = 2048;
+    atlasConfig.batchSize = 16; // Flush a cada 16 glifos
+    m_AtlasManager = std::make_unique<MultiAtlasManager>(atlasConfig);
+    
+    LOG_INFO("FontManager initialized with AAA optimizations and batching support");
 }
 
 FontManager::~FontManager() {
@@ -284,6 +291,9 @@ void FontManager::BeginTextRendering() {
 void FontManager::EndTextRendering() {
     m_IsRendering = false;
     
+    // Fazer flush de todos os uploads pendentes no final do frame
+    FlushAllPendingUploads();
+    
     // Atualizar cache periodicamente
     if (m_FrameCounter % 60 == 0) { // A cada 60 frames
         UpdateCache();
@@ -443,17 +453,55 @@ void FontManager::SetDevice(Drift::RHI::IDevice* device) {
     m_Device = device;
     LOG_INFO("FontManager: device configurado");
     
-    // Criar texturas para todos os atlases existentes
+    // Configurar device para o gerenciador de atlas
+    if (m_AtlasManager) {
+        m_AtlasManager->SetDevice(device);
+    }
+    
+    // Configurar device para todas as fontes existentes
     if (m_Device) {
         std::lock_guard<std::mutex> lock(m_FontMutex);
         for (auto& pair : m_Fonts) {
             auto& font = pair.second;
             if (font && font->GetAtlas()) {
-                font->GetAtlas()->CreateTexture(m_Device);
+                font->GetAtlas()->SetDevice(m_Device);
             }
         }
-        LOG_INFO("FontManager: texturas dos atlases criadas");
+        LOG_INFO("FontManager: device configurado para todas as fontes");
     }
+}
+
+void FontManager::FlushAllPendingUploads() {
+    if (m_AtlasManager) {
+        m_AtlasManager->FlushAllAtlases();
+    }
+    
+    // Também fazer flush de fontes individuais que podem ter seus próprios atlas
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    for (auto& pair : m_Fonts) {
+        if (pair.second->m_Atlas && pair.second->m_Atlas->HasPendingUploads()) {
+            pair.second->m_Atlas->FlushPendingUploads();
+        }
+    }
+}
+
+bool FontManager::HasPendingUploads() const {
+    if (m_AtlasManager && m_AtlasManager->GetAtlasCount() > 0) {
+        for (const auto& atlas : m_AtlasManager->GetAtlases()) {
+            if (atlas->HasPendingUploads()) {
+                return true;
+            }
+        }
+    }
+    
+    std::lock_guard<std::mutex> lock(m_FontMutex);
+    for (const auto& pair : m_Fonts) {
+        if (pair.second->m_Atlas && pair.second->m_Atlas->HasPendingUploads()) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 // === Implementação dos utilitários TextUtils ===
