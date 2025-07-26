@@ -21,10 +21,12 @@ using namespace Drift::RHI;
 
 // Conversão ARGB para BGRA otimizada (inline para performance)
 inline Drift::Color ConvertARGBtoBGRA(Drift::Color argb) {
-    return ((argb & 0x000000FF) << 16) |  // B -> posição 16
-           ((argb & 0x0000FF00)) |         // G -> posição 8  
-           ((argb & 0x00FF0000) >> 16) |   // R -> posição 0
-           ((argb & 0xFF000000));          // A -> posição 24
+    uint8_t a = (argb >> 24) & 0xFF;
+    uint8_t r = (argb >> 16) & 0xFF;
+    uint8_t g = (argb >> 8) & 0xFF;
+    uint8_t b = argb & 0xFF;
+    
+    return (a << 24) | (b << 16) | (g << 8) | r;
 }
 
 // Construtor otimizado
@@ -590,6 +592,8 @@ void UIBatcherDX11::EnsureUIPipeline() {
     uiDesc.psFile = "shaders/UIBatch.hlsl";
     uiDesc.psEntry = "PSMain";
     
+    Core::Log("[UIBatcherDX11] Configurando pipeline UI com shader: " + uiDesc.vsFile);
+    
     // Configurar input layout para UIVertex
     uiDesc.inputLayout = {
         {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
@@ -597,6 +601,8 @@ void UIBatcherDX11::EnsureUIPipeline() {
         {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
         {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)}
     };
+    
+    Core::Log("[UIBatcherDX11] Input layout configurado com " + std::to_string(uiDesc.inputLayout.size()) + " elementos");
     
     // Configurar rasterizer state
     uiDesc.rasterizer.wireframe = false;
@@ -611,6 +617,7 @@ void UIBatcherDX11::EnsureUIPipeline() {
     uiDesc.blend.dstAlpha = PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
     uiDesc.blend.alphaOp = PipelineDesc::BlendDesc::BlendOp::Add;
     uiDesc.blend.blendFactorSeparate = true;
+    uiDesc.blend.alphaToCoverage = false;
     
     // Configurar depth stencil state
     uiDesc.depthStencil.depthEnable = false;
@@ -621,6 +628,7 @@ void UIBatcherDX11::EnsureUIPipeline() {
     if (contextDX11) {
         auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
         if (device) {
+            Core::Log("[UIBatcherDX11] Criando pipeline UI...");
             m_Pipeline = CreatePipelineDX11(device, uiDesc);
             if (m_Pipeline) {
                 Core::Log("[UIBatcherDX11] Pipeline UI criado com sucesso");

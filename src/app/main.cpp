@@ -352,7 +352,7 @@ int main() {
             {
                 // Configurar viewport para UI (tela inteira)
                 appData.context->SetViewport(0, 0, 1280, 720);
-                
+
                 appData.uiBatcher->Begin();
                 
                 // Teste: Adicionar retângulos coloridos
