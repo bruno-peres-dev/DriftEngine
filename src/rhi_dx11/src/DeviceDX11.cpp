@@ -33,8 +33,8 @@ DeviceDX11::DeviceDX11(const DeviceDesc& desc)
         _device.GetAddressOf(),
         &featureLevel,
         _context.GetAddressOf());
-    Drift::Core::Log("[DX11] D3D11CreateDevice HRESULT = " + std::to_string(hr));
-    Drift::Core::Log("[DX11] FeatureLevel = " + std::to_string(featureLevel));
+    // D3D11CreateDevice HRESULT = " + std::to_string(hr)
+    // FeatureLevel = " + std::to_string(featureLevel)
     if (FAILED(hr)) {
         throw std::runtime_error("Falha ao criar D3D11Device");
     }

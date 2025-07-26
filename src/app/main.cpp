@@ -67,10 +67,10 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 int main() {
     try {
+        Core::Log("[App] Iniciando DriftEngine...");
+        
         // Configurar nível de log para reduzir verbosidade
         Core::SetLogLevel(Core::LogLevel::Warning);
-        
-        Core::Log("[App] Inicializando DriftEngine com nova arquitetura AAA...");
         
         // ================================
         // 1. INICIALIZAÇÃO BÁSICA
@@ -118,8 +118,12 @@ int main() {
         auto uiContext = std::make_unique<UI::UIContext>();
         uiContext->Initialize();
         
+        Core::Log("[App] Device criado: " + std::to_string(device != nullptr));
+        
         // Configurar device para o sistema de fontes
+        Core::Log("[App] Chamando SetDevice...");
         uiContext->SetDevice(device.get());
+        Core::Log("[App] SetDevice concluído");
         
         // Conecta o sistema de input
         uiContext->SetInputManager(inputManager.get());
@@ -142,32 +146,11 @@ int main() {
             testLabel->MarkDirty(); // Força recálculo da transformação
             root->AddChild(testLabel);
             
-            // Teste: Criar um retângulo colorido para verificar se a renderização UI está funcionando
-            Core::Log("[App] Criando retângulo de teste para verificar renderização UI...");
-            
-            // Debug: Verificar posição do Label
-            Core::Log("[App] Label criado com posição: (" + 
-                     std::to_string(testLabel->GetPosition().x) + ", " + 
-                     std::to_string(testLabel->GetPosition().y) + ")");
-            Core::Log("[App] Label posição absoluta: (" + 
-                     std::to_string(testLabel->GetAbsolutePosition().x) + ", " + 
-                     std::to_string(testLabel->GetAbsolutePosition().y) + ")");
-            
-            // Debug: Verificar se o sistema de fontes está funcionando
-            Core::Log("[App] Verificando sistema de fontes...");
+            // Criar elementos de teste da UI
             auto& fontManager = UI::FontManager::GetInstance();
             auto defaultFont = fontManager.GetFont("default", 24.0f);
-            if (defaultFont) {
-                Core::Log("[App] Fonte padrão encontrada!");
-                Core::Log("[App] Atlas válido: " + std::string(defaultFont->GetAtlas() ? "SIM" : "NÃO"));
-            } else {
+            if (!defaultFont) {
                 Core::Log("[App] ERRO: Fonte padrão não encontrada!");
-            }
-            
-            // Teste de medida de texto
-            if (defaultFont) {
-                auto textSize = defaultFont->MeasureText("Teste do Sistema de Fontes - DriftEngine");
-                Core::Log("[App] Tamanho do texto: " + std::to_string(textSize.x) + " x " + std::to_string(textSize.y));
             }
         }
         
@@ -285,8 +268,8 @@ int main() {
         // 6. LOOP PRINCIPAL AAA
         // ================================
 
-        Core::Log("[App] Entrando no loop principal...");
-        Core::Log("[App] Controles: F1 = Wireframe, ESC = Sair");
+        // Entrando no loop principal...
+        // Controles: F1 = Wireframe, ESC = Sair
         
         double lastTime = glfwGetTime();
         double fpsTime = lastTime;
@@ -354,28 +337,19 @@ int main() {
 
             // ---- UI RENDER (overlay) ----
             {
-                Core::Log("[App] Renderizando UI...");
-                
                 // Configurar viewport para UI (tela inteira)
                 appData.context->SetViewport(0, 0, 1280, 720);
                 
                 appData.uiBatcher->Begin();
                 
-                // Teste: Adicionar um retângulo vermelho sólido (sem transparência)
+                // Teste: Adicionar retângulos coloridos
                 appData.uiBatcher->AddRect(50.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFFFF0000)); // Vermelho sólido
-                
-                // Teste: Adicionar um retângulo azul para verificar se múltiplos elementos funcionam
                 appData.uiBatcher->AddRect(300.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFF0000FF)); // Azul sólido
-                
-                // Teste: Adicionar um retângulo verde no centro da tela
                 appData.uiBatcher->AddRect(540.0f, 310.0f, 200.0f, 100.0f, Drift::Color(0xFF00FF00)); // Verde sólido
-                Core::Log("[App] Retângulo vermelho adicionado");
                 
-                // Reabilitar renderização do texto para investigar o problema
+                // Renderizar UI
                 appData.uiContext->Render(*appData.uiBatcher);
-                Core::Log("[App] UIContext renderizado");
                 appData.uiBatcher->End();
-                Core::Log("[App] UI renderizada");
             }
             
             // ---- PRESENT ----

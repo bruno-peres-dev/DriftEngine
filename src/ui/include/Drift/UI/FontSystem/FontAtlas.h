@@ -33,6 +33,7 @@ public:
 
     AtlasRegion* AllocateRegion(int width, int height, uint32_t glyphId);
     bool UploadMSDFData(const AtlasRegion* region, const uint8_t* data, int width, int height);
+    bool CreateTexture(Drift::RHI::IDevice* device);
     AtlasRegion* GetRegion(uint32_t glyphId) const;
     bool HasRegion(uint32_t glyphId) const;
     void Clear();
@@ -49,6 +50,7 @@ private:
     AtlasConfig m_Config;
     std::unique_ptr<Drift::RHI::ITexture> m_Texture;
     std::shared_ptr<Drift::RHI::ITexture> m_SharedTexture; // Manter referência compartilhada
+    std::vector<uint8_t> m_TextureData; // Buffer de dados da textura em memória
     int m_Width{0};
     int m_Height{0};
     int m_CurrentX{0};

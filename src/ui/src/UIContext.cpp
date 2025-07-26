@@ -67,13 +67,19 @@ void UIContext::Initialize()
 
 void UIContext::SetDevice(Drift::RHI::IDevice* device)
 {
+    LOG_INFO("[UIContext] SetDevice chamado com device=" + std::to_string(device != nullptr));
     m_Device = device;
     
     // Configurar device no FontManager e carregar fontes
     if (m_Device) {
+        LOG_INFO("[UIContext] Configurando device no FontManager");
         auto& fontManager = UI::FontManager::GetInstance();
         fontManager.SetDevice(m_Device);
+        LOG_INFO("[UIContext] Carregando fontes");
         LoadFonts(); // Carregar fontes agora que o device está disponível
+        LOG_INFO("[UIContext] Fontes carregadas");
+    } else {
+        LOG_ERROR("[UIContext] SetDevice chamado com device nullptr!");
     }
 }
 

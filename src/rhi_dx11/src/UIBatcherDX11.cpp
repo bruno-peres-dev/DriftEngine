@@ -249,10 +249,8 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
 }
 
 void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color color) {
-    Core::Log("[UIBatcherDX11] AddText chamado: '" + std::string(text) + "' em (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     
     if (m_TextRenderer) {
-        Core::Log("[UIBatcherDX11] AddText: delegando para m_TextRenderer");
         m_TextRenderer->AddText(x, y, text, color);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: m_TextRenderer é nullptr!");
@@ -422,43 +420,27 @@ void UIBatcherDX11::FlushCurrentBatch() {
 
 void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     try {
-        Core::Log("[UIBatcherDX11] RenderBatch chamado - vertices: " + std::to_string(batch.vertexCount) + 
-                  ", indices: " + std::to_string(batch.indexCount));
-        
         if (batch.IsEmpty() || !m_RingBuffer) {
-            Core::Log("[UIBatcherDX11] RenderBatch: batch vazio ou ring buffer inválido");
             return;
         }
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Calculando tamanhos dos buffers...");
     
     // Calcular tamanhos dos buffers
     size_t vtxSize = batch.vertices.size() * sizeof(UIVertex);
     size_t idxSize = batch.indices.size() * sizeof(uint32_t);
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: vtxSize=" + std::to_string(vtxSize) + ", idxSize=" + std::to_string(idxSize));
     
     // Alocar no ring buffer
     size_t vtxOffset, idxOffset;
     void* vtxPtr = m_RingBuffer->Allocate(vtxSize, 16, vtxOffset);
     void* idxPtr = m_RingBuffer->Allocate(idxSize, 4, idxOffset);
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Alocação no ring buffer - vtxPtr=" + 
-              std::to_string(reinterpret_cast<uintptr_t>(vtxPtr)) + 
-              ", idxPtr=" + std::to_string(reinterpret_cast<uintptr_t>(idxPtr)));
-    
     if (!vtxPtr || !idxPtr) {
         Core::Log("[UIBatcherDX11] ERRO: Falha ao alocar memória no ring buffer!");
         return;
     }
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Copiando dados para o ring buffer...");
-    
     // Copiar dados
     memcpy(vtxPtr, batch.vertices.data(), vtxSize);
     memcpy(idxPtr, batch.indices.data(), idxSize);
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Dados copiados com sucesso");
     
     // Obter contexto DX11
     auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
@@ -467,77 +449,48 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         return;
     }
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Contexto DX11 obtido com sucesso");
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Configurando pipeline UI...");
-    
     // Configurar pipeline UI se necessário
     EnsureUIPipeline();
     
     // Aplicar pipeline UI
     if (m_Pipeline) {
-        Core::Log("[UIBatcherDX11] RenderBatch: Aplicando pipeline UI...");
         m_Pipeline->Apply(*contextDX11);
-        Core::Log("[UIBatcherDX11] RenderBatch: Pipeline UI aplicado com sucesso");
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");
         return;
     }
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Configurando vertex buffer...");
-    
     // Configurar vertex buffer
     auto* vertexBuffer = m_RingBuffer->GetBuffer();
     if (vertexBuffer) {
-        Core::Log("[UIBatcherDX11] RenderBatch: Configurando IASetVertexBuffer...");
         contextDX11->IASetVertexBuffer(vertexBuffer->GetBackendHandle(), sizeof(UIVertex), static_cast<UINT>(vtxOffset));
-        Core::Log("[UIBatcherDX11] RenderBatch: Vertex buffer configurado com sucesso");
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Vertex buffer é nullptr!");
         return;
     }
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Configurando index buffer...");
-    
     // Configurar index buffer
     auto* indexBuffer = m_RingBuffer->GetBuffer();
     if (indexBuffer) {
-        Core::Log("[UIBatcherDX11] RenderBatch: Configurando IASetIndexBuffer...");
         contextDX11->IASetIndexBuffer(indexBuffer->GetBackendHandle(), Drift::RHI::Format::R32_UINT, static_cast<UINT>(idxOffset));
-        Core::Log("[UIBatcherDX11] RenderBatch: Index buffer configurado com sucesso");
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Index buffer é nullptr!");
         return;
     }
     
-    Core::Log("[UIBatcherDX11] RenderBatch: Configurando topologia...");
-    
     // Configurar topologia
     contextDX11->IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology::TriangleList);
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Configurando texturas...");
     
     // Configurar textura se necessário
     if (batch.hasTexture && batch.textureId < m_Textures.size()) {
         auto* texture = m_Textures[batch.textureId];
         if (texture) {
-            Core::Log("[UIBatcherDX11] RenderBatch: Configurando textura ID " + std::to_string(batch.textureId));
             contextDX11->PSSetTexture(0, texture);
         }
-    } else {
-        // Para UI sem textura, não fazer nada (não limpar o slot)
-        Core::Log("[UIBatcherDX11] RenderBatch: UI sem textura - pulando configuração de textura");
     }
-    
-    // Configurar sampler padrão para UI
-    // TODO: Criar um sampler padrão e configurá-lo aqui
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Desabilitando depth test...");
     
     // Desabilitar depth test para UI
     contextDX11->SetDepthTestEnabled(false);
-    
-    Core::Log("[UIBatcherDX11] RenderBatch: Chamando DrawIndexed com " + std::to_string(batch.indexCount) + " índices...");
     
     // Renderizar usando DrawIndexed
     contextDX11->DrawIndexed(
@@ -546,15 +499,11 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         static_cast<INT>(0)   // baseVertex
     );
     
-    Core::Log("[UIBatcherDX11] RenderBatch: DrawIndexed executado com sucesso");
-    
     // Atualizar estatísticas
     m_Stats.drawCalls++;
     m_Stats.verticesRendered += batch.vertexCount;
     m_Stats.indicesRendered += batch.indexCount;
     m_Stats.batchesCreated++;
-    
-        Core::Log("[UIBatcherDX11] RenderBatch: Estatísticas atualizadas");
     } catch (const std::exception& e) {
         Core::Log("[UIBatcherDX11] ERRO CRÍTICO no RenderBatch: " + std::string(e.what()));
     } catch (...) {

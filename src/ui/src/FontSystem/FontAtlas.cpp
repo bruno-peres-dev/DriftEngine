@@ -3,6 +3,7 @@
 #include "Drift/RHI/Device.h"
 #include "Drift/RHI/Texture.h"
 #include <algorithm>
+#include <cstring>
 
 namespace Drift::UI {
 
@@ -16,30 +17,27 @@ FontAtlas::FontAtlas(const AtlasConfig& config, Drift::RHI::IDevice* device)
     
     LOG_INFO("FontAtlas: criando atlas " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
     
-    // Criar textura real para o atlas
-    // Criar dados de textura simples (textura branca por enquanto)
-    std::vector<uint8_t> textureData(m_Width * m_Height * config.channels, 255);
+    // Criar buffer de dados da textura em memória (textura branca por enquanto)
+    m_TextureData.resize(m_Width * m_Height * config.channels, 255);
     
-    LOG_INFO("FontAtlas: dados de textura criados (" + std::to_string(textureData.size()) + " bytes)");
+    LOG_INFO("FontAtlas: buffer de dados criado (" + std::to_string(m_TextureData.size()) + " bytes)");
     
-    // Criar descrição da textura
-    Drift::RHI::TextureDesc textureDesc;
-    textureDesc.width = m_Width;
-    textureDesc.height = m_Height;
-    textureDesc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
-    
-    LOG_INFO("FontAtlas: descrição da textura criada");
-    
-    // Criar a textura real usando o RHI
+    // Criar a textura real usando o RHI apenas se o device estiver disponível
     if (device) {
         try {
             LOG_INFO("FontAtlas: criando textura real usando RHI");
+            
+            // Criar descrição da textura
+            Drift::RHI::TextureDesc textureDesc;
+            textureDesc.width = m_Width;
+            textureDesc.height = m_Height;
+            textureDesc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
+            
             auto sharedTexture = device->CreateTexture(textureDesc);
             
             if (sharedTexture) {
                 // Manter apenas a referência compartilhada para evitar double-free
                 m_SharedTexture = sharedTexture;
-                // Não usar m_Texture para evitar conflito de gerenciamento de memória
                 LOG_INFO("FontAtlas: textura criada com sucesso!");
             } else {
                 LOG_ERROR("FontAtlas: falha ao criar textura - retornou nullptr");
@@ -48,7 +46,7 @@ FontAtlas::FontAtlas(const AtlasConfig& config, Drift::RHI::IDevice* device)
             LOG_ERROR("Failed to create atlas texture: " + std::string(e.what()));
         }
     } else {
-        LOG_WARNING("FontAtlas: device não disponível - usando placeholder");
+        LOG_WARNING("FontAtlas: device não disponível - textura será criada quando o device for configurado");
     }
     
     LOG_INFO("FontAtlas: atlas criado com sucesso");
@@ -94,20 +92,113 @@ AtlasRegion* FontAtlas::AllocateRegion(int width, int height, uint32_t glyphId) 
 
 bool FontAtlas::UploadMSDFData(const AtlasRegion* region, const uint8_t* data, int width, int height) {
     if (!region || !data) {
-        LOG_ERROR("Invalid parameters for MSDF data upload");
+        LOG_ERROR("Invalid parameters for MSDF data upload: region=" + std::to_string(region != nullptr) + 
+                  ", data=" + std::to_string(data != nullptr));
+        return false;
+    }
+    
+    if (!m_SharedTexture) {
+        LOG_ERROR("FontAtlas::UploadMSDFData: textura não disponível (m_SharedTexture é nullptr)");
         return false;
     }
     
     // Verificar se a região é válida
-    if (region->x + region->width > m_Width || region->y + region->height > m_Height) {
-        LOG_ERROR("Region outside atlas bounds");
+    if (region->x + width > m_Width || region->y + height > m_Height) {
+        LOG_ERROR("Region outside atlas bounds: region(" + std::to_string(region->x) + "," + std::to_string(region->y) + 
+                  ") size(" + std::to_string(width) + "x" + std::to_string(height) + 
+                  ") atlas(" + std::to_string(m_Width) + "x" + std::to_string(m_Height) + ")");
         return false;
     }
     
-    // Aqui seria implementada a lógica real de upload para a textura
-    // Por enquanto, vamos apenas simular o upload
+    LOG_INFO("FontAtlas::UploadMSDFData: fazendo upload de glifo " + std::to_string(region->glyphId) + 
+             " em região (" + std::to_string(region->x) + ", " + std::to_string(region->y) + 
+             ") tamanho (" + std::to_string(width) + "x" + std::to_string(height) + ")");
+    
+    try {
+        // Garante que o buffer em CPU exista
+        if (m_TextureData.empty()) {
+            LOG_INFO("FontAtlas::UploadMSDFData: criando buffer de textura (" + 
+                     std::to_string(m_Width) + "x" + std::to_string(m_Height) + "x" + std::to_string(m_Config.channels) + ")");
+            m_TextureData.resize(static_cast<size_t>(m_Width * m_Height * m_Config.channels), 255);
+        }
+        
+        // Copia linha a linha para a região do atlas
+        for (int y = 0; y < height; ++y) {
+            size_t dstOffset = ((region->y + y) * m_Width + region->x) * m_Config.channels;
+            size_t srcOffset = y * width * m_Config.channels;
+            std::memcpy(m_TextureData.data() + dstOffset,
+                        data + srcOffset,
+                        width * m_Config.channels);
+        }
+        
+        // Envia o atlas todo para a GPU
+        size_t rowPitch = static_cast<size_t>(m_Width * m_Config.channels);
+        LOG_INFO("FontAtlas::UploadMSDFData: enviando para GPU - rowPitch=" + std::to_string(rowPitch) + 
+                 ", slicePitch=" + std::to_string(rowPitch * m_Height));
+        
+        m_SharedTexture->UpdateSubresource(0, 0,
+                                           m_TextureData.data(),
+                                           rowPitch,
+                                           rowPitch * m_Height);
+        
+        LOG_INFO("FontAtlas::UploadMSDFData: upload concluído para glifo " + std::to_string(region->glyphId));
+        
+    } catch (const std::exception& e) {
+        LOG_ERROR("FontAtlas::UploadMSDFData: exceção durante upload: " + std::string(e.what()));
+        return false;
+    } catch (...) {
+        LOG_ERROR("FontAtlas::UploadMSDFData: exceção desconhecida durante upload");
+        return false;
+    }
     
     return true;
+}
+
+bool FontAtlas::CreateTexture(Drift::RHI::IDevice* device) {
+    if (!device) {
+        LOG_ERROR("FontAtlas::CreateTexture: device é nullptr");
+        return false;
+    }
+    
+    if (m_SharedTexture) {
+        LOG_WARNING("FontAtlas::CreateTexture: textura já existe");
+        return true;
+    }
+    
+    try {
+        LOG_INFO("FontAtlas::CreateTexture: criando textura " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
+        
+        // Criar descrição da textura
+        Drift::RHI::TextureDesc textureDesc;
+        textureDesc.width = m_Width;
+        textureDesc.height = m_Height;
+        textureDesc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
+        
+        auto sharedTexture = device->CreateTexture(textureDesc);
+        
+        if (sharedTexture) {
+            m_SharedTexture = sharedTexture;
+            LOG_INFO("FontAtlas::CreateTexture: textura criada com sucesso!");
+            
+            // Se já temos dados no buffer, fazer upload inicial
+            if (!m_TextureData.empty()) {
+                LOG_INFO("FontAtlas::CreateTexture: fazendo upload inicial dos dados");
+                size_t rowPitch = static_cast<size_t>(m_Width * m_Config.channels);
+                m_SharedTexture->UpdateSubresource(0, 0,
+                                                   m_TextureData.data(),
+                                                   rowPitch,
+                                                   rowPitch * m_Height);
+            }
+            
+            return true;
+        } else {
+            LOG_ERROR("FontAtlas::CreateTexture: falha ao criar textura - retornou nullptr");
+            return false;
+        }
+    } catch (const std::exception& e) {
+        LOG_ERROR("FontAtlas::CreateTexture: exceção durante criação: " + std::string(e.what()));
+        return false;
+    }
 }
 
 AtlasRegion* FontAtlas::GetRegion(uint32_t glyphId) const {

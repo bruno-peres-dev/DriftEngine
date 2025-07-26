@@ -442,6 +442,18 @@ void FontManager::SetWorkerThreadCount(size_t count) {
 void FontManager::SetDevice(Drift::RHI::IDevice* device) {
     m_Device = device;
     LOG_INFO("FontManager: device configurado");
+    
+    // Criar texturas para todos os atlases existentes
+    if (m_Device) {
+        std::lock_guard<std::mutex> lock(m_FontMutex);
+        for (auto& pair : m_Fonts) {
+            auto& font = pair.second;
+            if (font && font->GetAtlas()) {
+                font->GetAtlas()->CreateTexture(m_Device);
+            }
+        }
+        LOG_INFO("FontManager: texturas dos atlases criadas");
+    }
 }
 
 // === Implementação dos utilitários TextUtils ===
