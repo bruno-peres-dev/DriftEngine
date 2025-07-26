@@ -49,7 +49,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         }
 
         float xpos = x + g->bearing.x;
-        float ypos = baseline + g->bearing.y;
+        float ypos = baseline - g->bearing.y;
 
         glm::vec2 uv0 = g->uv0;
         glm::vec2 uv1 = g->uv1;
@@ -63,10 +63,15 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
                                 " uv: (" + std::to_string(uv0.x) + ", " + std::to_string(uv0.y) + ") -> (" + 
                                 std::to_string(uv1.x) + ", " + std::to_string(uv1.y) + ")");
 
-        Drift::Color textColor = Drift::Color((uint8_t)(color.w * 255.0f) << 24 |
-                                              (uint8_t)(color.x * 255.0f) << 16 |
-                                              (uint8_t)(color.y * 255.0f) << 8 |
-                                              (uint8_t)(color.z * 255.0f));
+        // Corrigir conversão de cores: glm::vec4 (RGBA) para Drift::Color (ARGB)
+        // glm::vec4: (r, g, b, a) onde cada componente é 0.0-1.0
+        // Drift::Color: ARGB onde cada componente é 0-255
+        Drift::Color textColor = Drift::Color(
+            (uint8_t)(color.a * 255.0f) << 24 |  // Alpha no byte mais significativo
+            (uint8_t)(color.r * 255.0f) << 16 |  // Red
+            (uint8_t)(color.g * 255.0f) << 8 |   // Green
+            (uint8_t)(color.b * 255.0f)          // Blue no byte menos significativo
+        );
         
         m_Batcher->AddTexturedRect(xpos, ypos, w, h, uv0, uv1, textColor, 0);
         x += g->advance;

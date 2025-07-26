@@ -48,7 +48,22 @@ float4 PSMain(PSIn i) : SV_TARGET {
             default: texColor = float4(1, 1, 1, 1); break;
         }
         
-        return texColor * rgbaColor;
+        // Para texto, usar apenas o alpha da textura para blending
+        // Manter a cor do texto, mas aplicar o alpha da textura
+        float4 finalColor = rgbaColor;
+        
+        // Usar o canal alpha da textura para determinar a opacidade do texto
+        // Se a textura tem apenas um canal (R8_UNORM), usar o canal R como alpha
+        float textureAlpha = texColor.a;
+        if (textureAlpha == 0.0 && texColor.r > 0.0) {
+            // Se alpha é 0 mas R tem valor, provavelmente é uma textura R8_UNORM
+            textureAlpha = texColor.r;
+        }
+        
+        // Aplicar o alpha da textura à cor final
+        finalColor.a *= textureAlpha;
+        
+        return finalColor;
     }
     
     // Senão, retornar apenas a cor (já convertida para RGBA)

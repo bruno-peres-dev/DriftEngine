@@ -95,9 +95,11 @@ glm::vec2 Label::CalculateTextSize() const
 
 // Função utilitária para converter Drift::Color para glm::vec4
 glm::vec4 Label::TextColorToVec4(Drift::Color color) const {
-    float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
-    float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
-    float b = static_cast<float>(color & 0xFF) / 255.0f;
-    float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
+    // Drift::Color: ARGB onde cada componente é 0-255
+    // glm::vec4: RGBA onde cada componente é 0.0-1.0
+    float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;  // Alpha
+    float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;  // Red
+    float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;   // Green
+    float b = static_cast<float>(color & 0xFF) / 255.0f;          // Blue
     return glm::vec4(r, g, b, a);
 } 

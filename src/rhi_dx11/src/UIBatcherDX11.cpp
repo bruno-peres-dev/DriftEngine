@@ -23,14 +23,8 @@ using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
 
 struct TextConstants {
-    glm::mat4 viewProjection{1.0f};
     glm::vec2 screenSize{0.0f};
-    glm::vec2 atlasSize{0.0f};
-    float msdfRange{4.0f};
-    float smoothing{1.0f};
-    float contrast{1.0f};
-    float gamma{2.2f};
-    float padding[2]{0.0f, 0.0f};
+    glm::vec2 padding{0.0f, 0.0f};
 };
 
 // Conversão ARGB para RGBA otimizada (inline para performance)
@@ -83,7 +77,12 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
         HRESULT hr = device->CreateSamplerState(&sd, samplerState.GetAddressOf());
         if (SUCCEEDED(hr)) {
             m_DefaultSampler = std::make_shared<SamplerDX11>(samplerState.Get());
+            Core::Log("[UIBatcherDX11] Sampler POINT criado com sucesso para fontes bitmap");
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Falha ao criar sampler POINT! HRESULT: " + std::to_string(hr));
         }
+    } else {
+        Core::Log("[UIBatcherDX11] ERRO: Device DX11 é nullptr para criar sampler!");
     }
     
     // Pré-alocar buffers
@@ -366,11 +365,13 @@ void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color col
             FlushCurrentBatch();
         }
         m_AddingText = true;
-        // Converter Drift::Color para glm::vec4
-        float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
-        float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
-        float b = static_cast<float>(color & 0xFF) / 255.0f;
-        float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
+        // Converter Drift::Color (ARGB) para glm::vec4 (RGBA)
+        // Drift::Color: ARGB onde cada componente é 0-255
+        // glm::vec4: RGBA onde cada componente é 0.0-1.0
+        float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;  // Alpha
+        float r = static_cast<float>((color >> 16) & 0xFF) / 255.0f;  // Red
+        float g = static_cast<float>((color >> 8) & 0xFF) / 255.0f;   // Green
+        float b = static_cast<float>(color & 0xFF) / 255.0f;          // Blue
         glm::vec4 textColor(r, g, b, a);
 
         Core::LogRHIDebug("[UIBatcherDX11] Chamando TextRenderer->AddText...");
@@ -536,6 +537,7 @@ void UIBatcherDX11::CreateTextPipeline() {
     }
 
     PipelineDesc textDesc;
+    // Usar shaders específicos para fontes bitmap simples (não MSDF)
     textDesc.vsFile = "shaders/BitmapFontVS.hlsl";
     textDesc.vsEntry = "main";
     textDesc.psFile = "shaders/BitmapFontPS.hlsl";
@@ -552,6 +554,11 @@ void UIBatcherDX11::CreateTextPipeline() {
         {"TEXCOORD", 5, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
     };
 
+    // Configurar rasterizer state
+    textDesc.rasterizer.wireframe = false;
+    textDesc.rasterizer.cullMode = PipelineDesc::RasterizerDesc::CullMode::None;
+
+    // Configurar blend state para texto com transparência correta
     textDesc.blend.enable = true;
     textDesc.blend.srcColor = PipelineDesc::BlendDesc::BlendFactor::SrcAlpha;
     textDesc.blend.dstColor = PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
@@ -560,6 +567,7 @@ void UIBatcherDX11::CreateTextPipeline() {
     textDesc.blend.dstAlpha = PipelineDesc::BlendDesc::BlendFactor::InvSrcAlpha;
     textDesc.blend.alphaOp = PipelineDesc::BlendDesc::BlendOp::Add;
     textDesc.blend.blendFactorSeparate = true;
+    textDesc.blend.alphaToCoverage = false;
 
     textDesc.depthStencil.depthEnable = false;
     textDesc.depthStencil.depthWrite = false;
@@ -568,11 +576,18 @@ void UIBatcherDX11::CreateTextPipeline() {
     if (contextDX11) {
         auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
         if (device) {
+            Core::Log("[UIBatcherDX11] Criando pipeline de texto bitmap...");
             m_TextPipeline = CreatePipelineDX11(device, textDesc);
-            if (!m_TextPipeline) {
-                Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline de texto!");
+            if (m_TextPipeline) {
+                Core::Log("[UIBatcherDX11] Pipeline de texto bitmap criado com sucesso");
+            } else {
+                Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline de texto bitmap!");
             }
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Device DX11 é nullptr para pipeline de texto!");
         }
+    } else {
+        Core::Log("[UIBatcherDX11] ERRO: Context DX11 é nullptr para pipeline de texto!");
     }
 }
 
@@ -659,6 +674,9 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
             contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
             if (m_DefaultSampler) {
                 contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
+                Core::LogRHIDebug("[UIBatcherDX11] Textura " + std::to_string(i) + " e sampler configurados");
+            } else {
+                Core::Log("[UIBatcherDX11] AVISO: Sampler é nullptr para textura " + std::to_string(i));
             }
         }
     }
@@ -750,6 +768,8 @@ void UIBatcherDX11::EnsureUIPipeline() {
     uiDesc.blend.alphaOp = PipelineDesc::BlendDesc::BlendOp::Add;
     uiDesc.blend.blendFactorSeparate = true;
     uiDesc.blend.alphaToCoverage = false;
+    
+    Core::Log("[UIBatcherDX11] Blend state configurado: SrcAlpha/InvSrcAlpha");
     
     // Configurar depth stencil state
     uiDesc.depthStencil.depthEnable = false;

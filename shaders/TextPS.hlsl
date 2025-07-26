@@ -1,5 +1,5 @@
 // Pixel Shader para renderização de texto bitmap
-// Funciona com texturas RGBA8_UNORM
+// Funciona com texturas R8_UNORM (um canal)
 
 struct VertexOutput {
     float4 position : SV_POSITION;
@@ -7,14 +7,14 @@ struct VertexOutput {
     float4 color : COLOR0;
 };
 
-// Textura do atlas de fontes (RGBA8_UNORM)
+// Textura do atlas de fontes (R8_UNORM)
 Texture2D fontAtlas : register(t0);
 SamplerState fontSampler : register(s0);
 
 // Função para calcular alpha a partir da textura bitmap
-float CalculateBitmapAlpha(float4 texColor) {
-    // Para texturas bitmap, usamos o canal alpha ou a média dos canais RGB
-    return texColor.a;
+float CalculateBitmapAlpha(float texValue) {
+    // Para texturas R8_UNORM, o valor é diretamente o alpha
+    return texValue;
 }
 
 // Função para aplicar suavização básica
@@ -25,11 +25,11 @@ float ApplySmoothing(float alpha) {
 
 // Função principal do pixel shader
 float4 main(VertexOutput input) : SV_Target {
-    // Amostra a textura bitmap
-    float4 texColor = fontAtlas.Sample(fontSampler, input.texCoord);
+    // Amostra a textura bitmap (um canal)
+    float alpha = fontAtlas.Sample(fontSampler, input.texCoord).r;
     
     // Calcula o alpha a partir da textura
-    float alpha = CalculateBitmapAlpha(texColor);
+    alpha = CalculateBitmapAlpha(alpha);
     
     // Aplica suavização básica
     alpha = ApplySmoothing(alpha);
