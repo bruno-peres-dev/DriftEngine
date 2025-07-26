@@ -150,10 +150,17 @@ private:
     void RenderBatch(const UIBatch& batch);
     bool IsRectVisible(const ScissorRect& rect) const;
     ScissorRect ClipRectToScissor(const ScissorRect& rect, const ScissorRect& scissor) const;
+    void EnsureUIPipeline();
     
     // === Conversões de coordenadas ===
-    float ToClipX(float px) const { return (px / m_ScreenW) * 2.0f - 1.0f; }
-    float ToClipY(float py) const { return 1.0f - (py / m_ScreenH) * 2.0f; }
+    float ToClipX(float px) const { 
+        float clipX = (px / m_ScreenW) * 2.0f - 1.0f;
+        return clipX; 
+    }
+    float ToClipY(float py) const { 
+        float clipY = 1.0f - (py / m_ScreenH) * 2.0f;
+        return clipY; 
+    }
     
     // === Otimizações de memória ===
     void AllocateBuffers();

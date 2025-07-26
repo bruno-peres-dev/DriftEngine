@@ -53,10 +53,23 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     
     // Redimensiona todas as viewports
     app->renderManager->ResizeAllViewports(width, height);
+    
+    // Atualiza tamanho da tela no sistema UI
+    if (app->uiContext) {
+        app->uiContext->SetScreenSize(static_cast<float>(width), static_cast<float>(height));
+    }
+    
+    // Atualiza tamanho da tela no UIBatcher
+    if (app->uiBatcher) {
+        app->uiBatcher->SetScreenSize(static_cast<float>(width), static_cast<float>(height));
+    }
 }
 
 int main() {
     try {
+        // Configurar nível de log para reduzir verbosidade
+        Core::SetLogLevel(Core::LogLevel::Warning);
+        
         Core::Log("[App] Inicializando DriftEngine com nova arquitetura AAA...");
         
         // ================================
@@ -110,6 +123,9 @@ int main() {
         
         // Conecta o sistema de input
         uiContext->SetInputManager(inputManager.get());
+        
+        // Configurar tamanho inicial da tela no sistema UI
+        uiContext->SetScreenSize(1280.0f, 720.0f);
 
         // Cria elementos de teste da UI
         {
@@ -122,8 +138,12 @@ int main() {
             testLabel->SetPosition({100.0f, 50.0f});
             testLabel->SetFontSize(24.0f);
             testLabel->SetTextColor(Drift::Color(0xFFFFFFFF)); // Branco
+            testLabel->SetColor(0x00000000); // Fundo transparente
             testLabel->MarkDirty(); // Força recálculo da transformação
             root->AddChild(testLabel);
+            
+            // Teste: Criar um retângulo colorido para verificar se a renderização UI está funcionando
+            Core::Log("[App] Criando retângulo de teste para verificar renderização UI...");
             
             // Debug: Verificar posição do Label
             Core::Log("[App] Label criado com posição: (" + 
@@ -211,8 +231,8 @@ int main() {
         editorViewDesc.height = 720;
         editorViewDesc.acceptsInput = true; // apenas visualização
         editorViewDesc.clearColor[0] = 0.0f;
-        editorViewDesc.clearColor[1] = 0.2f;
-        editorViewDesc.clearColor[2] = 0.3f;
+        editorViewDesc.clearColor[1] = 0.0f;
+        editorViewDesc.clearColor[2] = 0.1f;
         editorViewDesc.clearColor[3] = 1.0f;
 
         auto editorViewport = std::make_unique<Engine::Viewport::BasicViewport>(
@@ -247,6 +267,9 @@ int main() {
 
             appData.uiRingBuffer = Drift::RHI::DX11::CreateRingBufferDX11(nativeDev, nativeCtx, 2 * 1024 * 1024);
             appData.uiBatcher    = Drift::RHI::DX11::CreateUIBatcherDX11(appData.uiRingBuffer, appData.context.get());
+            
+            // Configurar tamanho inicial da tela no UIBatcher
+            appData.uiBatcher->SetScreenSize(1280.0f, 720.0f);
         }
 
         // Configura callback de resize
@@ -331,9 +354,28 @@ int main() {
 
             // ---- UI RENDER (overlay) ----
             {
+                Core::Log("[App] Renderizando UI...");
+                
+                // Configurar viewport para UI (tela inteira)
+                appData.context->SetViewport(0, 0, 1280, 720);
+                
                 appData.uiBatcher->Begin();
+                
+                // Teste: Adicionar um retângulo vermelho sólido (sem transparência)
+                appData.uiBatcher->AddRect(50.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFFFF0000)); // Vermelho sólido
+                
+                // Teste: Adicionar um retângulo azul para verificar se múltiplos elementos funcionam
+                appData.uiBatcher->AddRect(300.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFF0000FF)); // Azul sólido
+                
+                // Teste: Adicionar um retângulo verde no centro da tela
+                appData.uiBatcher->AddRect(540.0f, 310.0f, 200.0f, 100.0f, Drift::Color(0xFF00FF00)); // Verde sólido
+                Core::Log("[App] Retângulo vermelho adicionado");
+                
+                // Reabilitar renderização do texto para investigar o problema
                 appData.uiContext->Render(*appData.uiBatcher);
+                Core::Log("[App] UIContext renderizado");
                 appData.uiBatcher->End();
+                Core::Log("[App] UI renderizada");
             }
             
             // ---- PRESENT ----

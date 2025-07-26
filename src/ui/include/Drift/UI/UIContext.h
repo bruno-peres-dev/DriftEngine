@@ -73,6 +73,7 @@ private:
     UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& point) const;
     void InitializeFontSystem();
     void LoadFonts();
+    std::string ResolveFontPath(const std::string& relativePath);
     
     std::shared_ptr<Drift::Engine::EventBus> m_EventBus;
     Drift::RHI::IDevice* m_Device{nullptr}; // Device para o sistema de fontes

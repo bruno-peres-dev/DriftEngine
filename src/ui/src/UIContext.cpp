@@ -131,21 +131,36 @@ void UIContext::InitializeFontSystem()
     }
 }
 
+std::string UIContext::ResolveFontPath(const std::string& relativePath) {
+    // Lista de diretórios para tentar encontrar a fonte
+    std::vector<std::string> searchPaths = {
+        relativePath,  // Caminho relativo atual
+        "../" + relativePath,  // Um nível acima
+        "../../" + relativePath,  // Dois níveis acima
+        "../../../" + relativePath,  // Três níveis acima
+        "C:/Users/Bruno/Desktop/DriftEngine/" + relativePath,  // Caminho absoluto
+    };
+    
+    for (const auto& path : searchPaths) {
+        std::ifstream testFile(path);
+        if (testFile.good()) {
+            testFile.close();
+            Core::Log("[UIContext] Fonte encontrada em: " + path);
+            return path;
+        }
+        testFile.close();
+    }
+    
+    Core::Log("[UIContext] ERRO: Arquivo de fonte não encontrado em nenhum caminho: " + relativePath);
+    return relativePath; // Retorna o caminho original se não encontrar
+}
+
 void UIContext::LoadFonts()
 {
     auto& fontManager = UI::FontManager::GetInstance();
     
-    // Tentar carregar fonte do arquivo
-    std::string fontPath = "fonts/Arial-Regular.ttf";
-    
-    // Verificar se o arquivo existe
-    std::ifstream testFile(fontPath);
-    if (!testFile.good()) {
-        Core::Log("[UIContext] ERRO: Arquivo de fonte não encontrado: " + fontPath);
-        fontPath = "C:/Users/Bruno/Desktop/DriftEngine/fonts/Arial-Regular.ttf";
-    } else {
-        testFile.close();
-    }
+    // Resolver caminho da fonte
+    std::string fontPath = ResolveFontPath("fonts/Arial-Regular.ttf");
     
     // Pré-carregar múltiplos tamanhos de fonte
     std::vector<float> fontSizes = {12.0f, 14.0f, 16.0f, 18.0f, 20.0f, 24.0f, 28.0f, 32.0f};

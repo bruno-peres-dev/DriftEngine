@@ -29,7 +29,10 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
 {
     // Renderiza o fundo se tiver cor
     if (m_Color != 0x00000000) {
+        LOG_INFO("Label::Render: renderizando fundo com cor 0x" + std::to_string(m_Color));
         UIElement::Render(batch);
+    } else {
+        LOG_INFO("Label::Render: fundo transparente, pulando renderização");
     }
 
     // Renderiza o texto real apenas se necessário
@@ -67,7 +70,9 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
                  std::to_string(m_TextColor));
         
         // Renderiza o texto real usando o sistema de fontes
+        Core::Log("[Label] Adicionando texto '" + m_Text + "' em (" + std::to_string(textPos.x) + ", " + std::to_string(textPos.y) + ")");
         batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor);
+        Core::Log("[Label] Texto adicionado com sucesso");
     } else {
         LOG_DEBUG("Label::Render: texto vazio, pulando renderização");
     }

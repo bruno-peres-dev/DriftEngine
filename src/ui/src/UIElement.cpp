@@ -69,7 +69,6 @@ void UIElement::PreRender(const glm::mat4& parentTransform)
     
     // Recalcula transformação se necessário
     if (m_Dirty) {
-        Core::Log("[UIElement] Recalculando transformação para '" + m_Name + "'");
         RecalculateTransform(parentTransform);
         m_Dirty = false;
     }
@@ -92,10 +91,6 @@ void UIElement::PostRender()
 
 void UIElement::RecalculateTransform(const glm::mat4& parentTransform)
 {
-    // DEBUG: Log antes do cálculo
-    Core::Log("[UIElement] RecalculateTransform para '" + m_Name + "'");
-    Core::Log("[UIElement] Posição local: (" + std::to_string(m_Position.x) + ", " + std::to_string(m_Position.y) + ")");
-    
     // Calcula transformação local com posição, rotação e escala
     glm::mat4 local = glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f));
     local = glm::rotate(local, m_Transform.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -103,10 +98,6 @@ void UIElement::RecalculateTransform(const glm::mat4& parentTransform)
     
     // Aplica transformação do pai
     m_WorldTransform = parentTransform * local;
-    
-    // DEBUG: Log após o cálculo
-    Core::Log("[UIElement] Matriz mundial calculada para '" + m_Name + "': [" + 
-              std::to_string(m_WorldTransform[0][0]) + ", " + std::to_string(m_WorldTransform[0][1]) + ", " + std::to_string(m_WorldTransform[0][2]) + ", " + std::to_string(m_WorldTransform[0][3]) + "]");
 }
 
 glm::vec2 UIElement::GetAbsolutePosition() const
@@ -114,13 +105,6 @@ glm::vec2 UIElement::GetAbsolutePosition() const
     // Usa a matriz de transformação mundial que já foi calculada
     // A posição absoluta é a translação da matriz de transformação
     glm::vec4 worldPos = m_WorldTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    // DEBUG: Log da posição calculada
-    Core::Log("[UIElement] GetAbsolutePosition para '" + m_Name + "': (" + 
-              std::to_string(worldPos.x) + ", " + std::to_string(worldPos.y) + ")");
-    Core::Log("[UIElement] Posição local: (" + std::to_string(m_Position.x) + ", " + std::to_string(m_Position.y) + ")");
-    Core::Log("[UIElement] Matriz de transformação: [" + 
-              std::to_string(m_WorldTransform[0][0]) + ", " + std::to_string(m_WorldTransform[0][1]) + ", " + std::to_string(m_WorldTransform[0][2]) + ", " + std::to_string(m_WorldTransform[0][3]) + "]");
     
     return glm::vec2(worldPos.x, worldPos.y);
 }
@@ -156,6 +140,9 @@ void UIElement::Render(Drift::RHI::IUIBatcher& batch)
 
         // Só renderiza se o alpha final for > 0
         if (alpha > 0) {
+            Core::Log("[UIElement] Renderizando elemento '" + m_Name + "' com cor 0x" + std::to_string(color) + 
+                      " em posição (" + std::to_string(GetAbsolutePosition().x) + ", " + std::to_string(GetAbsolutePosition().y) + 
+                      ") tamanho (" + std::to_string(m_Size.x) + ", " + std::to_string(m_Size.y) + ")");
             batch.AddQuad(m_WorldTransform, m_Size.x, m_Size.y, color);
         }
     }

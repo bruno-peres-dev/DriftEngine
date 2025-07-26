@@ -11,6 +11,12 @@ enum class LogLevel {
     Error
 };
 
+// Variável global para controlar o nível mínimo de log
+extern LogLevel g_LogLevel;
+
+// Função para configurar o nível de log
+void SetLogLevel(LogLevel level);
+
 // Função original para compatibilidade com código legado
 void Log(const std::string& msg);
 
@@ -23,8 +29,8 @@ void LogError(const std::string& msg);
 
 } // namespace Drift::Core
 
-// Macros de logging simples
-#define LOG_DEBUG(msg) Drift::Core::LogDebug(msg)
-#define LOG_INFO(msg) Drift::Core::LogInfo(msg)
-#define LOG_WARNING(msg) Drift::Core::LogWarning(msg)
-#define LOG_ERROR(msg) Drift::Core::LogError(msg)
+// Macros de logging simples que respeitam o nível configurado
+#define LOG_DEBUG(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Debug) Drift::Core::LogDebug(msg)
+#define LOG_INFO(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Info) Drift::Core::LogInfo(msg)
+#define LOG_WARNING(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Warning) Drift::Core::LogWarning(msg)
+#define LOG_ERROR(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Error) Drift::Core::LogError(msg)

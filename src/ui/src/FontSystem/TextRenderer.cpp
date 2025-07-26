@@ -21,6 +21,7 @@ void TextRenderer::BeginTextRendering() {
         return;
     }
     
+    LOG_INFO("BeginTextRendering: iniciando renderização de texto");
     m_IsRendering = true;
     m_CurrentBatch = 0;
 }
@@ -31,6 +32,7 @@ void TextRenderer::EndTextRendering() {
         return;
     }
     
+    LOG_INFO("EndTextRendering: finalizando renderização de texto");
     m_IsRendering = false;
     
     // Processar todos os batches
@@ -38,6 +40,7 @@ void TextRenderer::EndTextRendering() {
     
     // Limpar batches após processamento para evitar acúmulo
     ClearBatches();
+    LOG_INFO("EndTextRendering: renderização de texto finalizada");
 }
 
 void TextRenderer::AddText(const std::string& text, const glm::vec2& position, 
@@ -121,8 +124,10 @@ size_t TextRenderer::GetCommandCount() const {
 }
 
 void TextRenderer::ProcessBatches() {
+    LOG_INFO("ProcessBatches: processando " + std::to_string(m_Batches.size()) + " batches");
     for (size_t i = 0; i < m_Batches.size(); ++i) {
         const auto& batch = m_Batches[i];
+        LOG_INFO("ProcessBatches: batch " + std::to_string(i) + " tem " + std::to_string(batch.size()) + " comandos");
         
         for (const auto& command : batch) {
             ProcessTextCommand(command);
@@ -179,17 +184,32 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
                                    static_cast<uint32_t>(command.color.g * 255) << 8 |
                                    static_cast<uint32_t>(command.color.b * 255);
 
+                LOG_INFO("ProcessTextCommand: renderizando glyph '" + std::string(1, c) + 
+                         "' em (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + 
+                         ") com tamanho (" + std::to_string(glyph->size.x) + ", " + std::to_string(glyph->size.y) + 
+                         ") e cor 0x" + std::to_string(color));
+
+                // Reabilitar renderização com textura agora que o problema do fundo foi resolvido
                 auto* tex = command.font->GetAtlas()->GetTexture();
                 uint32_t texId = 1; // slot reservado para fontes
                 if (tex) {
                     m_UIBatcher->SetTexture(texId, tex);
+                    LOG_INFO("ProcessTextCommand: textura configurada para glyph '" + std::string(1, c) + "'");
+                    
+                    m_UIBatcher->AddTexturedRect(
+                        glyphX, glyphY,
+                        glyph->size.x, glyph->size.y,
+                        glyph->uvMin, glyph->uvMax,
+                        color, texId);
+                } else {
+                    LOG_WARNING("ProcessTextCommand: textura é nullptr para glyph '" + std::string(1, c) + "' - usando retângulo sólido");
+                    // Fallback para retângulo sólido se não houver textura
+                    m_UIBatcher->AddRect(
+                        glyphX, glyphY,
+                        glyph->size.x, glyph->size.y,
+                        color);
                 }
-
-                m_UIBatcher->AddTexturedRect(
-                    glyphX, glyphY,
-                    glyph->size.x, glyph->size.y,
-                    glyph->uvMin, glyph->uvMax,
-                    color, texId);
+                
             } else {
                 LOG_ERROR("ProcessTextCommand: m_UIBatcher é nullptr!");
             }
@@ -221,12 +241,17 @@ UIBatcherTextRenderer::UIBatcherTextRenderer(Drift::RHI::IUIBatcher* batcher)
     : m_Batcher(batcher)
     , m_TextRenderer(std::make_unique<TextRenderer>()) {
     
+    LOG_INFO("UIBatcherTextRenderer: construtor chamado");
+    
     if (!m_Batcher) {
-        LOG_ERROR("UIBatcher is null");
+        LOG_ERROR("UIBatcherTextRenderer: UIBatcher is null");
     } else {
+        LOG_INFO("UIBatcherTextRenderer: UIBatcher válido, configurando m_UIBatcher");
         // Passa a referência do UIBatcher para o TextRenderer
         m_TextRenderer->m_UIBatcher = batcher;
     }
+    
+    LOG_INFO("UIBatcherTextRenderer: construtor finalizado");
 }
 
 UIBatcherTextRenderer::~UIBatcherTextRenderer() = default;
@@ -245,8 +270,12 @@ void UIBatcherTextRenderer::AddText(float x, float y, const char* text, Drift::C
     // Verificar se a string não está vazia
     std::string textStr(text);
     if (textStr.empty()) {
+        LOG_WARNING("UIBatcherTextRenderer::AddText: texto vazio");
         return;
     }
+    
+    LOG_INFO("UIBatcherTextRenderer::AddText: adicionando texto '" + textStr + "' em (" + 
+             std::to_string(x) + ", " + std::to_string(y) + ") com cor 0x" + std::to_string(color));
     
     // Usar configurações padrão
     TextRenderSettings settings;
