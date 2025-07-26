@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
-#include "Drift/RHI/Buffer.h" // IUIBatcher
+#include "Drift/RHI/UIBatcher.h"
 #include "Drift/Core/Color.h"
 #include "Drift/UI/Transform2D.h"
 #include "Drift/UI/LayoutTypes.h"

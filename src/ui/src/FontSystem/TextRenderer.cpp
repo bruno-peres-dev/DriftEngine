@@ -152,26 +152,54 @@ void TextRenderer::ProcessTextCommand(const TextRenderCommand& command) {
         return;
     }
     
-    // Aqui seria implementada a lógica real de renderização
-    // Por enquanto, vamos apenas simular o processamento
-    
     LOG_DEBUG("Processing text: '" + command.text + "' at (" + std::to_string(command.position.x) + ", " + std::to_string(command.position.y) + ") with font '" + command.font->GetName() + "'");
     
-    // Simular renderização de glyphs
+    // Renderização real de glyphs
     float currentX = command.position.x;
     float currentY = command.position.y;
+    
+    // Obtém o atlas da fonte
+    const auto& atlas = command.font->GetAtlas();
+    if (!atlas) {
+        LOG_ERROR("ProcessTextCommand: atlas da fonte é nullptr!");
+        return;
+    }
+    
+    // Obtém a textura do atlas
+    auto* texture = atlas->GetTexture();
+    if (!texture) {
+        LOG_DEBUG("ProcessTextCommand: textura do atlas é nullptr, usando renderização de retângulos coloridos");
+        // Continua mesmo sem textura - renderiza retângulos coloridos
+    }
     
     for (size_t i = 0; i < command.text.length(); ++i) {
         char c = command.text[i];
         uint32_t character = static_cast<uint32_t>(c);
         const Glyph* glyph = command.font->GetGlyph(character);
         
-        if (glyph) {
-            // Simular posicionamento do glyph usando offsets
+        if (glyph && glyph->isValid) {
+            // Calcula posição do glyph
             float glyphX = currentX + glyph->offset.x;
             float glyphY = currentY - glyph->offset.y;
             
-            LOG_DEBUG("  Glyph '" + std::string(1, c) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y) + " uv (" + std::to_string(glyph->uvMin.x) + ", " + std::to_string(glyph->uvMin.y) + ")-(" + std::to_string(glyph->uvMax.x) + ", " + std::to_string(glyph->uvMax.y) + ")");
+            LOG_DEBUG("  Rendering glyph '" + std::string(1, c) + "' at (" + std::to_string(glyphX) + ", " + std::to_string(glyphY) + ") size " + std::to_string(glyph->size.x) + "x" + std::to_string(glyph->size.y));
+            
+            // Renderiza o quad do glyph
+            if (m_UIBatcher) {
+                // Por enquanto, renderiza um retângulo colorido representando o glyph
+                // TODO: Implementar renderização real com textura quando o atlas estiver pronto
+                // Converte glm::vec4 para Drift::Color
+                Drift::Color color = static_cast<uint32_t>(command.color.a * 255) << 24 |
+                                   static_cast<uint32_t>(command.color.r * 255) << 16 |
+                                   static_cast<uint32_t>(command.color.g * 255) << 8 |
+                                   static_cast<uint32_t>(command.color.b * 255);
+                
+                m_UIBatcher->AddRect(
+                    glyphX, glyphY,                    // Posição
+                    glyph->size.x, glyph->size.y,      // Tamanho
+                    color                               // Cor
+                );
+            }
             
             currentX += glyph->advance;
             
@@ -194,6 +222,9 @@ UIBatcherTextRenderer::UIBatcherTextRenderer(Drift::RHI::IUIBatcher* batcher)
     
     if (!m_Batcher) {
         LOG_ERROR("UIBatcher is null");
+    } else {
+        // Passa a referência do UIBatcher para o TextRenderer
+        m_TextRenderer->m_UIBatcher = batcher;
     }
 }
 

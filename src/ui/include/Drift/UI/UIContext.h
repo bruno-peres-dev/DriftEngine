@@ -5,7 +5,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 
-namespace Drift::RHI { class IUIBatcher; }
+#include "Drift/RHI/UIBatcher.h"
 
 // Forward declaration para evitar include circular
 namespace Drift::Engine::Input {

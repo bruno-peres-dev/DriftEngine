@@ -1,5 +1,6 @@
 #include "Drift/UI/Widgets/Label.h"
 #include "Drift/UI/UIContext.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/Core/Log.h"
 
 using namespace Drift::UI;
@@ -15,9 +16,9 @@ void Label::Update(float deltaSeconds)
 {
     // Atualiza o tamanho baseado no texto se necessário
     if (m_Dirty) {
-        glm::vec2 textSize = CalculateTextSize();
-        if (textSize.x > 0 && textSize.y > 0) {
-            SetSize(textSize);
+        m_TextSize = CalculateTextSize();
+        if (m_TextSize.x > 0 && m_TextSize.y > 0) {
+            SetSize(m_TextSize);
         }
     }
     
@@ -31,23 +32,18 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         UIElement::Render(batch);
     }
 
-    // Renderiza o texto (placeholder por enquanto)
+    // Renderiza o texto real
     if (!m_Text.empty()) {
         glm::vec2 absPos = GetAbsolutePosition();
         
-        // TODO: Implementar renderização de texto real
-        // Por enquanto, renderiza um retângulo representando o texto
-        float textWidth = m_Text.length() * m_FontSize * 0.6f; // Aproximação
-        float textHeight = m_FontSize;
-        
-        // Ajusta posição baseado no alinhamento
+        // Calcula posição baseado no alinhamento
         float xOffset = 0.0f;
         switch (m_TextAlign) {
             case TextAlign::Center:
-                xOffset = (m_Size.x - textWidth) * 0.5f;
+                xOffset = (m_Size.x - m_TextSize.x) * 0.5f;
                 break;
             case TextAlign::Right:
-                xOffset = m_Size.x - textWidth;
+                xOffset = m_Size.x - m_TextSize.x;
                 break;
             case TextAlign::Left:
             default:
@@ -55,8 +51,8 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
                 break;
         }
         
-        // Renderiza retângulo representando o texto (placeholder)
-        batch.AddRect(absPos.x + xOffset, absPos.y, textWidth, textHeight, m_TextColor);
+        // Renderiza o texto real usando o sistema de fontes
+        batch.AddText(absPos.x + xOffset, absPos.y, m_Text.c_str(), m_TextColor);
     }
 
     // Renderiza filhos
@@ -71,10 +67,16 @@ glm::vec2 Label::CalculateTextSize() const
         return glm::vec2(0.0f, 0.0f);
     }
 
-    // Cálculo aproximado do tamanho do texto
-    // TODO: Implementar cálculo real baseado na fonte
-    float textWidth = m_Text.length() * m_FontSize * 0.6f; // Aproximação
-    float textHeight = m_FontSize * 1.2f; // Inclui line height
+    // Usa o sistema de fontes para calcular o tamanho real
+    auto& fontManager = Drift::UI::FontManager::GetInstance();
+    auto font = fontManager.GetFont(m_FontFamily, m_FontSize);
     
-    return glm::vec2(textWidth, textHeight);
+    if (font) {
+        return font->MeasureText(m_Text);
+    } else {
+        // Fallback para cálculo aproximado se a fonte não estiver disponível
+        float textWidth = m_Text.length() * m_FontSize * 0.6f; // Aproximação
+        float textHeight = m_FontSize * 1.2f; // Inclui line height
+        return glm::vec2(textWidth, textHeight);
+    }
 } 

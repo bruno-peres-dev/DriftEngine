@@ -81,6 +81,7 @@ add_library(DriftRHI STATIC
   rhi/src/DeviceStub.cpp
   rhi/src/Format.cpp
   rhi/src/ResourceManager.cpp
+  rhi/src/Scissor.cpp
 )
 target_include_directories(DriftRHI PUBLIC
   rhi/include
@@ -197,6 +198,25 @@ target_include_directories(PNGTest PUBLIC
   rhi/include
   rhi_dx11/include
   ${CMAKE_SOURCE_DIR}/extern/stb
+)
+
+add_executable(UIDemo
+  app/ui_demo.cpp
+)
+target_include_directories(UIDemo PUBLIC
+  core/include
+  engine/include
+  rhi/include
+  rhi_dx11/include
+  ui/include
+  ${CMAKE_SOURCE_DIR}/extern/stb
+)
+target_link_libraries(UIDemo PUBLIC
+  DriftUI
+  DriftRHI_DX11
+  DriftCore
+  DriftMath
+  glm
 )
 target_link_libraries(PNGTest PUBLIC
   DriftCore

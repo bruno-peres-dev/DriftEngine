@@ -8,6 +8,8 @@
 #include "Drift/Core/Color.h"
 #include "FontManager.h"
 
+#include "Drift/RHI/UIBatcher.h"
+
 namespace Drift::UI {
 
 struct TextRenderCommand {
@@ -61,6 +63,9 @@ private:
     bool m_IsRendering{false};
     size_t m_CurrentBatch{0};
     std::vector<std::vector<TextRenderCommand>> m_Batches;
+    Drift::RHI::IUIBatcher* m_UIBatcher{nullptr};
+    
+    friend class UIBatcherTextRenderer;
 };
 
 class UIBatcherTextRenderer {

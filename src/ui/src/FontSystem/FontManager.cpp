@@ -159,9 +159,9 @@ std::shared_ptr<Font> FontManager::CreateEmbeddedDefaultFont(float size, FontQua
     
     // Configurar métricas básicas
     font->m_IsLoaded = true;
-    font->m_LineHeight = size * 1.2f;
-    font->m_Ascender = size * 0.8f;
-    font->m_Descender = -size * 0.2f;
+    font->m_Metrics.lineHeight = size * 1.2f;
+    font->m_Metrics.ascender = size * 0.8f;
+    font->m_Metrics.descender = -size * 0.2f;
     font->m_Scale = 1.0f;
     
     Core::Log("[FontManager] Criando glyphs para caracteres ASCII (32-126)...");

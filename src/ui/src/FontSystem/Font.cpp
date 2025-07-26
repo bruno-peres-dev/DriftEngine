@@ -53,9 +53,9 @@ bool Font::Load() {
     m_Scale = stbtt_ScaleForPixelHeight(&m_FontInfo, m_Size);
     int ascent, descent, lineGap;
     stbtt_GetFontVMetrics(&m_FontInfo, &ascent, &descent, &lineGap);
-    m_Ascender = ascent * m_Scale;
-    m_Descender = -descent * m_Scale;
-    m_LineHeight = (ascent - descent + lineGap) * m_Scale;
+    m_Metrics.ascender = ascent * m_Scale;
+    m_Metrics.descender = -descent * m_Scale;
+    m_Metrics.lineHeight = (ascent - descent + lineGap) * m_Scale;
 
     // Gerar glyphs usando MSDF e armazenar no atlas
     m_Atlas = std::make_unique<FontAtlas>();
@@ -104,7 +104,6 @@ void Font::Unload() {
     }
 
     m_Glyphs.clear();
-    m_Bitmap.clear();
     m_TTFBuffer.clear();
     m_Atlas.reset();
     m_IsLoaded = false;
@@ -145,7 +144,7 @@ glm::vec2 Font::MeasureText(const std::string& text) const {
     }
     
     float width = 0.0f;
-    float height = m_LineHeight;
+    float height = m_Metrics.lineHeight;
     float lineHeight = 0.0f;
     
     for (size_t i = 0; i < text.length(); ++i) {
@@ -179,21 +178,21 @@ float Font::GetLineHeight() const {
     if (!m_IsLoaded) {
         return m_Size;
     }
-    return m_LineHeight;
+    return m_Metrics.lineHeight;
 }
 
 float Font::GetAscender() const {
     if (!m_IsLoaded) {
         return m_Size * 0.8f;
     }
-    return m_Ascender;
+    return m_Metrics.ascender;
 }
 
 float Font::GetDescender() const {
     if (!m_IsLoaded) {
         return -m_Size * 0.2f;
     }
-    return m_Descender;
+    return m_Metrics.descender;
 }
 
 void Font::LoadBasicGlyphs() {
@@ -217,9 +216,11 @@ FontQuality Font::GetQuality() const {
 }
 
 bool Font::IsLoaded() const {
-    return m_IsLoaded;
+    return m_IsLoaded.load();
 }
 
-
+const std::unique_ptr<FontAtlas>& Font::GetAtlas() const {
+    return m_Atlas;
+}
 
 } // namespace Drift::UI 

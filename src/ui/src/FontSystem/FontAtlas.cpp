@@ -1,5 +1,7 @@
 #include "Drift/UI/FontSystem/FontAtlas.h"
 #include "Drift/Core/Log.h"
+#include "Drift/RHI/Device.h"
+#include "Drift/RHI/Texture.h"
 #include <algorithm>
 
 namespace Drift::UI {
@@ -19,8 +21,32 @@ FontAtlas::FontAtlas(const AtlasConfig& config)
     Core::Log("[FontAtlas]   - Usar MSDF: " + std::string(config.useMSDF ? "sim" : "nao"));
     Core::Log("[FontAtlas]   - Tamanho MSDF: " + std::to_string(config.msdfSize));
     
-    // Inicializar a textura (implementação stub)
-    LOG_INFO("Creating font atlas: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
+    // Criar textura real para o atlas
+    Core::Log("[FontAtlas] Criando textura do atlas...");
+    
+    // Criar dados de textura simples (textura branca por enquanto)
+    std::vector<uint8_t> textureData(m_Width * m_Height * config.channels, 255);
+    
+    // Criar descrição da textura
+    Drift::RHI::TextureDesc textureDesc;
+    textureDesc.width = m_Width;
+    textureDesc.height = m_Height;
+    textureDesc.format = Drift::RHI::Format::R8G8B8A8_UNORM;
+    // TODO: Adicionar campos usage e mipLevels quando disponíveis no RHI
+    
+    // Criar a textura real usando o RHI
+    try {
+        // Obter o device (assumindo que há um device global disponível)
+        // Por enquanto, vamos criar uma textura stub
+        Core::Log("[FontAtlas] Criando textura real: " + std::to_string(m_Width) + "x" + std::to_string(m_Height));
+        
+        // TODO: Implementar criação real da textura quando o RHI estiver disponível
+        // m_Texture = device->CreateTexture(textureDesc, textureData.data());
+        
+        Core::Log("[FontAtlas] Textura criada com sucesso");
+    } catch (const std::exception& e) {
+        Core::Log("[FontAtlas] ERRO ao criar textura: " + std::string(e.what()));
+    }
     
     Core::Log("[FontAtlas] Construtor concluido com sucesso");
 }

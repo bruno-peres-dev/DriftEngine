@@ -50,6 +50,7 @@ private:
     std::string m_FontFamily{"Arial"};
     TextAlign m_TextAlign{TextAlign::Left};
     Drift::Color m_TextColor{0xFFFFFFFF}; // Branco por padrão
+    glm::vec2 m_TextSize{0.0f, 0.0f}; // Tamanho calculado do texto
 
     // Constantes de cor para texto
     static constexpr Drift::Color COLOR_WHITE = 0xFFFFFFFF;
