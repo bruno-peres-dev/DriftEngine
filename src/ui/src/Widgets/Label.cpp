@@ -30,18 +30,13 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
 {
     // Renderiza o fundo se tiver cor
     if (m_Color != 0x00000000) {
-        LOG_INFO("Label::Render: renderizando fundo com cor 0x" + std::to_string(m_Color));
         UIElement::Render(batch);
     } else {
-        LOG_INFO("Label::Render: fundo transparente, pulando renderização");
     }
 
     // Renderiza o texto real apenas se necessário
     if (!m_Text.empty()) {
         glm::vec2 absPos = GetAbsolutePosition();
-        
-        LOG_DEBUG("Label::Render: renderizando texto '" + m_Text + "' em (" + 
-                 std::to_string(absPos.x) + ", " + std::to_string(absPos.y) + ")");
         
         // Calcula posição baseado no alinhamento
         float xOffset = 0.0f;
@@ -60,15 +55,9 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         
         glm::vec2 textPos = glm::vec2(absPos.x + xOffset, absPos.y);
         
-        LOG_DEBUG("Label::Render: posição final do texto: (" + 
-                 std::to_string(textPos.x) + ", " + std::to_string(textPos.y) + ")");
-        
         // FORÇAR RENDERIZAÇÃO SEMPRE PARA DEBUG
         m_LastTextPos = textPos;
         m_LastTextColor = m_TextColor;
-        
-        LOG_DEBUG("Label::Render: chamando batch.AddText com cor 0x" + 
-                 std::to_string(m_TextColor));
         
         // Renderiza o texto real usando o novo sistema de fontes
         auto* textRenderer = m_Context ? m_Context->GetTextRenderer() : nullptr;

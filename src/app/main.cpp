@@ -4,6 +4,7 @@
 #include "Drift/Core/Log.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/ResourceManager.h"
+#include "Drift/RHI/RHIException.h"
 #include "Drift/Renderer/RenderManager.h"
 #include "Drift/Renderer/TerrainPass.h"
 #include "Drift/Engine/Input/Input.h"
@@ -66,11 +67,17 @@ static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 int main() {
+    // Configurar tratamento global de exceções
+    std::set_terminate([]() {
+        Core::LogError("Exceção não tratada detectada!");
+        std::abort();
+    });
+    
     try {
         Core::Log("[App] Iniciando DriftEngine...");
         
-        // Configurar nível de log para reduzir verbosidade
-        Core::SetLogLevel(Core::LogLevel::Warning);
+        // Configurar nível de log para debugging
+        Core::SetLogLevel(Core::LogLevel::Debug);
         
         // ================================
         // 1. INICIALIZAÇÃO BÁSICA
@@ -91,12 +98,17 @@ int main() {
         // 2. CRIAÇÃO DO RHI
         // ================================
         
+        Core::LogRHI("Iniciando criação do sistema RHI...");
+        
         // Cria Device DX11
         RHI::DeviceDesc desc{ 1280, 720, /* vsync */ false };
         auto device = RHI::DX11::CreateDeviceDX11(desc);
 
         // Cria SwapChain e Context
+        Core::LogRHI("Criando SwapChain...");
         auto swapChain = device->CreateSwapChain(hwnd);
+        
+        Core::LogRHI("Criando Context...");
         auto context = device->CreateContext();
         
         // ================================
@@ -140,6 +152,7 @@ int main() {
             testLabel->SetName("TestLabel"); // Adiciona nome para debug
             testLabel->SetText("Teste do Sistema de Fontes - DriftEngine");
             testLabel->SetPosition({100.0f, 50.0f});
+            testLabel->SetFontFamily("default"); // Usar a fonte carregada
             testLabel->SetFontSize(24.0f);
             testLabel->SetTextColor(Drift::Color(0xFFFFFFFF)); // Branco
             testLabel->SetColor(0x00000000); // Fundo transparente
@@ -347,6 +360,9 @@ int main() {
                 appData.uiBatcher->AddRect(300.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFF0000FF)); // Azul sólido
                 appData.uiBatcher->AddRect(540.0f, 310.0f, 200.0f, 100.0f, Drift::Color(0xFF00FF00)); // Verde sólido
                 
+                // Teste: Adicionar texto diretamente
+                appData.uiBatcher->AddText(100.0f, 200.0f, "Teste de Texto", Drift::Color(0xFFFFFFFF));
+                
                 // Renderizar UI
                 appData.uiContext->Render(*appData.uiBatcher);
                 appData.uiBatcher->End();
@@ -408,7 +424,40 @@ int main() {
         return 0;
         
     }
+    catch (const Drift::RHI::RHIException& e) {
+        Core::LogException("RHI Exception", e);
+        MessageBoxA(nullptr,
+            ("Erro RHI: " + std::string(e.what())).c_str(),
+            "DriftEngine RHI Error",
+            MB_ICONERROR);
+        return -1;
+    }
+    catch (const Drift::RHI::DeviceException& e) {
+        Core::LogException("Device Exception", e);
+        MessageBoxA(nullptr,
+            ("Erro de Device: " + std::string(e.what())).c_str(),
+            "DriftEngine Device Error",
+            MB_ICONERROR);
+        return -1;
+    }
+    catch (const Drift::RHI::ContextException& e) {
+        Core::LogException("Context Exception", e);
+        MessageBoxA(nullptr,
+            ("Erro de Context: " + std::string(e.what())).c_str(),
+            "DriftEngine Context Error",
+            MB_ICONERROR);
+        return -1;
+    }
+    catch (const Drift::RHI::SwapChainException& e) {
+        Core::LogException("SwapChain Exception", e);
+        MessageBoxA(nullptr,
+            ("Erro de SwapChain: " + std::string(e.what())).c_str(),
+            "DriftEngine SwapChain Error",
+            MB_ICONERROR);
+        return -1;
+    }
     catch (const std::exception& e) {
+        Core::LogException("General Exception", e);
         MessageBoxA(nullptr,
             ("Erro fatal: " + std::string(e.what())).c_str(),
             "DriftEngine AAA Error",

@@ -85,6 +85,7 @@ add_library(DriftRHI STATIC
 )
 target_include_directories(DriftRHI PUBLIC
   rhi/include
+  core/include
 )
 target_link_libraries(DriftRHI PUBLIC
   DriftCore

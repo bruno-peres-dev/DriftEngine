@@ -13,9 +13,9 @@ struct PSIn {
     uint textureId  : TEXCOORD1;
 };
 
-// Textura única para UI (será configurada pelo código)
-Texture2D g_Texture : register(t0);
-SamplerState g_Sampler : register(s0);
+// Array de texturas para UI (suporte a múltiplas texturas)
+Texture2D g_Textures[8] : register(t0);
+SamplerState g_Samplers[8] : register(s0);
 
 PSIn VSMain(VSIn v) {
     PSIn o;
@@ -28,9 +28,9 @@ PSIn VSMain(VSIn v) {
 }
 
 float4 PSMain(PSIn i) : SV_TARGET { 
-    // Se tem textura (textureId > 0), usar a textura com a cor
-    if (i.textureId > 0) {
-        float4 texColor = g_Texture.Sample(g_Sampler, i.uv);
+    // Se tem textura (textureId < 8), usar a textura com a cor
+    if (i.textureId < 8) {
+        float4 texColor = g_Textures[i.textureId].Sample(g_Samplers[i.textureId], i.uv);
         return texColor * i.col;
     }
     

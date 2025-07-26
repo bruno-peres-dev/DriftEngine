@@ -245,17 +245,25 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
         td.CPUAccessFlags = 0;
         td.MiscFlags = 0;
 
+        Drift::Core::LogRHIDebug("[TextureDX11] Criando Texture2D vazia - Width: " + std::to_string(td.Width) + 
+                                ", Height: " + std::to_string(td.Height) + 
+                                ", Format: " + std::to_string(td.Format));
+        
         Microsoft::WRL::ComPtr<ID3D11Texture2D> tex;
         hr = dev->CreateTexture2D(&td, nullptr, tex.GetAddressOf());
         if (FAILED(hr)) {
+            Drift::Core::LogHRESULT("[TextureDX11] Falha ao criar Texture2D vazia", hr);
             Drift::Core::Log("[DX11] Falha ao criar Texture2D vazia: " + std::to_string(hr) + " (tentando fallback para R8_UNORM)");
             td.Format = DXGI_FORMAT_R8_UNORM;
             hr = dev->CreateTexture2D(&td, nullptr, tex.GetAddressOf());
             if (FAILED(hr)) {
+                Drift::Core::LogHRESULT("[TextureDX11] Falha ao criar Texture2D vazia (fallback R8_UNORM)", hr);
                 throw std::runtime_error("Falha ao criar Texture2D vazia (fallback R8_UNORM). HRESULT=" + std::to_string(hr));
             } else {
                 Drift::Core::Log("[DX11] Fallback: textura criada como R8_UNORM");
             }
+        } else {
+            Drift::Core::LogRHIDebug("[TextureDX11] Texture2D criada com sucesso");
         }
 
         D3D11_SHADER_RESOURCE_VIEW_DESC sd{};
@@ -264,10 +272,16 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
         sd.Texture2D.MostDetailedMip = 0;
         sd.Texture2D.MipLevels = td.MipLevels;
 
+        Drift::Core::LogRHIDebug("[TextureDX11] Criando ShaderResourceView...");
         hr = dev->CreateShaderResourceView(tex.Get(), &sd, srv.GetAddressOf());
         if (FAILED(hr)) {
+            Drift::Core::LogHRESULT("[TextureDX11] Falha ao criar SRV da textura vazia", hr);
             throw std::runtime_error("Falha ao criar SRV da textura vazia");
         }
+        Drift::Core::LogRHIDebug("[TextureDX11] ShaderResourceView criado com sucesso");
+        
+        // Atribuir a textura criada ao resource
+        resource = tex;
     }
 
     return std::make_shared<TextureDX11>(srv.Get(), resource.Get(), ctx);
@@ -279,13 +293,48 @@ std::shared_ptr<Drift::RHI::ITexture> CreateTextureDX11(
 TextureDX11::TextureDX11(ID3D11ShaderResourceView* srv, ID3D11Resource* resource, ID3D11DeviceContext* context)
     : _srv(srv), _resource(resource), _context(context)
 {
+    Drift::Core::LogRHIDebug("[TextureDX11] Construtor - SRV: " + std::to_string(srv != nullptr) + 
+                            ", Resource: " + std::to_string(resource != nullptr) + 
+                            ", Context: " + std::to_string(context != nullptr));
 }
 
 // Atualiza subresource da textura (ex: upload de dados)
 void TextureDX11::UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) {
-    if (!_context) throw std::runtime_error("TextureDX11: contexto não definido para UpdateSubresource");
-    UINT subresource = D3D11CalcSubresource(mipLevel, arraySlice, 1);
-    _context->UpdateSubresource(_resource.Get(), subresource, nullptr, data, (UINT)rowPitch, (UINT)slicePitch);
+    Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource iniciado");
+    
+    // Validações
+    if (!_context) {
+        Drift::Core::LogRHIError("[TextureDX11] Context é nullptr");
+        throw std::runtime_error("TextureDX11: contexto não definido para UpdateSubresource");
+    }
+    
+    if (!_resource) {
+        Drift::Core::LogRHIError("[TextureDX11] Resource é nullptr");
+        throw std::runtime_error("TextureDX11: resource não definido para UpdateSubresource");
+    }
+    
+    if (!data) {
+        Drift::Core::LogRHIError("[TextureDX11] Data é nullptr");
+        throw std::runtime_error("TextureDX11: data é nullptr para UpdateSubresource");
+    }
+    
+    Drift::Core::LogRHIDebug("[TextureDX11] Parâmetros válidos - mipLevel: " + std::to_string(mipLevel) + 
+                            ", arraySlice: " + std::to_string(arraySlice) + 
+                            ", rowPitch: " + std::to_string(rowPitch) + 
+                            ", slicePitch: " + std::to_string(slicePitch));
+    
+    try {
+        UINT subresource = D3D11CalcSubresource(mipLevel, arraySlice, 1);
+        Drift::Core::LogRHIDebug("[TextureDX11] Subresource calculado: " + std::to_string(subresource));
+        
+        // UpdateSubresource retorna void, não HRESULT
+        _context->UpdateSubresource(_resource.Get(), subresource, nullptr, data, (UINT)rowPitch, (UINT)slicePitch);
+        
+        Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource concluído com sucesso");
+    } catch (const std::exception& e) {
+        Drift::Core::LogException("[TextureDX11] Exceção em UpdateSubresource", e);
+        throw;
+    }
 }
 
 // Retorna o uso de memória da textura

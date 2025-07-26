@@ -1,14 +1,17 @@
 #pragma once
 #include <string>
+
+// Forward declaration para evitar dependência circular
+typedef long HRESULT;
 #include <iostream>
 
 namespace Drift::Core {
 
 enum class LogLevel {
-    Debug,
-    Info,
-    Warning,
-    Error
+    Debug = 0,
+    Info = 1,
+    Warning = 2,
+    Error = 3
 };
 
 // Variável global para controlar o nível mínimo de log
@@ -17,15 +20,26 @@ extern LogLevel g_LogLevel;
 // Função para configurar o nível de log
 void SetLogLevel(LogLevel level);
 
-// Função original para compatibilidade com código legado
-void Log(const std::string& msg);
-
-// Novas funções de logging com níveis
+// Funções de logging com níveis
 void Log(LogLevel level, const std::string& msg);
 void LogDebug(const std::string& msg);
 void LogInfo(const std::string& msg);
 void LogWarning(const std::string& msg);
 void LogError(const std::string& msg);
+
+// Função original para compatibilidade
+void Log(const std::string& msg);
+
+// Funções específicas para RHI debugging
+void LogRHI(const std::string& msg);
+void LogRHIError(const std::string& msg);
+void LogRHIDebug(const std::string& msg);
+
+// Função para log de exceções com stack trace
+void LogException(const std::string& context, const std::exception& e);
+
+// Função para verificar HRESULT do DirectX
+void LogHRESULT(const std::string& context, HRESULT hr);
 
 } // namespace Drift::Core
 

@@ -116,6 +116,11 @@ void UIContext::Update(float deltaSeconds)
 
 void UIContext::Render(Drift::RHI::IUIBatcher& batch)
 {
+    // Configurar o batcher no TextRenderer antes de renderizar
+    if (m_TextRenderer) {
+        m_TextRenderer->SetBatcher(&batch);
+    }
+    
     if (m_Root) {
         m_Root->Render(batch);
         m_Root->PostRender();
@@ -166,23 +171,45 @@ std::string UIContext::ResolveFontPath(const std::string& relativePath) {
 
 void UIContext::LoadFonts()
 {
+    Drift::Core::LogRHI("[UIContext] Iniciando carregamento de fontes...");
+    
     auto& fontManager = UI::FontManager::GetInstance();
     
     // Resolver caminho da fonte
     std::string fontPath = ResolveFontPath("fonts/Arial-Regular.ttf");
+    Drift::Core::LogRHI("[UIContext] Caminho da fonte resolvido: " + fontPath);
     
     // Pré-carregar múltiplos tamanhos de fonte
     std::vector<float> fontSizes = {12.0f, 14.0f, 16.0f, 18.0f, 20.0f, 24.0f, 28.0f, 32.0f};
     
-    for (float size : fontSizes) {
-        fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
+    Drift::Core::LogRHIDebug("[UIContext] Carregando " + std::to_string(fontSizes.size()) + " tamanhos de fonte...");
+    
+    for (size_t i = 0; i < fontSizes.size(); ++i) {
+        float size = fontSizes[i];
+        Drift::Core::LogRHIDebug("[UIContext] Carregando fonte " + std::to_string(i+1) + "/" + std::to_string(fontSizes.size()) + " (tamanho: " + std::to_string(size) + ")");
+        
+        try {
+            auto font = fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
+            if (font) {
+                Drift::Core::LogRHIDebug("[UIContext] Fonte carregada com sucesso (tamanho: " + std::to_string(size) + ")");
+            } else {
+                Drift::Core::LogError("[UIContext] Falha ao carregar fonte (tamanho: " + std::to_string(size) + ")");
+            }
+        } catch (const std::exception& e) {
+            Drift::Core::LogException("[UIContext] Exceção ao carregar fonte", e);
+        }
     }
     
     // Verificar se pelo menos a fonte padrão foi carregada
+    Drift::Core::LogRHIDebug("[UIContext] Verificando fonte padrão...");
     auto defaultFont = fontManager.GetFont("default", 16.0f, UI::FontQuality::High);
     if (!defaultFont) {
-        Core::Log("[UIContext] AVISO: Não foi possível carregar a fonte padrão");
+        Drift::Core::LogWarning("[UIContext] AVISO: Não foi possível carregar a fonte padrão");
+    } else {
+        Drift::Core::LogRHI("[UIContext] Fonte padrão carregada com sucesso");
     }
+    
+    Drift::Core::LogRHI("[UIContext] Carregamento de fontes concluído");
 }
 
 void UIContext::Shutdown()

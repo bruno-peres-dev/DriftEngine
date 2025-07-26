@@ -5,11 +5,16 @@
 #include "Drift/RHI/PipelineState.h"
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include "Drift/RHI/DX11/ContextDX11.h"
+#include "Drift/RHI/DX11/DeviceDX11.h"
+#include "Drift/RHI/DX11/SamplerDX11.h"
+#include "Drift/RHI/Texture.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
 #include "Drift/UI/FontSystem/FontSystem.h"
 #include <glm/vec2.hpp>
 #include <cstring>
 #include <algorithm>
+#include <wrl/client.h>
+#include <d3d11.h>
 
 using namespace Drift::RHI::DX11;
 using namespace Drift::RHI;
@@ -39,6 +44,28 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     
     // Inicializar sistema de renderização de texto
     m_TextRenderer = std::make_unique<Drift::UI::UIBatcherTextRenderer>(this);
+    Core::Log("[UIBatcherDX11] TextRenderer inicializado com batcher: " + std::to_string(this != nullptr));
+    
+    // Criar sampler padrão para UI
+    auto* device = static_cast<ID3D11Device*>(ctx->GetNativeDevice());
+    if (device) {
+        SamplerDesc samplerDesc{};
+        // Criar sampler diretamente usando o device DX11
+        D3D11_SAMPLER_DESC sd{};
+        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sd.MinLOD = 0;
+        sd.MaxLOD = D3D11_FLOAT32_MAX;
+        
+        Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+        HRESULT hr = device->CreateSamplerState(&sd, samplerState.GetAddressOf());
+        if (SUCCEEDED(hr)) {
+            m_DefaultSampler = std::make_shared<SamplerDX11>(samplerState.Get());
+        }
+    }
     
     // Pré-alocar buffers
     m_VertexBuffer.reserve(m_BatchConfig.maxVertices);
@@ -80,6 +107,9 @@ void UIBatcherDX11::Begin() {
     m_CurrentBatch.Clear();
     m_BatchDirty = false;
     m_TextureChanged = false;
+    
+    // Limpar texturas do frame anterior para evitar conflitos
+    ClearTextures();
     
     // Iniciar renderização de texto
     if (m_TextRenderer) {
@@ -259,7 +289,7 @@ void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color col
         float a = static_cast<float>((color >> 24) & 0xFF) / 255.0f;
         glm::vec4 textColor(r, g, b, a);
         
-        m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "Arial", 16.0f, textColor);
+        m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "default", 16.0f, textColor);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: m_TextRenderer é nullptr!");
     }
@@ -282,8 +312,8 @@ void UIBatcherDX11::SetTexture(uint32_t textureId, ITexture* texture) {
 void UIBatcherDX11::ClearTextures() {
     if (!m_Textures.empty()) {
         FlushCurrentBatch();
-        m_Textures.clear();
-        m_TextureArray.clear();
+        // Não limpar as texturas completamente, apenas marcar como mudadas
+        // para que sejam reconfiguradas no próximo batch
         m_CurrentTextureId = 0;
         m_TextureChanged = true;
     }
@@ -489,11 +519,13 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     // Configurar topologia
     contextDX11->IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology::TriangleList);
     
-    // Configurar textura se necessário
-    if (batch.hasTexture && batch.textureId < m_Textures.size()) {
-        auto* texture = m_Textures[batch.textureId];
-        if (texture) {
-            contextDX11->PSSetTexture(0, texture);
+    // Configurar todas as texturas necessárias para o array de texturas
+    for (size_t i = 0; i < m_Textures.size() && i < 8; ++i) {
+        if (m_Textures[i]) {
+            contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
+            if (m_DefaultSampler) {
+                contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
+            }
         }
     }
     

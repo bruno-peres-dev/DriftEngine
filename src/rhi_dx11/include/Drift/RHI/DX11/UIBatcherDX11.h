@@ -137,6 +137,7 @@ private:
     
     // === Sistema de renderização de texto ===
     std::unique_ptr<Drift::UI::UIBatcherTextRenderer> m_TextRenderer;
+    std::shared_ptr<ISampler> m_DefaultSampler;
     
     // === Otimizações ===
     std::vector<UIVertex> m_VertexBuffer;

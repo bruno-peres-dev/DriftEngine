@@ -17,34 +17,53 @@ const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
 }
 
 bool Font::LoadFromFile(const std::string& path, Drift::RHI::IDevice* device) {
+    Drift::Core::LogRHI("[Font] Iniciando carregamento da fonte: " + path);
+    
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         Drift::Core::LogError("[Font] Falha ao abrir arquivo: " + path);
         return false;
     }
+    
     std::streamsize size = file.tellg();
+    Drift::Core::LogRHIDebug("[Font] Tamanho do arquivo: " + std::to_string(size) + " bytes");
+    
     file.seekg(0, std::ios::beg);
     std::vector<unsigned char> buffer(size);
     if (!file.read(reinterpret_cast<char*>(buffer.data()), size)) {
         Drift::Core::LogError("[Font] Falha ao ler arquivo: " + path);
         return false;
     }
+    
+    Drift::Core::LogRHIDebug("[Font] Arquivo lido com sucesso");
 
+    Drift::Core::LogRHIDebug("[Font] Inicializando stb_truetype...");
+    
     stbtt_fontinfo info;
     if (!stbtt_InitFont(&info, buffer.data(), stbtt_GetFontOffsetForIndex(buffer.data(), 0))) {
         Drift::Core::LogError("[Font] stbtt_InitFont falhou: " + path);
         return false;
     }
+    
+    Drift::Core::LogRHIDebug("[Font] stb_truetype inicializado com sucesso");
 
+    Drift::Core::LogRHIDebug("[Font] Criando atlas de textura...");
+    
     const int atlasSize = 512;
     std::vector<unsigned char> bitmap(atlasSize * atlasSize);
     std::vector<stbtt_bakedchar> baked(96);
+    
+    Drift::Core::LogRHIDebug("[Font] Chamando stbtt_BakeFontBitmap...");
     int result = stbtt_BakeFontBitmap(buffer.data(), 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 96, baked.data());
     if (result <= 0) {
         Drift::Core::LogError("[Font] stbtt_BakeFontBitmap falhou: " + path);
         return false;
     }
+    
+    Drift::Core::LogRHIDebug("[Font] Atlas criado com sucesso. Resultado: " + std::to_string(result));
 
+    Drift::Core::LogRHIDebug("[Font] Convertendo dados de glyphs...");
+    
     // Converter baked data para GlyphInfo
     for (int i = 0; i < 96; ++i) {
         stbtt_bakedchar& bc = baked[i];
@@ -56,18 +75,33 @@ bool Font::LoadFromFile(const std::string& path, Drift::RHI::IDevice* device) {
         g.advance = bc.xadvance;
         m_Glyphs[32 + i] = g;
     }
+    
+    Drift::Core::LogRHIDebug("[Font] Glyphs convertidos com sucesso");
 
     if (device) {
+        Drift::Core::LogRHIDebug("[Font] Criando textura no device...");
+        
         Drift::RHI::TextureDesc desc;
         desc.width = atlasSize;
         desc.height = atlasSize;
         desc.format = Drift::RHI::Format::R8_UNORM;
-        m_Texture = device->CreateTexture(desc);
-        if (m_Texture) {
-            m_Texture->UpdateSubresource(0, 0, bitmap.data(), atlasSize, atlasSize * atlasSize);
+        
+        try {
+            m_Texture = device->CreateTexture(desc);
+            if (m_Texture) {
+                Drift::Core::LogRHIDebug("[Font] Textura criada, atualizando subresource...");
+                m_Texture->UpdateSubresource(0, 0, bitmap.data(), atlasSize, atlasSize * atlasSize);
+                Drift::Core::LogRHIDebug("[Font] Subresource atualizado com sucesso");
+            } else {
+                Drift::Core::LogError("[Font] Falha ao criar textura no device");
+            }
+        } catch (const std::exception& e) {
+            Drift::Core::LogException("[Font] Exceção ao criar textura", e);
+            return false;
         }
     }
 
+    Drift::Core::LogRHI("[Font] Fonte carregada com sucesso: " + m_Name + " (tamanho: " + std::to_string(m_Size) + ")");
     return true;
 }
 

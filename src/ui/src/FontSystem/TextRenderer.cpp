@@ -22,12 +22,19 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     }
 
     const auto* texture = font->GetAtlasTexture().get();
-    if (!texture) return;
+    if (!texture) {
+        Drift::Core::LogError("[TextRenderer] Textura do atlas não encontrada");
+        return;
+    }
+    
+    m_Batcher->SetTexture(0, const_cast<Drift::RHI::ITexture*>(texture));
 
     float x = pos.x;
     for (char c : text) {
         const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
-        if (!g) continue;
+        if (!g) {
+            continue;
+        }
 
         float xpos = x + g->bearing.x;
         float ypos = pos.y - g->bearing.y;
@@ -37,11 +44,12 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         float w = g->size.x;
         float h = g->size.y;
 
-        m_Batcher->AddTexturedRect(xpos, ypos, w, h, uv0, uv1,
-                                   Drift::Color((uint8_t)(color.w * 255.0f) << 24 |
-                                                (uint8_t)(color.x * 255.0f) << 16 |
-                                                (uint8_t)(color.y * 255.0f) << 8 |
-                                                (uint8_t)(color.z * 255.0f)), 1);
+        Drift::Color textColor = Drift::Color((uint8_t)(color.w * 255.0f) << 24 |
+                                              (uint8_t)(color.x * 255.0f) << 16 |
+                                              (uint8_t)(color.y * 255.0f) << 8 |
+                                              (uint8_t)(color.z * 255.0f));
+        
+        m_Batcher->AddTexturedRect(xpos, ypos, w, h, uv0, uv1, textColor, 0);
         x += g->advance;
     }
 }

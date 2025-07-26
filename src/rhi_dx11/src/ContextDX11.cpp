@@ -1,5 +1,7 @@
 #include "Drift/RHI/DX11/ContextDX11.h"
 #include "Drift/RHI/DX11/DepthStencilStateDX11.h"
+#include "Drift/RHI/RHIException.h"
+#include "Drift/RHI/RHIDebug.h"
 #include <stdexcept>
 #include <wrl/client.h>
 #include <cstring> // memcpy
@@ -26,29 +28,66 @@ ContextDX11::ContextDX11(
 , _height(height)
 , _vsync(vsync)
 {
-    if (!_swapChain) {
-        throw std::runtime_error("[DX11] Erro: SwapChain deve ser criado antes do ContextDX11!");
+    Drift::Core::LogRHI("Iniciando Context DX11");
+    
+    // Validar parâmetros
+    if (!RHIDebug::ValidateDX11Device(device, "ContextDX11 constructor")) {
+        throw DeviceException("Device inválido em ContextDX11 constructor");
     }
-    CreateRTVandDSV();
+    if (!RHIDebug::ValidateDX11Context(context, "ContextDX11 constructor")) {
+        throw ContextException("Context inválido em ContextDX11 constructor");
+    }
+    if (!RHIDebug::ValidatePointer(swapChain, "ContextDX11 constructor - swapChain")) {
+        throw RHIException("SwapChain inválido em ContextDX11 constructor");
+    }
+    RHIDebug::ValidateDimensions(width, height, "ContextDX11 constructor");
+    
+    if (!_swapChain) {
+        Drift::Core::LogRHIError("SwapChain deve ser criado antes do ContextDX11!");
+        throw ContextException("SwapChain deve ser criado antes do ContextDX11!");
+    }
+    
+    try {
+        CreateRTVandDSV();
+        Drift::Core::LogRHI("Context DX11 inicializado com sucesso");
+    } catch (const std::exception& e) {
+        Drift::Core::LogException("ContextDX11 constructor", e);
+        throw;
+    }
 }
 
 ContextDX11::~ContextDX11() = default;
 
 // Cria RTV (Render Target View) e DSV (Depth Stencil View) e configura viewport
 void ContextDX11::CreateRTVandDSV() {
-    ComPtr<ID3D11Texture2D> backBuffer;
-    if (FAILED(_swapChain->GetBuffer(
-        0, __uuidof(ID3D11Texture2D),
-        reinterpret_cast<void**>(backBuffer.GetAddressOf()))))
-    {
-        throw std::runtime_error("Failed to get back buffer");
+    Drift::Core::LogRHIDebug("Criando RTV e DSV");
+    
+    if (!RHIDebug::ValidateDX11Device(_device.Get(), "CreateRTVandDSV")) {
+        throw DeviceException("Device inválido em CreateRTVandDSV");
     }
-    if (FAILED(_device->CreateRenderTargetView(
-        backBuffer.Get(), nullptr, _rtv.GetAddressOf())))
-    {
-        throw std::runtime_error("Failed to create RTV");
+    if (!RHIDebug::ValidateDX11Context(_context.Get(), "CreateRTVandDSV")) {
+        throw ContextException("Context inválido em CreateRTVandDSV");
+    }
+    
+    // Obter back buffer
+    ComPtr<ID3D11Texture2D> backBuffer;
+    HRESULT hr = _swapChain->GetBuffer(
+        0, __uuidof(ID3D11Texture2D),
+        reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("SwapChain.GetBuffer", hr);
+        throw RHIException("Falha ao obter back buffer");
+    }
+    
+    // Criar Render Target View
+    hr = _device->CreateRenderTargetView(
+        backBuffer.Get(), nullptr, _rtv.GetAddressOf());
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("Device.CreateRenderTargetView", hr);
+        throw RHIException("Falha ao criar Render Target View");
     }
 
+    // Configurar descrição da textura de depth
     D3D11_TEXTURE2D_DESC dsvDesc{};
     dsvDesc.Width = _width;
     dsvDesc.Height = _height;
@@ -59,19 +98,25 @@ void ContextDX11::CreateRTVandDSV() {
     dsvDesc.Usage = D3D11_USAGE_DEFAULT;
     dsvDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
+    // Criar textura de depth
     ComPtr<ID3D11Texture2D> depthTex;
-    if (FAILED(_device->CreateTexture2D(
-        &dsvDesc, nullptr, depthTex.GetAddressOf())))
-    {
-        throw std::runtime_error("Failed to create depth texture");
+    hr = _device->CreateTexture2D(&dsvDesc, nullptr, depthTex.GetAddressOf());
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("Device.CreateTexture2D (depth)", hr);
+        throw RHIException("Falha ao criar textura de depth");
     }
-    if (FAILED(_device->CreateDepthStencilView(
-        depthTex.Get(), nullptr, _dsv.GetAddressOf())))
-    {
-        throw std::runtime_error("Failed to create DSV");
+    
+    // Criar Depth Stencil View
+    hr = _device->CreateDepthStencilView(depthTex.Get(), nullptr, _dsv.GetAddressOf());
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("Device.CreateDepthStencilView", hr);
+        throw RHIException("Falha ao criar Depth Stencil View");
     }
 
+    // Configurar render targets
     _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _dsv.Get());
+    
+    // Configurar viewport
     D3D11_VIEWPORT vp{
         0.0f, 0.0f,
         static_cast<FLOAT>(_width),
@@ -79,6 +124,8 @@ void ContextDX11::CreateRTVandDSV() {
         0.0f, 1.0f
     };
     _context->RSSetViewports(1, &vp);
+    
+    Drift::Core::LogRHIDebug("RTV e DSV criados com sucesso");
 }
 
 void ContextDX11::Clear(float r, float g, float b, float a) {

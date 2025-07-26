@@ -1,6 +1,8 @@
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/ResourceManager.h"
 #include "Drift/Core/Log.h"
+#include "Drift/RHI/RHIException.h"
+#include "Drift/RHI/RHIDebug.h"
 
 #include "Drift/RHI/DX11/ContextDX11.h"
 #include "Drift/RHI/DX11/SwapChainDX11.h"
@@ -19,13 +21,21 @@ using namespace Drift::RHI::DX11;
 DeviceDX11::DeviceDX11(const DeviceDesc& desc)
     : _desc(desc)
 {
+    Drift::Core::LogRHI("Iniciando criação do Device DX11");
+    
+    // Validar dimensões
+    RHIDebug::ValidateDimensions(desc.width, desc.height, "DeviceDX11 constructor");
+    
     UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
     flags |= D3D11_CREATE_DEVICE_DEBUG;
+    Drift::Core::LogRHIDebug("Device DX11 criado com flags de debug");
 #endif
 
     D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_0 };
     D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+    
+    Drift::Core::LogRHIDebug("Chamando D3D11CreateDevice...");
     HRESULT hr = D3D11CreateDevice(
         nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,
         flags, levels, _countof(levels),
@@ -33,11 +43,21 @@ DeviceDX11::DeviceDX11(const DeviceDesc& desc)
         _device.GetAddressOf(),
         &featureLevel,
         _context.GetAddressOf());
-    // D3D11CreateDevice HRESULT = " + std::to_string(hr)
-    // FeatureLevel = " + std::to_string(featureLevel)
+    
     if (FAILED(hr)) {
-        throw std::runtime_error("Falha ao criar D3D11Device");
+        Drift::Core::LogHRESULT("D3D11CreateDevice", hr);
+        throw DeviceException("Falha ao criar D3D11Device");
     }
+    
+    // Validar device e context criados
+    if (!RHIDebug::ValidateDX11Device(_device.Get(), "DeviceDX11 constructor")) {
+        throw DeviceException("Device inválido após criação");
+    }
+    if (!RHIDebug::ValidateDX11Context(_context.Get(), "DeviceDX11 constructor")) {
+        throw ContextException("Context inválido após criação");
+    }
+    
+    Drift::Core::LogRHI("Device DX11 criado com sucesso. FeatureLevel: " + std::to_string(featureLevel));
 }
 
 DeviceDX11::~DeviceDX11() {
@@ -47,30 +67,74 @@ DeviceDX11::~DeviceDX11() {
 
 // Cria contexto de renderização associado ao swapchain
 std::shared_ptr<Drift::RHI::IContext> DeviceDX11::CreateContext() {
-    if (!_swapChain)
-        throw std::runtime_error("SwapChain não criada antes de CreateContext");
-    return std::make_shared<ContextDX11>(
-        _device.Get(), _context.Get(),
-        _swapChain.Get(),
-        _desc.width, _desc.height,
-        _desc.vsync
-    );
+    Drift::Core::LogRHI("Criando Context DX11");
+    
+    if (!RHIDebug::ValidateDX11Device(_device.Get(), "CreateContext")) {
+        throw DeviceException("Device inválido em CreateContext");
+    }
+    if (!RHIDebug::ValidateDX11Context(_context.Get(), "CreateContext")) {
+        throw ContextException("Context inválido em CreateContext");
+    }
+    
+    if (!_swapChain) {
+        Drift::Core::LogRHIError("SwapChain não criada antes de CreateContext");
+        throw SwapChainException("SwapChain não criada antes de CreateContext");
+    }
+    
+    try {
+        auto context = std::make_shared<ContextDX11>(
+            _device.Get(), _context.Get(),
+            _swapChain.Get(),
+            _desc.width, _desc.height,
+            _desc.vsync
+        );
+        
+        Drift::Core::LogRHI("Context DX11 criado com sucesso");
+        return context;
+    } catch (const std::exception& e) {
+        Drift::Core::LogException("CreateContext", e);
+        throw;
+    }
 }
 
 // Cria swapchain para a janela especificada
 std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
+    Drift::Core::LogRHI("Criando SwapChain DX11");
+    
+    if (!RHIDebug::ValidateDX11Device(_device.Get(), "CreateSwapChain")) {
+        throw DeviceException("Device inválido em CreateSwapChain");
+    }
+    if (!RHIDebug::ValidatePointer(hwnd, "CreateSwapChain - hwnd")) {
+        throw RHIException("HWND inválido em CreateSwapChain");
+    }
+    
     ComPtr<IDXGIDevice>  dxgiDev;
     ComPtr<IDXGIAdapter> dxgiAdap;
     ComPtr<IDXGIFactory> factory;
 
-    if (FAILED(_device.As(&dxgiDev)) ||
-        FAILED(dxgiDev->GetAdapter(dxgiAdap.GetAddressOf())) ||
-        FAILED(dxgiAdap->GetParent(__uuidof(IDXGIFactory),
-            reinterpret_cast<void**>(factory.GetAddressOf()))))
-    {
-        throw std::runtime_error("Falha ao obter DXGI Factory");
+    // Obter DXGI Device
+    HRESULT hr = _device.As(&dxgiDev);
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("Device.As(IDXGIDevice)", hr);
+        throw RHIException("Falha ao obter DXGI Device");
+    }
+    
+    // Obter DXGI Adapter
+    hr = dxgiDev->GetAdapter(dxgiAdap.GetAddressOf());
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("DXGIDevice.GetAdapter", hr);
+        throw RHIException("Falha ao obter DXGI Adapter");
+    }
+    
+    // Obter DXGI Factory
+    hr = dxgiAdap->GetParent(__uuidof(IDXGIFactory),
+        reinterpret_cast<void**>(factory.GetAddressOf()));
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("DXGIAdapter.GetParent(IDXGIFactory)", hr);
+        throw RHIException("Falha ao obter DXGI Factory");
     }
 
+    // Configurar descrição da SwapChain
     DXGI_SWAP_CHAIN_DESC scd{};
     scd.BufferCount = 1;
     scd.BufferDesc.Width = _desc.width;
@@ -85,13 +149,25 @@ std::shared_ptr<ISwapChain> DeviceDX11::CreateSwapChain(void* hwnd) {
     scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     scd.Flags = 0;
 
+    Drift::Core::LogRHIDebug("Criando SwapChain: " + std::to_string(_desc.width) + "x" + std::to_string(_desc.height));
+    
     ComPtr<IDXGISwapChain> sc;
-    HRESULT hr = factory->CreateSwapChain(_device.Get(), &scd, sc.GetAddressOf());
-    if (FAILED(hr))
-        throw std::runtime_error("Falha ao criar SwapChain");
+    hr = factory->CreateSwapChain(_device.Get(), &scd, sc.GetAddressOf());
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("IDXGIFactory.CreateSwapChain", hr);
+        throw SwapChainException("Falha ao criar SwapChain");
+    }
 
     _swapChain = sc;
-    return std::make_shared<SwapChainDX11>(_swapChain.Get());
+    
+    try {
+        auto swapChain = std::make_shared<SwapChainDX11>(_swapChain.Get());
+        Drift::Core::LogRHI("SwapChain DX11 criada com sucesso");
+        return swapChain;
+    } catch (const std::exception& e) {
+        Drift::Core::LogException("CreateSwapChain", e);
+        throw;
+    }
 }
 
 // Criação e cache de recursos usando o Resource Manager
