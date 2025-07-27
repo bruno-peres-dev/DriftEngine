@@ -6,9 +6,6 @@ struct VSIn {
     float2 uv       : TEXCOORD0;
     float4 col      : COLOR0; // RGBA format (convertido de ARGB)
     uint textureId  : TEXCOORD1;
-    float2 offset   : TEXCOORD2; // offsetX, offsetY
-    float scale     : TEXCOORD3;
-    float rotation  : TEXCOORD4;
 };
 
 struct PSIn {
@@ -16,9 +13,6 @@ struct PSIn {
     float2 uv       : TEXCOORD0;
     float4 col      : COLOR0; // RGBA format
     uint textureId  : TEXCOORD1;
-    float2 offset   : TEXCOORD2; // offsetX, offsetY
-    float scale     : TEXCOORD3;
-    float rotation  : TEXCOORD4;
 };
 
 // Array de texturas para UI (suporte a 16 texturas)
@@ -69,9 +63,6 @@ PSIn VSMain(VSIn v) {
     o.uv = v.uv;
     o.col = v.col;
     o.textureId = v.textureId;
-    o.offset = v.offset;
-    o.scale = v.scale;
-    o.rotation = v.rotation;
     
     return o;
 }

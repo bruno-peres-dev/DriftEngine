@@ -14,15 +14,6 @@
 
 namespace Drift::RHI::DX11 {
 
-// Conversão de cor ARGB para RGBA
-inline Drift::Color ConvertARGBtoRGBA(Drift::Color argb) {
-    uint8_t a = (argb >> 24) & 0xFF;
-    uint8_t r = (argb >> 16) & 0xFF;
-    uint8_t g = (argb >> 8) & 0xFF;
-    uint8_t b = argb & 0xFF;
-    return r | (g << 8) | (b << 16) | (a << 24);
-}
-
 // Implementação do VertexPool
 VertexPool::VertexPool(size_t capacity) : m_Capacity(capacity), m_Used(0) {
     m_Vertices.resize(capacity);
@@ -99,6 +90,9 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     // Criar pipeline de instancing
     CreateInstancedPipeline();
     
+    // Criar pipeline de texto
+    CreateTextPipeline();
+    
     // Inicializar text renderer
     m_TextRenderer = std::make_unique<Drift::UI::TextRenderer>();
     
@@ -172,6 +166,10 @@ void UIBatcherDX11::OnBegin() {
         m_VertexPool->Reset();
     }
     
+    // CRÍTICO: Limpar batch atual
+    m_CurrentBatch.Clear();
+    m_BatchDirty = false;
+    
     // Limpar command buffer
     m_CommandBuffer.clear();
     
@@ -207,6 +205,11 @@ void UIBatcherDX11::OnBegin() {
 }
 
 void UIBatcherDX11::OnEnd() {
+    // CRÍTICO: Fazer flush do batch final
+    if (!m_CurrentBatch.IsEmpty()) {
+        FlushBatch();
+    }
+    
     // Processar command buffer se habilitado
     if (m_BatchConfig.enableCommandBuffering && !m_CommandBuffer.empty()) {
         ProcessCommandBuffer();
@@ -237,57 +240,105 @@ void UIBatcherDX11::OnAddRect(float x, float y, float w, float h, Drift::Color c
         return;
     }
     
-    // Adicionar comando se buffering estiver habilitado
-    if (m_BatchConfig.enableCommandBuffering) {
-        UIRenderCommand cmd;
-        cmd.type = UIRenderCommand::Type::Rect;
-        cmd.x = x;
-        cmd.y = y;
-        cmd.w = w;
-        cmd.h = h;
-        cmd.color = color;
-        m_CommandBuffer.push_back(cmd);
-        return;
+    // Verificar se precisa fazer flush do batch atual
+    if (!m_CurrentBatch.IsEmpty() && m_CurrentBatch.hasTexture) {
+        FlushBatch();
     }
     
-    // Renderização imediata
-    AddQuad(x, y, x + w, y, x + w, y + h, x, y + h, color);
+    // Verificar se o batch está cheio
+    if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
+        m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices) {
+        FlushBatch();
+    }
+    
+    // Converter cor ARGB para RGBA usando método da classe base
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
+    
+    // Usar métodos da classe base para conversão de coordenadas
+    float clipX0 = ToClipX(x);
+    float clipY0 = ToClipY(y);
+    float clipX1 = ToClipX(x + w);
+    float clipY1 = ToClipY(y);
+    float clipX2 = ToClipX(x + w);
+    float clipY2 = ToClipY(y + h);
+    float clipX3 = ToClipX(x);
+    float clipY3 = ToClipY(y + h);
+    
+    // Adicionar vértices ao batch
+    uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
+    
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 0.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX2, clipY2, 1.0f, 1.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX3, clipY3, 0.0f, 1.0f, rgba, 8);
+    
+    // Adicionar índices
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    m_CurrentBatch.indices.push_back(baseIndex + 1);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 3);
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    
+    // Atualizar contadores
+    m_CurrentBatch.vertexCount += 4;
+    m_CurrentBatch.indexCount += 6;
+    m_CurrentBatch.hasTexture = false;
+    m_CurrentBatch.isText = false;
+    
+    m_BatchDirty = true;
 }
 
 void UIBatcherDX11::OnAddQuad(float x0, float y0, float x1, float y1,
                              float x2, float y2, float x3, float y3,
                              Drift::Color color) {
-    // Converter cor ARGB para RGBA
-    Drift::Color rgbaColor = ConvertARGBtoRGBA(color);
-    
-    // Criar vértices otimizados
-    UIVertex* vertices = m_VertexPool->Allocate(4);
-    if (!vertices) {
-        Core::Log("[UIBatcherDX11] ERRO: Vertex pool cheio!");
-        return;
+    // Verificar se precisa fazer flush do batch atual
+    if (!m_CurrentBatch.IsEmpty() && m_CurrentBatch.hasTexture) {
+        FlushBatch();
     }
     
-    // CRÍTICO: Converter coordenadas para clip space como na versão antiga
-    float clipX0 = (x0 / m_ScreenW) * 2.0f - 1.0f;
-    float clipY0 = 1.0f - (y0 / m_ScreenH) * 2.0f;
-    float clipX1 = (x1 / m_ScreenW) * 2.0f - 1.0f;
-    float clipY1 = 1.0f - (y1 / m_ScreenH) * 2.0f;
-    float clipX2 = (x2 / m_ScreenW) * 2.0f - 1.0f;
-    float clipY2 = 1.0f - (y2 / m_ScreenH) * 2.0f;
-    float clipX3 = (x3 / m_ScreenW) * 2.0f - 1.0f;
-    float clipY3 = 1.0f - (y3 / m_ScreenH) * 2.0f;
+    // Verificar se o batch está cheio
+    if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
+        m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices) {
+        FlushBatch();
+    }
     
-    // Usar coordenadas convertidas para clip space
-    vertices[0] = UIVertex(clipX0, clipY0, 0.0f, 0.0f, rgbaColor, 8);
-    vertices[1] = UIVertex(clipX1, clipY1, 1.0f, 0.0f, rgbaColor, 8);
-    vertices[2] = UIVertex(clipX2, clipY2, 1.0f, 1.0f, rgbaColor, 8);
-    vertices[3] = UIVertex(clipX3, clipY3, 0.0f, 1.0f, rgbaColor, 8);
+    // Converter cor ARGB para RGBA usando método da classe base
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
     
-    // CRÍTICO: Criar índices para renderizar como triângulos
-    uint32_t indices[6] = {0, 1, 2, 2, 3, 0};
+    // Usar métodos da classe base para conversão de coordenadas
+    float clipX0 = ToClipX(x0);
+    float clipY0 = ToClipY(y0);
+    float clipX1 = ToClipX(x1);
+    float clipY1 = ToClipY(y1);
+    float clipX2 = ToClipX(x2);
+    float clipY2 = ToClipY(y2);
+    float clipX3 = ToClipX(x3);
+    float clipY3 = ToClipY(y3);
     
-    // Renderizar vértices com índices
-    RenderVertices(vertices, 4, indices, 6, false);
+    // Adicionar vértices ao batch
+    uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
+    
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, 0.0f, 0.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, 1.0f, 0.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX2, clipY2, 1.0f, 1.0f, rgba, 8);
+    m_CurrentBatch.vertices.emplace_back(clipX3, clipY3, 0.0f, 1.0f, rgba, 8);
+    
+    // Adicionar índices
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    m_CurrentBatch.indices.push_back(baseIndex + 1);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 3);
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    
+    // Atualizar contadores
+    m_CurrentBatch.vertexCount += 4;
+    m_CurrentBatch.indexCount += 6;
+    m_CurrentBatch.hasTexture = false;
+    m_CurrentBatch.isText = false;
+    
+    m_BatchDirty = true;
 }
 
 void UIBatcherDX11::OnAddTexturedRect(float x, float y, float w, float h,
@@ -300,36 +351,57 @@ void UIBatcherDX11::OnAddTexturedRect(float x, float y, float w, float h,
         return;
     }
     
-    // Converter cor ARGB para RGBA
-    Drift::Color rgbaColor = ConvertARGBtoRGBA(color);
-    
-    // Criar vértices otimizados
-    UIVertex* vertices = m_VertexPool->Allocate(4);
-    if (!vertices) {
-        Core::Log("[UIBatcherDX11] ERRO: Vertex pool cheio!");
-        return;
+    // Verificar se precisa fazer flush do batch atual
+    bool isText = (textureId == 0); // Textura 0 é para texto
+    if (!m_CurrentBatch.IsEmpty() && m_CurrentBatch.isText != isText) {
+        FlushBatch();
     }
     
-    // CRÍTICO: Converter coordenadas para clip space como na versão antiga
-    float clipX0 = (x / m_ScreenW) * 2.0f - 1.0f;
-    float clipY0 = 1.0f - (y / m_ScreenH) * 2.0f;
-    float clipX1 = ((x + w) / m_ScreenW) * 2.0f - 1.0f;
-    float clipY1 = 1.0f - (y / m_ScreenH) * 2.0f;
-    float clipX2 = ((x + w) / m_ScreenW) * 2.0f - 1.0f;
-    float clipY2 = 1.0f - ((y + h) / m_ScreenH) * 2.0f;
-    float clipX3 = (x / m_ScreenW) * 2.0f - 1.0f;
-    float clipY3 = 1.0f - ((y + h) / m_ScreenH) * 2.0f;
+    // Verificar se o batch está cheio
+    if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
+        m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices) {
+        FlushBatch();
+    }
     
-    vertices[0] = UIVertex(clipX0, clipY0, uvMin.x, uvMin.y, rgbaColor, textureId);
-    vertices[1] = UIVertex(clipX1, clipY1, uvMax.x, uvMin.y, rgbaColor, textureId);
-    vertices[2] = UIVertex(clipX2, clipY2, uvMax.x, uvMax.y, rgbaColor, textureId);
-    vertices[3] = UIVertex(clipX3, clipY3, uvMin.x, uvMax.y, rgbaColor, textureId);
+    // Configurar textura no batch
+    m_CurrentBatch.textureId = textureId;
+    m_CurrentBatch.hasTexture = true;
+    m_CurrentBatch.isText = isText;
     
-    // CRÍTICO: Criar índices para renderizar como triângulos
-    uint32_t indices[6] = {0, 1, 2, 2, 3, 0};
+    // Converter cor ARGB para RGBA usando método da classe base
+    Drift::Color rgba = ConvertARGBtoRGBA(color);
     
-    // Renderizar vértices com índices
-    RenderVertices(vertices, 4, indices, 6, true);
+    // Usar métodos da classe base para conversão de coordenadas
+    float clipX0 = ToClipX(x);
+    float clipY0 = ToClipY(y);
+    float clipX1 = ToClipX(x + w);
+    float clipY1 = ToClipY(y);
+    float clipX2 = ToClipX(x + w);
+    float clipY2 = ToClipY(y + h);
+    float clipX3 = ToClipX(x);
+    float clipY3 = ToClipY(y + h);
+    
+    // Adicionar vértices ao batch
+    uint32_t baseIndex = static_cast<uint32_t>(m_CurrentBatch.vertices.size());
+    
+    m_CurrentBatch.vertices.emplace_back(clipX0, clipY0, uvMin.x, uvMin.y, rgba, textureId);
+    m_CurrentBatch.vertices.emplace_back(clipX1, clipY1, uvMax.x, uvMin.y, rgba, textureId);
+    m_CurrentBatch.vertices.emplace_back(clipX2, clipY2, uvMax.x, uvMax.y, rgba, textureId);
+    m_CurrentBatch.vertices.emplace_back(clipX3, clipY3, uvMin.x, uvMax.y, rgba, textureId);
+    
+    // Adicionar índices
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    m_CurrentBatch.indices.push_back(baseIndex + 1);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 2);
+    m_CurrentBatch.indices.push_back(baseIndex + 3);
+    m_CurrentBatch.indices.push_back(baseIndex + 0);
+    
+    // Atualizar contadores
+    m_CurrentBatch.vertexCount += 4;
+    m_CurrentBatch.indexCount += 6;
+    
+    m_BatchDirty = true;
 }
 
 void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color color) {
@@ -384,7 +456,13 @@ void UIBatcherDX11::OnEndText() {
 }
 
 void UIBatcherDX11::OnFlushBatch() {
-    // Implementação específica do DX11 para flush
+    if (m_CurrentBatch.IsEmpty()) {
+        return;
+    }
+    
+    RenderBatch(m_CurrentBatch);
+    m_CurrentBatch.Clear();
+    m_BatchDirty = false;
 }
 
 void UIBatcherDX11::OnSetBlendMode(uint32_t srcFactor, uint32_t dstFactor) {
@@ -513,15 +591,12 @@ void UIBatcherDX11::EnsurePipeline() {
     uiDesc.psFile = "shaders/UIBatch.hlsl";
     uiDesc.psEntry = "PSMain";
     
-    // Configurar input layout para UIVertex (compatível com estrutura completa)
+    // Configurar input layout para UIVertex - compatível com shader UIBatch.hlsl
     uiDesc.inputLayout = {
         {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
         {"TEXCOORD", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, u)},
         {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
-        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)},
-        {"TEXCOORD", 2, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, offsetX)},
-        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
-        {"TEXCOORD", 4, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
+        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)}
     };
     
     // Configurar rasterizer state
@@ -577,11 +652,16 @@ void UIBatcherDX11::CreateTextPipeline() {
     textDesc.psFile = "shaders/BitmapFontPS.hlsl";
     textDesc.psEntry = "main";
 
+    // Configurar input layout para UIVertex - compatível com shader BitmapFontVS.hlsl
     textDesc.inputLayout = {
         {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
         {"TEXCOORD", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, u)},
         {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
-        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)}
+        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)},
+        {"TEXCOORD", 2, VertexFormat::R32_FLOAT, offsetof(UIVertex, offsetX)},
+        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, offsetY)},
+        {"TEXCOORD", 4, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
+        {"TEXCOORD", 5, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
     };
 
     textDesc.rasterizer.wireframe = false;
@@ -616,6 +696,127 @@ void UIBatcherDX11::CreateInstancedPipeline() {
     // Criar pipeline para instancing
     // Por enquanto, usar o pipeline padrão
     // Implementação completa seria específica para instancing
+}
+
+void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
+    try {
+        if (batch.IsEmpty() || !m_RingBuffer) {
+            return;
+        }
+
+        // Garante que a textura 0 está correta para texto
+        if (batch.isText) {
+            if (!m_Textures[0]) {
+                Core::Log("[UIBatcherDX11][ERRO] m_Textures[0] não está setada antes de RenderBatch() para texto!");
+            } else {
+                Core::Log("[UIBatcherDX11] Textura 0 válida para texto: " + 
+                         std::to_string(reinterpret_cast<uintptr_t>(m_Textures[0])));
+            }
+        }
+    
+        // Calcular tamanhos dos buffers
+        size_t vtxSize = batch.vertices.size() * sizeof(UIVertex);
+        size_t idxSize = batch.indices.size() * sizeof(uint32_t);
+        
+        // Alocar no ring buffer
+        size_t vtxOffset, idxOffset;
+        void* vtxPtr = m_RingBuffer->Allocate(vtxSize, 16, vtxOffset);
+        void* idxPtr = m_RingBuffer->Allocate(idxSize, 4, idxOffset);
+        
+        if (!vtxPtr || !idxPtr) {
+            Core::Log("[UIBatcherDX11] ERRO: Falha ao alocar memória no ring buffer!");
+            return;
+        }
+        
+        // Copiar dados
+        memcpy(vtxPtr, batch.vertices.data(), vtxSize);
+        memcpy(idxPtr, batch.indices.data(), idxSize);
+        
+        // Obter contexto DX11
+        auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
+        if (!contextDX11) {
+            Core::Log("[UIBatcherDX11] ERRO: Contexto DX11 inválido!");
+            return;
+        }
+        
+        // Configurar pipeline
+        EnsurePipeline();
+        if (batch.isText && m_TextPipeline) {
+            contextDX11->SetPipelineState(m_TextPipeline.get());
+            if (m_UIConstantsBuffer) {
+                contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+                contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+            }
+        } else if (m_Pipeline) {
+            contextDX11->SetPipelineState(m_Pipeline.get());
+            if (m_UIConstantsBuffer) {
+                contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+                contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+            }
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");
+            return;
+        }
+        
+        // Configurar vertex buffer
+        auto* vertexBuffer = m_RingBuffer->GetBuffer();
+        if (vertexBuffer) {
+            contextDX11->IASetVertexBuffer(vertexBuffer->GetBackendHandle(), sizeof(UIVertex), static_cast<UINT>(vtxOffset));
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Vertex buffer é nullptr!");
+            return;
+        }
+        
+        // Configurar index buffer
+        auto* indexBuffer = m_RingBuffer->GetBuffer();
+        if (indexBuffer) {
+            contextDX11->IASetIndexBuffer(indexBuffer->GetBackendHandle(), Drift::RHI::Format::R32_UINT, static_cast<UINT>(idxOffset));
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Index buffer é nullptr!");
+            return;
+        }
+        
+        // Configurar topologia
+        contextDX11->IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology::TriangleList);
+        
+        // Configurar todas as texturas necessárias para o array de texturas
+        Core::Log("[UIBatcherDX11] Configurando " + std::to_string(m_Textures.size()) + " texturas...");
+        for (size_t i = 0; i < m_Textures.size() && i < 16; ++i) {
+            if (m_Textures[i]) {
+                Core::Log("[UIBatcherDX11] Configurando textura " + std::to_string(i) + 
+                         " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(m_Textures[i]->GetBackendHandle())) + ")");
+                contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
+                if (m_DefaultSampler) {
+                    contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
+                } else {
+                    Core::Log("[UIBatcherDX11] AVISO: Sampler é nullptr para textura " + std::to_string(i));
+                }
+            } else {
+                Core::Log("[UIBatcherDX11] Textura " + std::to_string(i) + " é nullptr");
+            }
+        }
+        
+        // Desabilitar depth test para UI
+        contextDX11->SetDepthTestEnabled(false);
+        
+        // Renderizar usando DrawIndexed
+        contextDX11->DrawIndexed(
+            static_cast<UINT>(batch.indexCount),
+            static_cast<UINT>(0), // startIndex
+            static_cast<INT>(0)   // baseVertex
+        );
+        
+        // Atualizar estatísticas
+        m_Stats.drawCalls++;
+        m_Stats.verticesRendered += batch.vertexCount;
+        m_Stats.indicesRendered += batch.indexCount;
+        m_Stats.batchesCreated++;
+        
+    } catch (const std::exception& e) {
+        Core::Log("[UIBatcherDX11] ERRO CRÍTICO no RenderBatch: " + std::string(e.what()));
+    } catch (...) {
+        Core::Log("[UIBatcherDX11] ERRO CRÍTICO desconhecido no RenderBatch");
+    }
 }
 
 void UIBatcherDX11::ProcessCommandBuffer() {

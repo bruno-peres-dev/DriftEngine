@@ -223,6 +223,34 @@ add_custom_command(TARGET DriftEngineApp POST_BUILD
 )
 
 # ------------------------------------------------
+# 6) Copiar recursos necessários para o executável
+# ------------------------------------------------
+
+# Copiar pasta Fonts
+add_custom_command(TARGET DriftEngineApp POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/fonts
+  ${CMAKE_BINARY_DIR}/fonts
+  COMMENT "Copiando pasta Fonts..."
+)
+
+# Copiar pasta Textures
+add_custom_command(TARGET DriftEngineApp POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/textures
+  ${CMAKE_BINARY_DIR}/textures
+  COMMENT "Copiando pasta Textures..."
+)
+
+# Copiar pasta Shaders (já existe, mas vou manter para garantir)
+add_custom_command(TARGET DriftEngineApp POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/shaders
+  ${CMAKE_BINARY_DIR}/shaders
+  COMMENT "Copiando pasta Shaders..."
+)
+
+# ------------------------------------------------
 # Instruções:
 #   mkdir build && cd build
 #   cmake .. -DCMAKE_BUILD_TYPE=Debug

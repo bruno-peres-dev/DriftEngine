@@ -32,6 +32,7 @@ struct UIBatch {
     std::vector<UIVertex> vertices;
     std::vector<uint32_t> indices;
     std::array<uint32_t, 16> textureIds;  // Aumentado para 16 texturas
+    uint32_t textureId;  // Textura atual do batch (para compatibilidade)
     uint32_t textureCount;
     bool hasTexture;
     bool isText;
@@ -41,7 +42,7 @@ struct UIBatch {
     size_t instanceCount;
     float boundingBox[4];  // Para frustum culling
     
-    UIBatch() : textureCount(0), hasTexture(false), isText(false), 
+    UIBatch() : textureId(8), textureCount(0), hasTexture(false), isText(false), 
                 isInstanced(false), vertexCount(0), indexCount(0), instanceCount(1) {
         std::fill(textureIds.begin(), textureIds.end(), 8);
         std::fill(boundingBox, boundingBox + 4, 0.0f);
@@ -51,6 +52,7 @@ struct UIBatch {
         vertices.clear();
         indices.clear();
         std::fill(textureIds.begin(), textureIds.end(), 8);
+        textureId = 8;
         textureCount = 0;
         hasTexture = false;
         isText = false;
@@ -224,6 +226,9 @@ private:
     std::vector<UIVertex> m_VertexBuffer;
     std::vector<uint32_t> m_IndexBuffer;
     bool m_BatchDirty{false};
+    
+    // === CRÍTICO: Batch atual para renderização ===
+    UIBatch m_CurrentBatch;
     
     // === Métodos auxiliares específicos do DX11 ===
     void CreateDefaultSampler();
