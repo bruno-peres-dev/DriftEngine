@@ -61,6 +61,7 @@ float4 PSMain(PSIn i) : SV_TARGET {
         }
         
         // Aplicar o alpha da textura à cor final
+        // Para texto, multiplicar o alpha da textura pelo alpha da cor
         finalColor.a *= textureAlpha;
         
         return finalColor;

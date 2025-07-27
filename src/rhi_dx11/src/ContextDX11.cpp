@@ -218,12 +218,23 @@ void ContextDX11::Resize(unsigned width, unsigned height) {
 }
 
 void ContextDX11::PSSetTexture(UINT slot, ITexture* tex) {
+    Core::LogRHIDebug("[ContextDX11] PSSetTexture: slot=" + std::to_string(slot) + 
+                     ", texture=" + (tex ? "válida" : "nullptr"));
+    
+    if (!tex) {
+        Core::Log("[ContextDX11][ERRO] PSSetTexture: textura é nullptr para slot " + std::to_string(slot));
+        return;
+    }
+    
     // tex->GetBackendHandle() deve retornar ID3D11ShaderResourceView*
     auto srv = static_cast<ID3D11ShaderResourceView*>(tex->GetBackendHandle());
     if (!srv) {
-        Drift::Core::Log("[DX11][ERRO] PSSetTexture: ShaderResourceView é nullptr!");
+        Core::Log("[ContextDX11][ERRO] PSSetTexture: ShaderResourceView é nullptr para slot " + std::to_string(slot));
         return;
     }
+    
+    Core::LogRHIDebug("[ContextDX11] PSSetTexture: SRV válido para slot " + std::to_string(slot) + 
+                     " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(srv)) + ")");
     _context->PSSetShaderResources(slot, 1, &srv);
 }
 

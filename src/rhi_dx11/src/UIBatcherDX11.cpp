@@ -324,18 +324,15 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
         h = clipped.height;
     }
 
-    if (m_CurrentBatch.vertexCount + 4 > m_BatchConfig.maxVertices ||
-        m_CurrentBatch.indexCount + 6 > m_BatchConfig.maxIndices ||
-        (m_CurrentBatch.hasTexture && m_CurrentBatch.textureId != textureId)) {
+    // PROFISSIONAL: Separação de batches de texto e UI normal
+    bool isText = m_AddingText;
+    if (!m_CurrentBatch.IsEmpty() && m_CurrentBatch.isText != isText) {
         FlushCurrentBatch();
     }
 
     m_CurrentBatch.textureId = textureId;
     m_CurrentBatch.hasTexture = true;
-    if (m_AddingText) {
-        m_CurrentBatch.isText = true;
-        Core::LogInfo("[UIBatcherDX11] Batch marcado como texto (isText=true)");
-    }
+    m_CurrentBatch.isText = isText;
 
     Drift::Color rgba = ConvertARGBtoRGBA(color);
 
@@ -389,10 +386,30 @@ void UIBatcherDX11::AddText(float x, float y, const char* text, Drift::Color col
     }
 }
 
+void UIBatcherDX11::BeginText() {
+    Core::LogRHIDebug("[UIBatcherDX11] BeginText chamado");
+    if (!m_CurrentBatch.IsEmpty()) {
+        FlushCurrentBatch();
+    }
+    m_AddingText = true;
+}
+
+void UIBatcherDX11::EndText() {
+    Core::LogRHIDebug("[UIBatcherDX11] EndText chamado");
+    if (!m_CurrentBatch.IsEmpty()) {
+        FlushCurrentBatch();
+    }
+    m_AddingText = false;
+}
+
 void UIBatcherDX11::SetTexture(uint32_t textureId, ITexture* texture) {
+    Core::LogRHIDebug("[UIBatcherDX11] SetTexture chamado: textureId=" + std::to_string(textureId) + 
+                     ", texture=" + (texture ? "válida" : "nullptr"));
+    
     if (m_CurrentTextureId != textureId || m_Textures[textureId] != texture) {
         // Se mudou a textura, fazer flush do batch atual
         if (!m_CurrentBatch.IsEmpty()) {
+            Core::LogRHIDebug("[UIBatcherDX11] Flushando batch atual devido à mudança de textura");
             FlushCurrentBatch();
         }
         
@@ -400,16 +417,21 @@ void UIBatcherDX11::SetTexture(uint32_t textureId, ITexture* texture) {
         m_CurrentTextureId = textureId;
         m_TextureChanged = true;
         m_Stats.textureSwitches++;
+        
+        Core::LogRHIDebug("[UIBatcherDX11] Textura " + std::to_string(textureId) + " setada com sucesso");
     }
 }
 
 void UIBatcherDX11::ClearTextures() {
+    Core::LogRHIDebug("[UIBatcherDX11] ClearTextures chamado");
+    
     if (!m_Textures.empty()) {
         FlushCurrentBatch();
         // Não limpar as texturas completamente, apenas marcar como mudadas
         // para que sejam reconfiguradas no próximo batch
         m_CurrentTextureId = 0;
         m_TextureChanged = true;
+        Core::LogRHIDebug("[UIBatcherDX11] Texturas marcadas como mudadas (não limpas)");
     }
 }
 
@@ -611,6 +633,16 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         if (batch.IsEmpty() || !m_RingBuffer) {
             return;
         }
+
+        // Garante que a textura 0 está correta para texto
+        if (batch.isText) {
+            if (!m_Textures[0]) {
+                Core::Log("[UIBatcherDX11][ERRO] m_Textures[0] não está setada antes de RenderBatch() para texto!");
+            } else {
+                Core::LogRHIDebug("[UIBatcherDX11] Textura 0 válida para texto: " + 
+                                 std::to_string(reinterpret_cast<uintptr_t>(m_Textures[0])));
+            }
+        }
     
     // Calcular tamanhos dos buffers
     size_t vtxSize = batch.vertices.size() * sizeof(UIVertex);
@@ -640,17 +672,14 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     // Configurar pipeline
     EnsureUIPipeline();
     if (batch.isText && m_TextPipeline) {
-        Core::LogInfo("[UIBatcherDX11] Usando pipeline de texto bitmap");
         m_TextPipeline->Apply(*contextDX11);
         if (m_TextCB) {
             contextDX11->VSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
             contextDX11->PSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
-            Core::LogInfo("[UIBatcherDX11] Constantes de texto configuradas");
         } else {
             Core::LogWarning("[UIBatcherDX11] Constantes de texto não disponíveis!");
         }
     } else if (m_Pipeline) {
-        Core::LogInfo("[UIBatcherDX11] Usando pipeline UI padrão (isText=" + std::to_string(batch.isText) + ")");
         m_Pipeline->Apply(*contextDX11);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");
@@ -679,15 +708,19 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     contextDX11->IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology::TriangleList);
     
     // Configurar todas as texturas necessárias para o array de texturas
+    Core::LogRHIDebug("[UIBatcherDX11] Configurando " + std::to_string(m_Textures.size()) + " texturas...");
     for (size_t i = 0; i < m_Textures.size() && i < 8; ++i) {
         if (m_Textures[i]) {
+            Core::LogRHIDebug("[UIBatcherDX11] Configurando textura " + std::to_string(i) + 
+                             " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(m_Textures[i]->GetBackendHandle())) + ")");
             contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
             if (m_DefaultSampler) {
                 contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
-                Core::LogInfo("[UIBatcherDX11] Textura " + std::to_string(i) + " e sampler configurados");
             } else {
                 Core::Log("[UIBatcherDX11] AVISO: Sampler é nullptr para textura " + std::to_string(i));
             }
+        } else {
+            Core::LogRHIDebug("[UIBatcherDX11] Textura " + std::to_string(i) + " é nullptr");
         }
     }
     

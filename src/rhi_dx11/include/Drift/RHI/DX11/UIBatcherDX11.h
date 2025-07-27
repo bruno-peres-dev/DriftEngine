@@ -73,6 +73,8 @@ public:
     
     // === Renderização de texto ===
     void AddText(float x, float y, const char* text, Drift::Color color) override;
+    void BeginText() override;  // Marca início de renderização de texto
+    void EndText() override;    // Marca fim de renderização de texto
     
     // === Gerenciamento de texturas ===
     void SetTexture(uint32_t textureId, ITexture* texture) override;

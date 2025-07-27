@@ -39,6 +39,13 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         return;
     }
     
+    Drift::Core::LogRHIDebug("[TextRenderer] Textura do atlas válida: " + 
+                             std::to_string(reinterpret_cast<uintptr_t>(texture)) + 
+                             ", handle: " + std::to_string(reinterpret_cast<uintptr_t>(texture->GetBackendHandle())));
+    
+    // CRÍTICO: Marcar início de renderização de texto
+    m_Batcher->BeginText();
+    
     m_Batcher->SetTexture(0, const_cast<Drift::RHI::ITexture*>(texture));
 
     float baseline = pos.y + font->GetAscent();
@@ -77,6 +84,9 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         m_Batcher->AddTexturedRect(xpos, ypos, w, h, uv0, uv1, textColor, 0);
         x += g->advance;
     }
+    
+    // CRÍTICO: Marcar fim de renderização de texto
+    m_Batcher->EndText();
 }
 
 glm::vec2 TextRenderer::MeasureText(const std::string& text, const std::string& fontName, float size) {

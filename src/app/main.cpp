@@ -76,8 +76,8 @@ int main() {
     try {
         Core::Log("[App] Iniciando DriftEngine...");
         
-        // Configurar nível de log para Info (evita spam de debug)
-        Core::SetLogLevel(Core::LogLevel::Info);
+        // Configurar nível de log para Debug (para ver logs de debug do binding)
+        Core::SetLogLevel(Core::LogLevel::Debug);
         
         // ================================
         // 1. INICIALIZAÇÃO BÁSICA

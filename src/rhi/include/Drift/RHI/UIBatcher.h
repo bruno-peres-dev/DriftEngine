@@ -93,6 +93,10 @@ public:
         AddText(x, y, text.c_str(), color);
     }
     
+    // === Controle de renderização de texto ===
+    virtual void BeginText() = 0;  // Marca início de renderização de texto
+    virtual void EndText() = 0;    // Marca fim de renderização de texto
+    
     // === Gerenciamento de texturas ===
     virtual void SetTexture(uint32_t textureId, ITexture* texture) = 0;
     virtual void ClearTextures() = 0;
