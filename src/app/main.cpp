@@ -39,6 +39,17 @@ struct AppData {
     std::shared_ptr<RHI::IRingBuffer> uiRingBuffer;
     std::unique_ptr<RHI::IUIBatcher> uiBatcher;
     std::unique_ptr<UI::UIContext> uiContext;
+    
+    // Elementos de teste da UI
+    std::shared_ptr<UI::Label> testLabel;
+    std::shared_ptr<UI::Label> infoLabel;
+    std::shared_ptr<UI::Label> debugLabel;
+    std::shared_ptr<UI::Label> performanceLabel;
+    std::shared_ptr<UI::Label> instructionLabel;
+    
+    // Contadores para animação
+    float animationTime = 0.0f;
+    int frameCounter = 0;
 };
 
 static void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -88,7 +99,7 @@ int main() {
             throw std::runtime_error("Falha ao inicializar GLFW");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        GLFWwindow* window = glfwCreateWindow(1280, 720, "DriftEngine", nullptr, nullptr);
+        GLFWwindow* window = glfwCreateWindow(1280, 720, "DriftEngine - Teste de Fontes", nullptr, nullptr);
         if (!window) throw std::runtime_error("Falha ao criar janela GLFW");
 
         HWND hwnd = glfwGetWin32Window(window);
@@ -136,14 +147,18 @@ int main() {
         Core::Log("[App] Chamando SetDevice...");
         uiContext->SetDevice(device.get());
         Core::Log("[App] SetDevice concluído");
+        
         // Carregar tamanhos prioritários da fonte 'default' para evitar glitches de glifos
+        Core::Log("[App] Carregando fontes de teste...");
         {
             auto& fontManager = UI::FontManager::GetInstance();
-            std::vector<float> tamanhos = {16.0f, 20.0f, 24.0f, 32.0f};
+            std::vector<float> tamanhos = {12.0f, 16.0f, 20.0f, 24.0f, 32.0f, 48.0f};
             for (float size : tamanhos) {
                 auto font = fontManager.LoadFont("default", "fonts/Arial-Regular.ttf", size, UI::FontQuality::High);
                 if (!font) {
                     Core::Log("[App] ERRO: Fonte 'default' tamanho " + std::to_string(size) + " não carregada!");
+                } else {
+                    Core::Log("[App] Fonte 'default' tamanho " + std::to_string(size) + " carregada com sucesso!");
                 }
             }
         }
@@ -155,33 +170,70 @@ int main() {
         uiContext->SetScreenSize(1280.0f, 720.0f);
 
         // Cria elementos de teste da UI
+        Core::Log("[App] Criando elementos de teste da UI...");
         {
             auto& fontManager = UI::FontManager::GetInstance();
-            // Garante que a fonte 'default' tamanho 24 está carregada antes de criar o Label
-            auto defaultFont24 = fontManager.GetOrLoadFont("default", "fonts/Arial-Regular.ttf", 24.0f, UI::FontQuality::High);
-            if (!defaultFont24) {
-                Core::Log("[App] ERRO: Fonte 'default' tamanho 24 não carregada!");
-            }
-
             auto root = uiContext->GetRoot();
             
-            // Label de teste para renderizar texto
+            // Label principal de teste
             auto testLabel = std::make_shared<UI::Label>(uiContext.get());
-            testLabel->SetName("TestLabel"); // Adiciona nome para debug
-            testLabel->SetText("Teste do Sistema de Fontes - DriftEngine");
-            testLabel->SetPosition({100.0f, 50.0f});
-            testLabel->SetFontFamily("default"); // Usar a fonte carregada
-            testLabel->SetFontSize(24.0f);
+            testLabel->SetName("TestLabel");
+            testLabel->SetText("DriftEngine - Sistema de Fontes");
+            testLabel->SetPosition({50.0f, 30.0f});
+            testLabel->SetFontFamily("default");
+            testLabel->SetFontSize(32.0f);
             testLabel->SetTextColor(Drift::Color(0xFFFFFFFF)); // Branco
             testLabel->SetColor(0x00000000); // Fundo transparente
-            testLabel->MarkDirty(); // Força recálculo da transformação
+            testLabel->MarkDirty();
             root->AddChild(testLabel);
             
-            // Criar elementos de teste da UI
-            auto defaultFont = fontManager.GetOrLoadFont("default", "fonts/Arial-Regular.ttf", 24.0f);
-            if (!defaultFont) {
-                Core::Log("[App] ERRO: Fonte padrão não encontrada!");
-            }
+            // Label de informações
+            auto infoLabel = std::make_shared<UI::Label>(uiContext.get());
+            infoLabel->SetName("InfoLabel");
+            infoLabel->SetText("Testando diferentes tamanhos e cores de fonte");
+            infoLabel->SetPosition({50.0f, 80.0f});
+            infoLabel->SetFontFamily("default");
+            infoLabel->SetFontSize(20.0f);
+            infoLabel->SetTextColor(Drift::Color(0xFF00FFFF)); // Ciano
+            infoLabel->SetColor(0x00000000);
+            infoLabel->MarkDirty();
+            root->AddChild(infoLabel);
+            
+            // Label de debug
+            auto debugLabel = std::make_shared<UI::Label>(uiContext.get());
+            debugLabel->SetName("DebugLabel");
+            debugLabel->SetText("Debug: Sistema funcionando");
+            debugLabel->SetPosition({50.0f, 120.0f});
+            debugLabel->SetFontFamily("default");
+            debugLabel->SetFontSize(16.0f);
+            debugLabel->SetTextColor(Drift::Color(0xFF00FF00)); // Verde
+            debugLabel->SetColor(0x00000000);
+            debugLabel->MarkDirty();
+            root->AddChild(debugLabel);
+            
+            // Label de performance
+            auto performanceLabel = std::make_shared<UI::Label>(uiContext.get());
+            performanceLabel->SetName("PerformanceLabel");
+            performanceLabel->SetText("Performance: Aguardando dados...");
+            performanceLabel->SetPosition({50.0f, 150.0f});
+            performanceLabel->SetFontFamily("default");
+            performanceLabel->SetFontSize(14.0f);
+            performanceLabel->SetTextColor(Drift::Color(0xFFFFFF00)); // Amarelo
+            performanceLabel->SetColor(0x00000000);
+            performanceLabel->MarkDirty();
+            root->AddChild(performanceLabel);
+            
+            // Label de instruções
+            auto instructionLabel = std::make_shared<UI::Label>(uiContext.get());
+            instructionLabel->SetName("InstructionLabel");
+            instructionLabel->SetText("Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes");
+            instructionLabel->SetPosition({50.0f, 680.0f});
+            instructionLabel->SetFontFamily("default");
+            instructionLabel->SetFontSize(16.0f);
+            instructionLabel->SetTextColor(Drift::Color(0xFFFF8000)); // Laranja
+            instructionLabel->SetColor(0x00000000);
+            instructionLabel->MarkDirty();
+            root->AddChild(instructionLabel);
         }
         
         // --------------------------------
@@ -269,6 +321,13 @@ int main() {
         appData.inputManager = std::move(inputManager);
         appData.renderManager = std::move(renderManager);
         appData.uiContext = std::move(uiContext);
+        
+        // Referências para os elementos de teste
+        appData.testLabel = std::static_pointer_cast<UI::Label>(appData.uiContext->GetRoot()->FindChildByName("TestLabel"));
+        appData.infoLabel = std::static_pointer_cast<UI::Label>(appData.uiContext->GetRoot()->FindChildByName("InfoLabel"));
+        appData.debugLabel = std::static_pointer_cast<UI::Label>(appData.uiContext->GetRoot()->FindChildByName("DebugLabel"));
+        appData.performanceLabel = std::static_pointer_cast<UI::Label>(appData.uiContext->GetRoot()->FindChildByName("PerformanceLabel"));
+        appData.instructionLabel = std::static_pointer_cast<UI::Label>(appData.uiContext->GetRoot()->FindChildByName("InstructionLabel"));
 
         // ================================
         // 4.c UI BATCHER E RING BUFFER
@@ -299,12 +358,14 @@ int main() {
         // ================================
 
         // Entrando no loop principal...
-        // Controles: F1 = Wireframe, ESC = Sair
+        // Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes
         
         double lastTime = glfwGetTime();
         double fpsTime = lastTime;
         int frameCount = 0;
         float fps = 0.0f;
+        
+        Core::Log("[App] Iniciando loop principal...");
         
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -313,6 +374,9 @@ int main() {
             double now = glfwGetTime();
             float deltaTime = float(now - lastTime);
             lastTime = now;
+            
+            appData.animationTime += deltaTime;
+            appData.frameCounter++;
             
             frameCount++;
             if (now - fpsTime >= 1.0) {
@@ -323,7 +387,7 @@ int main() {
                 char title[256];
                 const char* activeVp = appData.renderManager->GetActiveViewport().c_str();
                 snprintf(title, sizeof(title), 
-                    "DriftEngine AAA [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu] [Active: %s]", 
+                    "DriftEngine - Teste de Fontes [FPS: %.1f] [Frame: %.2fms] [Viewports: %zu] [Active: %s]", 
                     fps, 
                     appData.renderManager->GetStats().frameTime,
                     appData.renderManager->GetViewportCount(),
@@ -349,11 +413,39 @@ int main() {
                     std::string(appData.renderManager->IsWireframeMode() ? "ON" : "OFF"));
             }
             
+            // Recarregar fontes com R
+            if (input.IsKeyPressed(Engine::Input::Key::R)) {
+                Core::Log("[App] Recarregando fontes...");
+                auto& fontManager = UI::FontManager::GetInstance();
+                fontManager.ClearCache();
+                
+                std::vector<float> tamanhos = {12.0f, 16.0f, 20.0f, 24.0f, 32.0f, 48.0f};
+                for (float size : tamanhos) {
+                    auto font = fontManager.LoadFont("default", "fonts/Arial-Regular.ttf", size, UI::FontQuality::High);
+                    if (font) {
+                        Core::Log("[App] Fonte recarregada: tamanho " + std::to_string(size));
+                    }
+                }
+            }
+            
             // ---- RENDER MANAGER UPDATE ----
             appData.renderManager->Update(deltaTime, input);
 
             // ---- UI UPDATE ----
             appData.uiContext->Update(deltaTime);
+            
+            // Atualizar labels de teste com animação
+            if (appData.debugLabel) {
+                std::string debugText = "Debug: Frame " + std::to_string(appData.frameCounter) + 
+                                      " | Tempo: " + std::to_string(appData.animationTime) + "s";
+                appData.debugLabel->SetText(debugText);
+            }
+            
+            if (appData.performanceLabel) {
+                std::string perfText = "Performance: FPS " + std::to_string(static_cast<int>(fps)) + 
+                                     " | Delta: " + std::to_string(deltaTime * 1000.0f) + "ms";
+                appData.performanceLabel->SetText(perfText);
+            }
 
             // ---- CURSOR LOCK ----
             // Por enquanto, desabilita o lock do cursor para permitir interação com UI
@@ -370,26 +462,26 @@ int main() {
                 // Configurar viewport para UI (tela inteira)
                 appData.context->SetViewport(0, 0, 1280, 720);
 
-                Core::Log("[App] Iniciando renderização de UI...");
                 appData.uiBatcher->Begin();
                 
-                // Teste: Adicionar retângulos coloridos
-                Core::Log("[App] Adicionando retângulos de teste...");
-                appData.uiBatcher->AddRect(50.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFFFF0000)); // Vermelho sólido
-                appData.uiBatcher->AddRect(300.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFF0000FF)); // Azul sólido
-                appData.uiBatcher->AddRect(540.0f, 310.0f, 200.0f, 100.0f, Drift::Color(0xFF00FF00)); // Verde sólido
+                // Teste: Adicionar retângulos coloridos de fundo
+                appData.uiBatcher->AddRect(40.0f, 20.0f, 400.0f, 200.0f, Drift::Color(0x80000000)); // Fundo semi-transparente
+                appData.uiBatcher->AddRect(40.0f, 650.0f, 600.0f, 60.0f, Drift::Color(0x80000000)); // Fundo para instruções
                 
-                // Teste: Adicionar texto diretamente
-                Core::Log("[App] Adicionando texto de teste...");
-                appData.uiBatcher->AddText(100.0f, 200.0f, "Teste de Textoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo", Drift::Color(0xFFFFFFFF));
+                // Teste: Adicionar texto diretamente via UIBatcher
+                appData.uiBatcher->AddText(50.0f, 200.0f, "Texto direto via UIBatcher - Tamanho 16", Drift::Color(0xFFFF00FF));
+                appData.uiBatcher->AddText(50.0f, 230.0f, "Texto direto via UIBatcher - Tamanho 20", Drift::Color(0xFF00FFFF));
+                appData.uiBatcher->AddText(50.0f, 260.0f, "Texto direto via UIBatcher - Tamanho 24", Drift::Color(0xFFFFFF00));
                 
-                // Renderizar UI
-                Core::Log("[App] Renderizando UI context...");
+                // Teste: Texto com caracteres especiais
+                appData.uiBatcher->AddText(50.0f, 300.0f, "Caracteres especiais: áéíóú çãõ ñ", Drift::Color(0xFFFFFFFF));
+                appData.uiBatcher->AddText(50.0f, 330.0f, "Números: 0123456789", Drift::Color(0xFFFF8000));
+                appData.uiBatcher->AddText(50.0f, 360.0f, "Símbolos: !@#$%^&*()_+-=[]{}|;':\",./<>?", Drift::Color(0xFF00FF00));
+                
+                // Renderizar UI context (elementos criados via sistema de UI)
                 appData.uiContext->Render(*appData.uiBatcher);
                 
-                Core::Log("[App] Finalizando renderização de UI...");
                 appData.uiBatcher->End();
-                Core::Log("[App] Renderização de UI concluída");
             }
             
             // ---- PRESENT ----

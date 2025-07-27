@@ -192,3 +192,23 @@ void UIElement::RecalculateLayout()
     // Widgets especializados podem sobrescrever este método
     ClearLayoutDirty();
 }
+
+std::shared_ptr<UIElement> UIElement::FindChildByName(const std::string& name) const
+{
+    // Busca direta nos filhos
+    for (const auto& child : m_Children) {
+        if (child->GetName() == name) {
+            return child;
+        }
+    }
+    
+    // Busca recursiva nos filhos dos filhos
+    for (const auto& child : m_Children) {
+        auto found = child->FindChildByName(name);
+        if (found) {
+            return found;
+        }
+    }
+    
+    return nullptr;
+}

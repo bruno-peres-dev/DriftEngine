@@ -300,7 +300,8 @@ TextureDX11::TextureDX11(ID3D11ShaderResourceView* srv, ID3D11Resource* resource
 
 // Atualiza subresource da textura (ex: upload de dados)
 void TextureDX11::UpdateSubresource(unsigned mipLevel, unsigned arraySlice, const void* data, size_t rowPitch, size_t slicePitch) {
-    Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource iniciado");
+    // Log de debug removido para evitar spam durante carregamento de texturas
+    // Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource iniciado");
     
     // Validações
     if (!_context) {
@@ -318,19 +319,20 @@ void TextureDX11::UpdateSubresource(unsigned mipLevel, unsigned arraySlice, cons
         throw std::runtime_error("TextureDX11: data é nullptr para UpdateSubresource");
     }
     
-    Drift::Core::LogRHIDebug("[TextureDX11] Parâmetros válidos - mipLevel: " + std::to_string(mipLevel) + 
-                            ", arraySlice: " + std::to_string(arraySlice) + 
-                            ", rowPitch: " + std::to_string(rowPitch) + 
-                            ", slicePitch: " + std::to_string(slicePitch));
+    // Logs de parâmetros removidos para evitar spam
+    // Drift::Core::LogRHIDebug("[TextureDX11] Parâmetros válidos - mipLevel: " + std::to_string(mipLevel) + 
+    //                         ", arraySlice: " + std::to_string(arraySlice) + 
+    //                         ", rowPitch: " + std::to_string(rowPitch) + 
+    //                         ", slicePitch: " + std::to_string(slicePitch));
     
     try {
         UINT subresource = D3D11CalcSubresource(mipLevel, arraySlice, 1);
-        Drift::Core::LogRHIDebug("[TextureDX11] Subresource calculado: " + std::to_string(subresource));
+        // Drift::Core::LogRHIDebug("[TextureDX11] Subresource calculado: " + std::to_string(subresource));
         
         // UpdateSubresource retorna void, não HRESULT
         _context->UpdateSubresource(_resource.Get(), subresource, nullptr, data, (UINT)rowPitch, (UINT)slicePitch);
         
-        Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource concluído com sucesso");
+        // Drift::Core::LogRHIDebug("[TextureDX11] UpdateSubresource concluído com sucesso");
     } catch (const std::exception& e) {
         Drift::Core::LogException("[TextureDX11] Exceção em UpdateSubresource", e);
         throw;

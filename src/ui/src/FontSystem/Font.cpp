@@ -17,13 +17,11 @@ const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
     if (codepoint >= 32 && codepoint <= 127) {
         size_t index = codepoint - 32;
         if (index < m_GlyphsASCII.size()) {
-            // Para espaços, sempre retornar o glyph mesmo se size for zero
-            if (codepoint == 32) {
-                return &m_GlyphsASCII[index];
-            }
-            // Para outros caracteres, verificar se têm tamanho
-            if (m_GlyphsASCII[index].size.x > 0) {
-                return &m_GlyphsASCII[index];
+            const GlyphInfo& g = m_GlyphsASCII[index];
+            
+            // Retornar o glyph se ele tem UVs válidas ou se é um espaço
+            if (codepoint == 32 || g.uv0.x >= 0.0f || g.uv0.y >= 0.0f || g.advance > 0.0f) {
+                return &g;
             }
         }
     }

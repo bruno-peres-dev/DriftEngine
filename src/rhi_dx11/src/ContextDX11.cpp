@@ -218,8 +218,9 @@ void ContextDX11::Resize(unsigned width, unsigned height) {
 }
 
 void ContextDX11::PSSetTexture(UINT slot, ITexture* tex) {
-    Core::LogRHIDebug("[ContextDX11] PSSetTexture: slot=" + std::to_string(slot) + 
-                     ", texture=" + (tex ? "válida" : "nullptr"));
+    // Log de debug removido para evitar spam durante rendering
+    // Core::LogRHIDebug("[ContextDX11] PSSetTexture: slot=" + std::to_string(slot) + 
+    //                  ", texture=" + (tex ? "válida" : "nullptr"));
     
     if (!tex) {
         Core::Log("[ContextDX11][ERRO] PSSetTexture: textura é nullptr para slot " + std::to_string(slot));
@@ -233,8 +234,9 @@ void ContextDX11::PSSetTexture(UINT slot, ITexture* tex) {
         return;
     }
     
-    Core::LogRHIDebug("[ContextDX11] PSSetTexture: SRV válido para slot " + std::to_string(slot) + 
-                     " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(srv)) + ")");
+    // Log de debug removido para evitar spam durante rendering
+    // Core::LogRHIDebug("[ContextDX11] PSSetTexture: SRV válido para slot " + std::to_string(slot) + 
+    //                  " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(srv)) + ")");
     _context->PSSetShaderResources(slot, 1, &srv);
 }
 
@@ -426,7 +428,8 @@ void ContextDX11::SetPipelineState(IPipelineState* pipeline) {
     // garantindo que todos os estágios estejam configurados
     if (_currentPipeline) {
         _currentPipeline->Apply(*this);
-        Drift::Core::LogRHIDebug("Pipeline state alterado");
+        // Log removido para evitar spam no rendering loop
+        // Drift::Core::LogRHIDebug("Pipeline state alterado");
     }
 }
 

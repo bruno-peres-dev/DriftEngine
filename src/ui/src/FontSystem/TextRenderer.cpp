@@ -30,11 +30,6 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     auto& fm = FontManager::GetInstance();
     
     auto font = fm.GetFont(fontName, fontSize, UI::FontQuality::High);
-    if (font) {
-        Drift::Core::Log("[TextRenderer] Fonte encontrada: " + fontName + " (tamanho: " + std::to_string(fontSize) + ")");
-    } else {
-        Drift::Core::Log("[TextRenderer] Fonte NÃO encontrada: " + fontName + " (tamanho: " + std::to_string(fontSize) + ")");
-    }
     if (!font) {
         // Tentar carregar a fonte se não encontrada
         font = fm.GetOrLoadFont(fontName, fm.GetDefaultFontPath(), fontSize, UI::FontQuality::High);
@@ -49,8 +44,6 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         Drift::Core::LogError("[TextRenderer] Textura do atlas não encontrada");
         return;
     }
-    
-    Drift::Core::Log("[TextRenderer] Configurando textura do atlas no batcher...");
     
     // Marcar início de renderização de texto
     m_Batcher->BeginText();
@@ -70,11 +63,12 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
 float TextRenderer::RenderGlyph(char c, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color) {
     const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
     if (!g) {
-        Drift::Core::Log("[TextRenderer] Glyph não encontrado para caractere: '" + std::string(1, c) + "' (codepoint: " + std::to_string(static_cast<unsigned char>(c)) + ")");
+        // Log apenas para caracteres não-ascii ou não-espaço que realmente deviam ter glifos
+        if (c > 127 || (c >= 33 && c <= 126)) {
+            Drift::Core::LogError("[TextRenderer] Glyph não encontrado para caractere: '" + std::string(1, c) + "' (codepoint: " + std::to_string(static_cast<unsigned char>(c)) + ")");
+        }
         return 0.0f;  // Retorna 0 se glyph não encontrado
     }
-
-    Drift::Core::Log("[TextRenderer] Renderizando glyph '" + std::string(1, c) + "' em (" + std::to_string(x) + ", " + std::to_string(baseline) + ") - UV: (" + std::to_string(g->uv0.x) + "," + std::to_string(g->uv0.y) + ") a (" + std::to_string(g->uv1.x) + "," + std::to_string(g->uv1.y) + ")");
 
     // Para espaços, apenas avançar a posição sem renderizar
     if (c == ' ') {

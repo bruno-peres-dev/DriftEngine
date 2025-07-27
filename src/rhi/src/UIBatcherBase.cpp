@@ -330,9 +330,6 @@ void UIBatcherBase::TrimGeometryCacheInternal() {
 }
 
 void UIBatcherBase::TrimTextureCacheInternal() {
-    // Implementação básica - em uma implementação real,
-    // seria necessário gerenciar o cache de texturas
-    Core::Log("[UIBatcherBase] Cache de texturas trimado");
 }
 
 } // namespace Drift::RHI 

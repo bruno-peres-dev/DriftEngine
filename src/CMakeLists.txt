@@ -214,17 +214,11 @@ target_link_libraries(DriftEngineApp PUBLIC
 # 6) Copiar recursos necessários para o executável
 # ------------------------------------------------
 
-# Obter o diretório de saída do executável
-get_target_property(EXECUTABLE_OUTPUT_PATH DriftEngineApp RUNTIME_OUTPUT_DIRECTORY)
-if(NOT EXECUTABLE_OUTPUT_PATH)
-    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/src/$<CONFIG>)
-endif()
-
 # Copiar pasta Fonts
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/fonts
-  ${EXECUTABLE_OUTPUT_PATH}/fonts
+  $<TARGET_FILE_DIR:DriftEngineApp>/fonts
   COMMENT "Copiando pasta Fonts..."
 )
 
@@ -232,7 +226,7 @@ add_custom_command(TARGET DriftEngineApp POST_BUILD
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/textures
-  ${EXECUTABLE_OUTPUT_PATH}/textures
+  $<TARGET_FILE_DIR:DriftEngineApp>/textures
   COMMENT "Copiando pasta Textures..."
 )
 
@@ -240,7 +234,7 @@ add_custom_command(TARGET DriftEngineApp POST_BUILD
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/shaders
-  ${EXECUTABLE_OUTPUT_PATH}/shaders
+  $<TARGET_FILE_DIR:DriftEngineApp>/shaders
   COMMENT "Copiando pasta Shaders..."
 )
 

@@ -33,6 +33,9 @@ public:
     const std::vector<std::shared_ptr<UIElement>>& GetChildren() const { return m_Children; }
     UIElement* GetParent() const { return m_Parent; }
     UIElement* GetRoot() const;
+    
+    // Busca elementos por nome
+    std::shared_ptr<UIElement> FindChildByName(const std::string& name) const;
 
     // === TRANSFORMAÇÕES BÁSICAS ===
     void SetPosition(const glm::vec2& pos) { m_Position = pos; MarkDirty(); }

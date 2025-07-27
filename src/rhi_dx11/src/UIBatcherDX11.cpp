@@ -228,9 +228,9 @@ void UIBatcherDX11::OnEnd() {
     }
     
     // Log estatísticas finais
-    Core::Log("[UIBatcherDX11] Frame finalizado - DrawCalls: " + std::to_string(m_Stats.drawCalls) + 
-              ", Vértices: " + std::to_string(m_Stats.verticesRendered) + 
-              ", Culled: " + std::to_string(m_Stats.culledElements));
+    //Core::Log("[UIBatcherDX11] Frame finalizado - DrawCalls: " + std::to_string(m_Stats.drawCalls) + 
+    //          ", Vértices: " + std::to_string(m_Stats.verticesRendered) + 
+    //          ", Culled: " + std::to_string(m_Stats.culledElements));
 }
 
 void UIBatcherDX11::OnAddRect(float x, float y, float w, float h, Drift::Color color) {
@@ -409,16 +409,6 @@ void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color c
     if (!m_TextRenderer) {
         Core::Log("[UIBatcherDX11] ERRO: TextRenderer não inicializado!");
         return;
-    }
-    
-    Core::Log("[UIBatcherDX11] OnAddText chamado: '" + std::string(text) + "' em (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-    
-    // Configurar textura de fonte
-    if (m_Textures.find(0) != m_Textures.end()) {
-        Core::Log("[UIBatcherDX11] Textura 0 encontrada, configurando...");
-        SetTexture(0, m_Textures[0]);
-    } else {
-        Core::Log("[UIBatcherDX11] AVISO: Textura 0 não encontrada!");
     }
     
     // Obter fonte padrão do FontManager
@@ -715,13 +705,9 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         }
 
         // Garante que a textura 0 está correta para texto
-        if (batch.isText) {
-            if (!m_Textures[0]) {
-                Core::Log("[UIBatcherDX11][ERRO] m_Textures[0] não está setada antes de RenderBatch() para texto!");
-            } else {
-                Core::Log("[UIBatcherDX11] Textura 0 válida para texto: " + 
-                         std::to_string(reinterpret_cast<uintptr_t>(m_Textures[0])));
-            }
+        if (batch.isText && !m_Textures[0]) {
+            Core::Log("[UIBatcherDX11][ERRO] Textura não configurada para renderização de texto!");
+            return;
         }
     
         // Calcular tamanhos dos buffers
@@ -790,19 +776,12 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
         contextDX11->IASetPrimitiveTopology(Drift::RHI::PrimitiveTopology::TriangleList);
         
         // Configurar todas as texturas necessárias para o array de texturas
-        Core::Log("[UIBatcherDX11] Configurando " + std::to_string(m_Textures.size()) + " texturas...");
         for (size_t i = 0; i < m_Textures.size() && i < 16; ++i) {
             if (m_Textures[i]) {
-                Core::Log("[UIBatcherDX11] Configurando textura " + std::to_string(i) + 
-                         " (handle: " + std::to_string(reinterpret_cast<uintptr_t>(m_Textures[i]->GetBackendHandle())) + ")");
                 contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
                 if (m_DefaultSampler) {
                     contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
-                } else {
-                    Core::Log("[UIBatcherDX11] AVISO: Sampler é nullptr para textura " + std::to_string(i));
                 }
-            } else {
-                Core::Log("[UIBatcherDX11] Textura " + std::to_string(i) + " é nullptr");
             }
         }
         
