@@ -133,6 +133,7 @@ void UIContext::InitializeFontSystem()
     
     // Configurar fonte padrão
     fontManager.SetDefaultFontName("default");
+    fontManager.SetDefaultFontPath(ResolveFontPath("fonts/Arial-Regular.ttf"));
     fontManager.SetDefaultSize(16.0f);
     fontManager.SetDefaultQuality(UI::FontQuality::High);
     
@@ -175,8 +176,8 @@ void UIContext::LoadFonts()
     
     auto& fontManager = UI::FontManager::GetInstance();
     
-    // Resolver caminho da fonte
-    std::string fontPath = ResolveFontPath("fonts/Arial-Regular.ttf");
+    // Obter caminho da fonte padrão
+    std::string fontPath = fontManager.GetDefaultFontPath();
     Drift::Core::LogRHI("[UIContext] Caminho da fonte resolvido: " + fontPath);
     
     // Pré-carregar o arquivo TTF uma única vez
