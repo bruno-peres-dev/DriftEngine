@@ -34,11 +34,10 @@ inline Drift::Color ConvertARGBtoRGBA(Drift::Color argb) {
     uint8_t r = (argb >> 16) & 0xFF;
     uint8_t g = (argb >> 8) & 0xFF;
     uint8_t b = argb & 0xFF;
-    
-    // Converter ARGB para RGBA: reordenar bytes para R8G8B8A8_UNORM
-    // ARGB: AAAA RRRR GGGG BBBB
-    // RGBA: RRRR GGGG BBBB AAAA (reordenar para GPU)
-    return (r << 24) | (g << 16) | (b << 8) | a;
+
+    // Converter ARGB (A,R,G,B) para o layout em memória R,G,B,A
+    // esperado pelo formato R8G8B8A8_UNORM usado nos vértices
+    return r | (g << 8) | (b << 16) | (a << 24);
 }
 
 // Construtor otimizado
