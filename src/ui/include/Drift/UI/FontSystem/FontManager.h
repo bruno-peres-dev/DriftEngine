@@ -36,9 +36,12 @@ public:
     // Configuração do sistema
     void SetDevice(Drift::RHI::IDevice* device) { m_Device = device; }
     void SetDefaultFontName(const std::string& name) { m_DefaultFontName = name; }
+    void SetDefaultFontPath(const std::string& path) { m_DefaultFontPath = path; }
     void SetDefaultSize(float size) { m_DefaultSize = size; }
     void SetDefaultQuality(FontQuality q) { m_DefaultQuality = q; }
     void SetCacheConfig(const FontCacheConfig& config) { m_CacheConfig = config; }
+    const std::string& GetDefaultFontName() const { return m_DefaultFontName; }
+    const std::string& GetDefaultFontPath() const;
 
     // Carregamento e obtenção de fontes
     std::shared_ptr<Font> LoadFont(const std::string& name, const std::string& path, float size, FontQuality quality);
@@ -118,6 +121,7 @@ private:
     mutable std::mutex m_Mutex;
     Drift::RHI::IDevice* m_Device{nullptr};
     std::string m_DefaultFontName{"default"};
+    std::string m_DefaultFontPath{"fonts/Arial-Regular.ttf"};
     float m_DefaultSize{16.0f};
     FontQuality m_DefaultQuality{FontQuality::High};
     FontCacheConfig m_CacheConfig;
