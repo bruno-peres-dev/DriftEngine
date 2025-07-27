@@ -6,6 +6,7 @@
 #include "Drift/RHI/DX11/SamplerDX11.h"
 #include "Drift/RHI/DX11/BufferDX11.h"
 #include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/Core/Log.h"
 #include <d3d11.h>
 #include <algorithm>
@@ -420,8 +421,12 @@ void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color c
         Core::Log("[UIBatcherDX11] AVISO: Textura 0 não encontrada!");
     }
     
+    // Obter fonte padrão do FontManager
+    auto& fontManager = Drift::UI::FontManager::GetInstance();
+    const std::string& defaultFont = fontManager.GetDefaultFontName();
+
     // Renderizar texto usando o text renderer
-    m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "default", 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), defaultFont, 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void UIBatcherDX11::OnBeginText() {

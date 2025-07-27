@@ -11,6 +11,10 @@ FontManager& FontManager::GetInstance() {
     return instance;
 }
 
+const std::string& FontManager::GetDefaultFontName() const {
+    return m_DefaultFontName;
+}
+
 size_t FontManager::GetCurrentTime() const {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now().time_since_epoch()
