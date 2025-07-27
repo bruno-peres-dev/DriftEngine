@@ -77,8 +77,8 @@ float4 PSMain(PSIn i) : SV_TARGET {
     // Cor já está em formato RGBA, usar diretamente
     float4 rgbaColor = i.col;
     
-    // Se tem textura (textureId < 16), usar a textura com a cor
-    if (i.textureId < 16) {
+    // Se tem textura (0-15) e não é o identificador especial 8 (sem textura)
+    if (i.textureId < 16 && i.textureId != 8) {
         float4 texColor = SampleTexture(i.textureId, i.uv);
         
         // Otimização: early-out para texturas completamente transparentes
