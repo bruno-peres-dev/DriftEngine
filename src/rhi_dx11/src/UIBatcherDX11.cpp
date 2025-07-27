@@ -102,7 +102,7 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     // Inicializar text renderer
     m_TextRenderer = std::make_unique<Drift::UI::TextRenderer>();
     
-    Core::Log("[UIBatcherDX11] UIBatcherDX11 inicializado com sucesso");
+    Core::Log("[UIBatcherDX11] Inicializado com sucesso");
 }
 
 UIBatcherDX11::~UIBatcherDX11() = default;
@@ -204,8 +204,6 @@ void UIBatcherDX11::OnBegin() {
     
     // Atualizar constant buffer com tamanho da tela
     UpdateUIConstantsBuffer();
-    
-    Core::Log("[UIBatcherDX11] OnBegin concluído - Pipeline configurado");
 }
 
 void UIBatcherDX11::OnEnd() {
@@ -233,7 +231,8 @@ void UIBatcherDX11::OnEnd() {
 
 void UIBatcherDX11::OnAddRect(float x, float y, float w, float h, Drift::Color color) {
     // Verificar culling
-    if (m_CullingSystem && !m_CullingSystem->IsVisible(new float[4]{x, y, w, h})) {
+    float boundingBox[4] = {x, y, w, h};
+    if (m_CullingSystem && !m_CullingSystem->IsVisible(boundingBox)) {
         m_Stats.culledElements++;
         return;
     }
@@ -268,25 +267,35 @@ void UIBatcherDX11::OnAddQuad(float x0, float y0, float x1, float y1,
         return;
     }
     
-    // Converter coordenadas de tela para clip space
-    vertices[0] = UIVertex(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, rgbaColor, 8);
-    vertices[1] = UIVertex(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, rgbaColor, 8);
-    vertices[2] = UIVertex(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, rgbaColor, 8);
-    vertices[3] = UIVertex(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, rgbaColor, 8);
+    // CRÍTICO: Converter coordenadas para clip space como na versão antiga
+    float clipX0 = (x0 / m_ScreenW) * 2.0f - 1.0f;
+    float clipY0 = 1.0f - (y0 / m_ScreenH) * 2.0f;
+    float clipX1 = (x1 / m_ScreenW) * 2.0f - 1.0f;
+    float clipY1 = 1.0f - (y1 / m_ScreenH) * 2.0f;
+    float clipX2 = (x2 / m_ScreenW) * 2.0f - 1.0f;
+    float clipY2 = 1.0f - (y2 / m_ScreenH) * 2.0f;
+    float clipX3 = (x3 / m_ScreenW) * 2.0f - 1.0f;
+    float clipY3 = 1.0f - (y3 / m_ScreenH) * 2.0f;
     
-    // Renderizar vértices
-    RenderVertices(vertices, 4, nullptr, 0, false);
+    // Usar coordenadas convertidas para clip space
+    vertices[0] = UIVertex(clipX0, clipY0, 0.0f, 0.0f, rgbaColor, 8);
+    vertices[1] = UIVertex(clipX1, clipY1, 1.0f, 0.0f, rgbaColor, 8);
+    vertices[2] = UIVertex(clipX2, clipY2, 1.0f, 1.0f, rgbaColor, 8);
+    vertices[3] = UIVertex(clipX3, clipY3, 0.0f, 1.0f, rgbaColor, 8);
     
-    Core::Log("[UIBatcherDX11] Quad renderizado: (" + std::to_string(x0) + "," + std::to_string(y0) + 
-              ") -> (" + std::to_string(x2) + "," + std::to_string(y2) + ") - Cor: 0x" + 
-              std::to_string(color));
+    // CRÍTICO: Criar índices para renderizar como triângulos
+    uint32_t indices[6] = {0, 1, 2, 2, 3, 0};
+    
+    // Renderizar vértices com índices
+    RenderVertices(vertices, 4, indices, 6, false);
 }
 
 void UIBatcherDX11::OnAddTexturedRect(float x, float y, float w, float h,
                                      const glm::vec2& uvMin, const glm::vec2& uvMax,
                                      Drift::Color color, uint32_t textureId) {
     // Verificar culling
-    if (m_CullingSystem && !m_CullingSystem->IsVisible(new float[4]{x, y, w, h})) {
+    float boundingBox[4] = {x, y, w, h};
+    if (m_CullingSystem && !m_CullingSystem->IsVisible(boundingBox)) {
         m_Stats.culledElements++;
         return;
     }
@@ -301,15 +310,26 @@ void UIBatcherDX11::OnAddTexturedRect(float x, float y, float w, float h,
         return;
     }
     
-    vertices[0] = UIVertex(x, y, uvMin.x, uvMin.y, rgbaColor, textureId);
-    vertices[1] = UIVertex(x + w, y, uvMax.x, uvMin.y, rgbaColor, textureId);
-    vertices[2] = UIVertex(x + w, y + h, uvMax.x, uvMax.y, rgbaColor, textureId);
-    vertices[3] = UIVertex(x, y + h, uvMin.x, uvMax.y, rgbaColor, textureId);
+    // CRÍTICO: Converter coordenadas para clip space como na versão antiga
+    float clipX0 = (x / m_ScreenW) * 2.0f - 1.0f;
+    float clipY0 = 1.0f - (y / m_ScreenH) * 2.0f;
+    float clipX1 = ((x + w) / m_ScreenW) * 2.0f - 1.0f;
+    float clipY1 = 1.0f - (y / m_ScreenH) * 2.0f;
+    float clipX2 = ((x + w) / m_ScreenW) * 2.0f - 1.0f;
+    float clipY2 = 1.0f - ((y + h) / m_ScreenH) * 2.0f;
+    float clipX3 = (x / m_ScreenW) * 2.0f - 1.0f;
+    float clipY3 = 1.0f - ((y + h) / m_ScreenH) * 2.0f;
     
-    // Renderizar vértices
-    RenderVertices(vertices, 4, nullptr, 0, true);
+    vertices[0] = UIVertex(clipX0, clipY0, uvMin.x, uvMin.y, rgbaColor, textureId);
+    vertices[1] = UIVertex(clipX1, clipY1, uvMax.x, uvMin.y, rgbaColor, textureId);
+    vertices[2] = UIVertex(clipX2, clipY2, uvMax.x, uvMax.y, rgbaColor, textureId);
+    vertices[3] = UIVertex(clipX3, clipY3, uvMin.x, uvMax.y, rgbaColor, textureId);
     
-    Core::Log("[UIBatcherDX11] Textured rect renderizado: textureId=" + std::to_string(textureId));
+    // CRÍTICO: Criar índices para renderizar como triângulos
+    uint32_t indices[6] = {0, 1, 2, 2, 3, 0};
+    
+    // Renderizar vértices com índices
+    RenderVertices(vertices, 4, indices, 6, true);
 }
 
 void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color color) {
@@ -325,9 +345,6 @@ void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color c
     
     // Renderizar texto usando o text renderer
     m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "Arial", 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    
-    Core::Log("[UIBatcherDX11] Texto renderizado: '" + std::string(text) + "' em (" + 
-              std::to_string(x) + "," + std::to_string(y) + ")");
 }
 
 void UIBatcherDX11::OnBeginText() {
@@ -338,10 +355,14 @@ void UIBatcherDX11::OnBeginText() {
         auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
         if (contextDX11) {
             contextDX11->SetPipelineState(m_TextPipeline);
+            
+            // Configurar constant buffer para o shader de texto
+            if (m_UIConstantsBuffer) {
+                contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+                contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+            }
         }
     }
-    
-    Core::Log("[UIBatcherDX11] Iniciando renderização de texto");
 }
 
 void UIBatcherDX11::OnEndText() {
@@ -352,15 +373,18 @@ void UIBatcherDX11::OnEndText() {
         auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
         if (contextDX11) {
             contextDX11->SetPipelineState(m_Pipeline);
+            
+            // Restaurar constant buffer para o pipeline normal
+            if (m_UIConstantsBuffer) {
+                contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+                contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+            }
         }
     }
-    
-    Core::Log("[UIBatcherDX11] Finalizando renderização de texto");
 }
 
 void UIBatcherDX11::OnFlushBatch() {
     // Implementação específica do DX11 para flush
-    Core::Log("[UIBatcherDX11] Flush de batch executado");
 }
 
 void UIBatcherDX11::OnSetBlendMode(uint32_t srcFactor, uint32_t dstFactor) {
@@ -369,8 +393,6 @@ void UIBatcherDX11::OnSetBlendMode(uint32_t srcFactor, uint32_t dstFactor) {
     
     // Atualizar pipeline se necessário
     EnsurePipeline();
-    
-    Core::Log("[UIBatcherDX11] Blend mode alterado: " + std::to_string(srcFactor) + "/" + std::to_string(dstFactor));
 }
 
 void UIBatcherDX11::OnSetDepthTest(bool enabled) {
@@ -378,16 +400,12 @@ void UIBatcherDX11::OnSetDepthTest(bool enabled) {
     
     // Atualizar pipeline se necessário
     EnsurePipeline();
-    
-    Core::Log("[UIBatcherDX11] Depth test " + std::string(enabled ? "habilitado" : "desabilitado"));
 }
 
 void UIBatcherDX11::OnSetViewport(float x, float y, float w, float h) {
     if (m_CullingSystem) {
         m_CullingSystem->SetViewport(x, y, w, h);
     }
-    
-    Core::Log("[UIBatcherDX11] Viewport alterado: " + std::to_string(w) + "x" + std::to_string(h));
 }
 
 // === Detecção de recursos específica do DX11 ===
@@ -457,7 +475,6 @@ void UIBatcherDX11::AllocateBuffers() {
                 void* data = m_RingBuffer->Allocate(vertexBufferDesc.sizeBytes, 16, offset);
                 if (data) {
                     m_VertexBuffer.resize(m_QualityConfig.vertexPoolSize);
-                    Core::Log("[UIBatcherDX11] Vertex buffer alocado via ring buffer");
                 }
             }
         }
@@ -477,9 +494,7 @@ void UIBatcherDX11::CreateDefaultSampler() {
         auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
         if (device) {
             m_DefaultSampler = CreateSamplerDX11(device, samplerDesc);
-            if (m_DefaultSampler) {
-                Core::Log("[UIBatcherDX11] Sampler padrão criado com sucesso");
-            } else {
+            if (!m_DefaultSampler) {
                 Core::Log("[UIBatcherDX11] ERRO: Falha ao criar sampler padrão!");
             }
         }
@@ -491,8 +506,6 @@ void UIBatcherDX11::EnsurePipeline() {
         return;
     }
     
-    Core::Log("[UIBatcherDX11] Configurando pipeline UI...");
-    
     // Criar descrição do pipeline UI
     PipelineDesc uiDesc;
     uiDesc.vsFile = "shaders/UIBatch.hlsl";
@@ -500,15 +513,16 @@ void UIBatcherDX11::EnsurePipeline() {
     uiDesc.psFile = "shaders/UIBatch.hlsl";
     uiDesc.psEntry = "PSMain";
     
-    // Configurar input layout para UIVertex (compatível com shader simplificado)
+    // Configurar input layout para UIVertex (compatível com estrutura completa)
     uiDesc.inputLayout = {
         {"POSITION", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, x)},
         {"TEXCOORD", 0, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, u)},
         {"COLOR", 0, VertexFormat::R8G8B8A8_UNORM, offsetof(UIVertex, color)},
-        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)}
+        {"TEXCOORD", 1, VertexFormat::R32_UINT, offsetof(UIVertex, textureId)},
+        {"TEXCOORD", 2, VertexFormat::R32G32_FLOAT, offsetof(UIVertex, offsetX)},
+        {"TEXCOORD", 3, VertexFormat::R32_FLOAT, offsetof(UIVertex, scale)},
+        {"TEXCOORD", 4, VertexFormat::R32_FLOAT, offsetof(UIVertex, rotation)}
     };
-    
-    Core::Log("[UIBatcherDX11] Input layout configurado com " + std::to_string(uiDesc.inputLayout.size()) + " elementos");
     
     // Configurar rasterizer state
     uiDesc.rasterizer.wireframe = false;
@@ -525,8 +539,6 @@ void UIBatcherDX11::EnsurePipeline() {
     uiDesc.blend.blendFactorSeparate = true;
     uiDesc.blend.alphaToCoverage = false;
     
-    Core::Log("[UIBatcherDX11] Blend state configurado: SrcAlpha/InvSrcAlpha");
-    
     // Configurar depth stencil state
     uiDesc.depthStencil.depthEnable = false;
     uiDesc.depthStencil.depthWrite = false;
@@ -536,19 +548,13 @@ void UIBatcherDX11::EnsurePipeline() {
     if (contextDX11) {
         auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
         if (device) {
-            Core::Log("[UIBatcherDX11] Criando pipeline UI...");
             m_Pipeline = CreatePipelineDX11(device, uiDesc);
-            if (m_Pipeline) {
-                Core::Log("[UIBatcherDX11] Pipeline UI criado com sucesso");
-            } else {
+            if (!m_Pipeline) {
                 Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline UI!");
                 // Tentar criar um pipeline mais simples como fallback
-                Core::Log("[UIBatcherDX11] Tentando criar pipeline fallback...");
                 uiDesc.inputLayout.clear(); // Remover input layout complexo
                 m_Pipeline = CreatePipelineDX11(device, uiDesc);
-                if (m_Pipeline) {
-                    Core::Log("[UIBatcherDX11] Pipeline fallback criado com sucesso");
-                } else {
+                if (!m_Pipeline) {
                     Core::Log("[UIBatcherDX11] ERRO CRÍTICO: Falha ao criar pipeline fallback!");
                 }
             }
@@ -565,8 +571,6 @@ void UIBatcherDX11::CreateTextPipeline() {
         return;
     }
 
-    Core::Log("[UIBatcherDX11] Criando pipeline de texto...");
-    
     PipelineDesc textDesc;
     textDesc.vsFile = "shaders/BitmapFontVS.hlsl";
     textDesc.vsEntry = "main";
@@ -600,11 +604,8 @@ void UIBatcherDX11::CreateTextPipeline() {
     if (contextDX11) {
         auto* device = static_cast<ID3D11Device*>(contextDX11->GetNativeDevice());
         if (device) {
-            Core::Log("[UIBatcherDX11] Criando pipeline de texto bitmap...");
             m_TextPipeline = CreatePipelineDX11(device, textDesc);
-            if (m_TextPipeline) {
-                Core::Log("[UIBatcherDX11] Pipeline de texto bitmap criado com sucesso");
-            } else {
+            if (!m_TextPipeline) {
                 Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline de texto bitmap!");
             }
         }
@@ -615,15 +616,12 @@ void UIBatcherDX11::CreateInstancedPipeline() {
     // Criar pipeline para instancing
     // Por enquanto, usar o pipeline padrão
     // Implementação completa seria específica para instancing
-    Core::Log("[UIBatcherDX11] Pipeline de instancing configurado");
 }
 
 void UIBatcherDX11::ProcessCommandBuffer() {
     if (m_CommandBuffer.empty()) {
         return;
     }
-    
-    Core::Log("[UIBatcherDX11] Processando " + std::to_string(m_CommandBuffer.size()) + " comandos");
     
     // Ordenar comandos por textura para minimizar state changes
     SortCommandsByTexture();
@@ -681,9 +679,17 @@ void UIBatcherDX11::RenderVertices(const UIVertex* vertices, size_t vertexCount,
         contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
     }
     
-    // Configurar sampler se necessário
-    if (hasTexture && m_DefaultSampler) {
-        contextDX11->SetSampler(0, m_DefaultSampler.get());
+    // CRÍTICO: Configurar texturas se necessário
+    if (hasTexture) {
+        // Configurar texturas do array de texturas
+        for (size_t i = 0; i < m_Textures.size() && i < 16; ++i) {
+            if (m_Textures[i]) {
+                contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
+                if (m_DefaultSampler) {
+                    contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
+                }
+            }
+        }
     }
     
     // CRÍTICO: Alocar dados no ring buffer
@@ -714,8 +720,6 @@ void UIBatcherDX11::RenderVertices(const UIVertex* vertices, size_t vertexCount,
                 // Renderizar sem índices (quads)
                 contextDX11->Draw(vertexCount, 0);
             }
-            
-            Core::Log("[UIBatcherDX11] Renderizando " + std::to_string(vertexCount) + " vértices via ring buffer");
         } else {
             Core::Log("[UIBatcherDX11] ERRO: Falha ao alocar vértices no ring buffer!");
         }
@@ -753,16 +757,13 @@ void UIBatcherDX11::CreateUIConstantsBuffer() {
     
     m_UIConstantsBuffer = CreateBufferDX11(device, static_cast<ID3D11DeviceContext*>(contextDX11->GetNativeContext()), cbDesc);
     
-    if (m_UIConstantsBuffer) {
-        Core::Log("[UIBatcherDX11] Constant buffer UI criado com sucesso");
-    } else {
+    if (!m_UIConstantsBuffer) {
         Core::Log("[UIBatcherDX11] ERRO: Falha ao criar constant buffer UI!");
     }
 }
 
 void UIBatcherDX11::UpdateUIConstantsBuffer() {
     if (!m_UIConstantsBuffer) {
-        Core::Log("[UIBatcherDX11] AVISO: Constant buffer UI não criado!");
         return;
     }
     
@@ -785,9 +786,6 @@ void UIBatcherDX11::UpdateUIConstantsBuffer() {
         contextDX11->UpdateConstantBuffer(m_UIConstantsBuffer.get(), &m_UIConstants, sizeof(UIConstants));
         contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
         contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
-        Core::Log("[UIBatcherDX11] Constant buffer atualizado: screenSize=(" + 
-                  std::to_string(m_UIConstants.screenSize[0]) + "," + 
-                  std::to_string(m_UIConstants.screenSize[1]) + ")");
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Context DX11 é nullptr ao atualizar constant buffer!");
     }

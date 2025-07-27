@@ -30,8 +30,16 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
 {
     // Renderiza o fundo se tiver cor
     if (m_Color != 0x00000000) {
-        UIElement::Render(batch);
-    } else {
+        // Renderiza apenas o fundo sem chamar UIElement::Render para evitar renderização dupla
+        if (m_Visible && m_Opacity > 0.0f && m_Size.x > 0 && m_Size.y > 0) {
+            Drift::Color color = GetRenderColor();
+            unsigned alpha = static_cast<unsigned>(((color >> 24) & 0xFF) * m_Opacity);
+            color = (color & 0x00FFFFFF) | (alpha << 24);
+            
+            if (alpha > 0) {
+                batch.AddQuad(m_WorldTransform, m_Size.x, m_Size.y, color);
+            }
+        }
     }
 
     // Renderiza o texto real apenas se necessário

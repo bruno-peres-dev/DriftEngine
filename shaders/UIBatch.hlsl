@@ -6,6 +6,9 @@ struct VSIn {
     float2 uv       : TEXCOORD0;
     float4 col      : COLOR0; // RGBA format (convertido de ARGB)
     uint textureId  : TEXCOORD1;
+    float2 offset   : TEXCOORD2; // offsetX, offsetY
+    float scale     : TEXCOORD3;
+    float rotation  : TEXCOORD4;
 };
 
 struct PSIn {
@@ -13,6 +16,9 @@ struct PSIn {
     float2 uv       : TEXCOORD0;
     float4 col      : COLOR0; // RGBA format
     uint textureId  : TEXCOORD1;
+    float2 offset   : TEXCOORD2; // offsetX, offsetY
+    float scale     : TEXCOORD3;
+    float rotation  : TEXCOORD4;
 };
 
 // Array de texturas para UI (suporte a 16 texturas)
@@ -57,18 +63,15 @@ float4 SampleTexture(uint textureId, float2 uv) {
 PSIn VSMain(VSIn v) {
     PSIn o;
     
-    // Converter coordenadas de tela para clip space (NDC)
-    // Coordenadas de tela: (0,0) no canto superior esquerdo, (screenSize.x, screenSize.y) no canto inferior direito
-    // Clip space: (-1,-1) no canto inferior esquerdo, (1,1) no canto superior direito
-    float2 clipPos;
-    clipPos.x = (v.pos.x / screenSize.x) * 2.0f - 1.0f;
-    clipPos.y = 1.0f - (v.pos.y / screenSize.y) * 2.0f; // Inverter Y
-    
-    // Usar Z = 0 para garantir que a UI fique na frente de tudo
-    o.pos = float4(clipPos, 0.0, 1.0);
+    // CRÍTICO: Coordenadas já estão em clip space, usar diretamente
+    // Não fazer conversão dupla de coordenadas
+    o.pos = float4(v.pos, 0.0, 1.0);
     o.uv = v.uv;
     o.col = v.col;
     o.textureId = v.textureId;
+    o.offset = v.offset;
+    o.scale = v.scale;
+    o.rotation = v.rotation;
     
     return o;
 }

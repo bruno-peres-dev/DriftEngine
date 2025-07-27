@@ -19,17 +19,25 @@ struct VertexOutput {
 };
 
 // Constantes do shader
-cbuffer TextConstants : register(b0) {
+cbuffer UIConstants : register(b0) {
     float2 screenSize;
     float2 atlasSize;
     float2 padding;
+    float time;
+    float4 debugColor;
 }
 
 VertexOutput main(VertexInput input) {
     VertexOutput output;
     
-    // As coordenadas já estão em clip space (convertidas pelo UIBatcher)
-    output.position = float4(input.position, 0.0f, 1.0f);
+    // Converter coordenadas de tela para clip space (NDC)
+    // Coordenadas de tela: (0,0) no canto superior esquerdo, (screenSize.x, screenSize.y) no canto inferior direito
+    // Clip space: (-1,-1) no canto inferior esquerdo, (1,1) no canto superior direito
+    float2 clipPos;
+    clipPos.x = (input.position.x / screenSize.x) * 2.0f - 1.0f;
+    clipPos.y = 1.0f - (input.position.y / screenSize.y) * 2.0f; // Inverter Y
+    
+    output.position = float4(clipPos, 0.0f, 1.0f);
     
     // Coordenadas de textura
     output.texCoord = input.texCoord;
