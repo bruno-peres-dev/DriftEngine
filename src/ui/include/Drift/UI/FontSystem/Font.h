@@ -92,8 +92,8 @@ private:
     float m_Size;
     FontQuality m_Quality;
     
-    // Otimização: usar vector para glyphs comuns (ASCII 32-127)
-    std::vector<GlyphInfo> m_GlyphsASCII;  // Para caracteres ASCII comuns
+    // Otimização: usar vector para glyphs Latin-1 (32-255)
+    std::vector<GlyphInfo> m_GlyphsASCII;  // Para caracteres Latin-1 comuns
     std::unordered_map<uint32_t, GlyphInfo> m_GlyphsExtended;  // Para caracteres Unicode
     
     std::shared_ptr<Drift::RHI::ITexture> m_Texture;

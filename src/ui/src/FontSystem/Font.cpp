@@ -8,19 +8,22 @@ using namespace Drift::UI;
 
 Font::Font(std::string name, float size, FontQuality quality)
     : m_Name(std::move(name)), m_Size(size), m_Quality(quality) {
-    // Inicializar vector ASCII com tamanho fixo para caracteres 32-127
-    m_GlyphsASCII.resize(96);  // 127 - 32 + 1 = 96 caracteres
+    // Inicializar vector para caracteres Latin-1 (32-255)
+    m_GlyphsASCII.resize(224);  // 255 - 32 + 1 = 224 caracteres
 }
 
 const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
-    // Otimização: caracteres ASCII comuns (32-127) usam vector
-    if (codepoint >= 32 && codepoint <= 127) {
+    // Otimização: caracteres Latin-1 (32-255) usam vector
+    if (codepoint >= 32 && codepoint <= 255) {
         size_t index = codepoint - 32;
         if (index < m_GlyphsASCII.size()) {
             const GlyphInfo& g = m_GlyphsASCII[index];
             
-            // Retornar o glyph se ele tem UVs válidas ou se é um espaço
-            if (codepoint == 32 || g.uv0.x >= 0.0f || g.uv0.y >= 0.0f || g.advance > 0.0f) {
+            // Retornar o glyph se ele for um espaço ou se tem dados válidos
+            if (codepoint == 32 ||
+                (g.advance > 0.0f &&
+                 g.uv1.x > g.uv0.x &&
+                 g.uv1.y > g.uv0.y)) {
                 return &g;
             }
         }
@@ -80,16 +83,16 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
     // Criar atlas de textura
     const int atlasSize = GetAtlasSize();
     std::vector<unsigned char> bitmap(atlasSize * atlasSize, 0);
-    std::vector<stbtt_bakedchar> baked(96);
+    std::vector<stbtt_bakedchar> baked(224);  // Para caracteres 32-255
     
-    int result = stbtt_BakeFontBitmap(data, 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 96, baked.data());
+    int result = stbtt_BakeFontBitmap(data, 0, m_Size, bitmap.data(), atlasSize, atlasSize, 32, 224, baked.data());
     if (result <= 0) {
         Drift::Core::LogError("[Font] stbtt_BakeFontBitmap falhou");
         return false;
     }
     
-    // Converter dados para GlyphInfo - otimização para ASCII
-    for (int i = 0; i < 96; ++i) {
+    // Converter dados para GlyphInfo - caracteres Latin-1 (32-255)
+    for (int i = 0; i < 224; ++i) {
         stbtt_bakedchar& bc = baked[i];
         GlyphInfo& g = m_GlyphsASCII[i];
         

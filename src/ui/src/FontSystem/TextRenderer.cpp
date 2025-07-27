@@ -10,6 +10,61 @@ TextRenderer::TextRenderer() = default;
 
 TextRenderer::~TextRenderer() = default;
 
+// Implementação da função de decodificação UTF-8
+std::vector<uint32_t> TextRenderer::DecodeUTF8(const std::string& utf8_string) {
+    std::vector<uint32_t> codepoints;
+    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(utf8_string.data());
+    size_t len = utf8_string.length();
+    
+    for (size_t i = 0; i < len; ) {
+        uint32_t codepoint = 0;
+        
+        if (bytes[i] <= 0x7F) {
+            // ASCII (1 byte)
+            codepoint = bytes[i];
+            i += 1;
+        } else if ((bytes[i] & 0xE0) == 0xC0) {
+            // 2 bytes
+            if (i + 1 < len && (bytes[i + 1] & 0xC0) == 0x80) {
+                codepoint = ((bytes[i] & 0x1F) << 6) | (bytes[i + 1] & 0x3F);
+                i += 2;
+            } else {
+                // Sequência inválida, usar caractere de substituição
+                codepoint = 0xFFFD;
+                i += 1;
+            }
+        } else if ((bytes[i] & 0xF0) == 0xE0) {
+            // 3 bytes
+            if (i + 2 < len && (bytes[i + 1] & 0xC0) == 0x80 && (bytes[i + 2] & 0xC0) == 0x80) {
+                codepoint = ((bytes[i] & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F);
+                i += 3;
+            } else {
+                // Sequência inválida, usar caractere de substituição
+                codepoint = 0xFFFD;
+                i += 1;
+            }
+        } else if ((bytes[i] & 0xF8) == 0xF0) {
+            // 4 bytes
+            if (i + 3 < len && (bytes[i + 1] & 0xC0) == 0x80 && (bytes[i + 2] & 0xC0) == 0x80 && (bytes[i + 3] & 0xC0) == 0x80) {
+                codepoint = ((bytes[i] & 0x07) << 18) | ((bytes[i + 1] & 0x3F) << 12) | ((bytes[i + 2] & 0x3F) << 6) | (bytes[i + 3] & 0x3F);
+                i += 4;
+            } else {
+                // Sequência inválida, usar caractere de substituição
+                codepoint = 0xFFFD;
+                i += 1;
+            }
+        } else {
+            // Byte inicial inválido, usar caractere de substituição
+            codepoint = 0xFFFD;
+            i += 1;
+        }
+        
+        codepoints.push_back(codepoint);
+    }
+    
+    return codepoints;
+}
+
 void TextRenderer::BeginTextRendering() {
     // Preparação para renderização de texto
     // Pode ser usado para otimizações futuras
@@ -52,26 +107,28 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     float baseline = pos.y + font->GetAscent();
     float x = pos.x;
     
-    for (char c : text) {
-        x += RenderGlyph(c, font, x, baseline, color);
+    // Decodificar UTF-8 para codepoints antes de renderizar
+    std::vector<uint32_t> codepoints = DecodeUTF8(text);
+    for (uint32_t codepoint : codepoints) {
+        x += RenderGlyph(codepoint, font, x, baseline, color);
     }
     
     // Marcar fim de renderização de texto
     m_Batcher->EndText();
 }
 
-float TextRenderer::RenderGlyph(char c, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color) {
-    const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
+float TextRenderer::RenderGlyph(uint32_t codepoint, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color) {
+    const GlyphInfo* g = font->GetGlyph(codepoint);
     if (!g) {
-        // Log apenas para caracteres não-ascii ou não-espaço que realmente deviam ter glifos
-        if (c > 127 || (c >= 33 && c <= 126)) {
-            Drift::Core::LogError("[TextRenderer] Glyph não encontrado para caractere: '" + std::string(1, c) + "' (codepoint: " + std::to_string(static_cast<unsigned char>(c)) + ")");
+        // Log apenas para caracteres que realmente deviam ter glifos
+        if (codepoint > 127 || (codepoint >= 33 && codepoint <= 126)) {
+            Drift::Core::LogError("[TextRenderer] Glyph não encontrado para codepoint: " + std::to_string(codepoint));
         }
         return 0.0f;  // Retorna 0 se glyph não encontrado
     }
 
     // Para espaços, apenas avançar a posição sem renderizar
-    if (c == ' ') {
+    if (codepoint == 32) {
         return g->advance;
     }
     
@@ -153,8 +210,10 @@ glm::vec2 TextRenderer::CalculateTextMeasure(const std::string& text, const std:
     float width = 0.0f;
     float height = font->GetAscent() - font->GetDescent();
     
-    for (char c : text) {
-        const GlyphInfo* g = font->GetGlyph(static_cast<unsigned char>(c));
+    // Decodificar UTF-8 para codepoints antes de medir
+    std::vector<uint32_t> codepoints = DecodeUTF8(text);
+    for (uint32_t codepoint : codepoints) {
+        const GlyphInfo* g = font->GetGlyph(codepoint);
         if (!g) continue;
         width += g->advance;
     }

@@ -71,6 +71,9 @@ public:
     size_t GetTextCacheSize() const;
 
 private:
+    // Função utilitária para decodificar UTF-8
+    static std::vector<uint32_t> DecodeUTF8(const std::string& utf8_string);
+
     Drift::RHI::IUIBatcher* m_Batcher{nullptr};
     int m_ScreenWidth{0};
     int m_ScreenHeight{0};
@@ -111,7 +114,7 @@ private:
      * @param color Cor do texto
      * @return Avanço horizontal para o próximo caractere
      */
-    float RenderGlyph(char c, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color);
+    float RenderGlyph(uint32_t codepoint, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color);
     
     /**
      * @brief Obtém a medida de texto do cache ou calcula
