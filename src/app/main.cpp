@@ -145,6 +145,13 @@ int main() {
 
         // Cria elementos de teste da UI
         {
+            auto& fontManager = UI::FontManager::GetInstance();
+            // Garante que a fonte 'default' tamanho 24 está carregada antes de criar o Label
+            auto defaultFont24 = fontManager.LoadFont("default", "fonts/Arial-Regular.ttf", 24.0f, UI::FontQuality::High);
+            if (!defaultFont24) {
+                Core::Log("[App] ERRO: Fonte 'default' tamanho 24 não carregada!");
+            }
+
             auto root = uiContext->GetRoot();
             
             // Label de teste para renderizar texto
@@ -160,7 +167,6 @@ int main() {
             root->AddChild(testLabel);
             
             // Criar elementos de teste da UI
-            auto& fontManager = UI::FontManager::GetInstance();
             auto defaultFont = fontManager.GetOrLoadFont("default", "fonts/Arial-Regular.ttf", 24.0f);
             if (!defaultFont) {
                 Core::Log("[App] ERRO: Fonte padrão não encontrada!");
@@ -364,7 +370,7 @@ int main() {
                 
                 // Teste: Adicionar texto diretamente
                 Core::Log("[App] Adicionando texto de teste...");
-                appData.uiBatcher->AddText(100.0f, 200.0f, "Teste de Texto", Drift::Color(0xFFFFFFFF));
+                appData.uiBatcher->AddText(100.0f, 200.0f, "Teste de Textoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo", Drift::Color(0xFFFFFFFF));
                 
                 // Renderizar UI
                 Core::Log("[App] Renderizando UI context...");
