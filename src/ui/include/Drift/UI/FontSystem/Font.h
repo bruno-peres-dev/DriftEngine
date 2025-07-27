@@ -97,22 +97,27 @@ private:
     std::unordered_map<uint32_t, GlyphInfo> m_GlyphsExtended;  // Para caracteres Unicode
     
     std::shared_ptr<Drift::RHI::ITexture> m_Texture;
+    
+    // Métricas da fonte
     float m_Ascent{0.0f};
     float m_Descent{0.0f};
     
     /**
-     * @brief Obtém o tamanho do atlas baseado na qualidade
-     * @return Tamanho do atlas em pixels
+     * @brief Obtém tamanho do atlas baseado na qualidade
      */
     int GetAtlasSize() const;
     
     /**
      * @brief Carrega glyphs Unicode adicionais
-     * @param data Dados TTF
-     * @param atlasSize Tamanho do atlas
-     * @param bitmap Bitmap do atlas
      */
     void LoadUnicodeGlyphs(const unsigned char* data, int atlasSize, std::vector<unsigned char>& bitmap);
+    
+    /**
+     * @brief Obtém um codepoint de fallback para caracteres acentuados
+     * @param codepoint Codepoint original
+     * @return Codepoint de fallback (sem acento) ou o original se não houver fallback
+     */
+    uint32_t GetFallbackCodepoint(uint32_t codepoint) const;
 };
 
 } // namespace Drift::UI

@@ -35,7 +35,79 @@ const GlyphInfo* Font::GetGlyph(uint32_t codepoint) const {
         return &it->second;
     }
     
+    // Sistema de fallback para caracteres acentuados comuns
+    uint32_t fallback = GetFallbackCodepoint(codepoint);
+    if (fallback != codepoint && fallback >= 32 && fallback <= 255) {
+        size_t index = fallback - 32;
+        if (index < m_GlyphsASCII.size()) {
+            const GlyphInfo& g = m_GlyphsASCII[index];
+            if (g.advance > 0.0f && g.uv1.x > g.uv0.x && g.uv1.y > g.uv0.y) {
+                return &g;
+            }
+        }
+    }
+    
     return nullptr;
+}
+
+uint32_t Font::GetFallbackCodepoint(uint32_t codepoint) const {
+    // Mapeamento de caracteres acentuados para seus equivalentes sem acento
+    static const std::unordered_map<uint32_t, uint32_t> fallbackMap = {
+        // Vogais acentuadas -> vogais simples
+        {225, 97},   // á -> a
+        {224, 97},   // à -> a  
+        {226, 97},   // â -> a
+        {227, 97},   // ã -> a
+        {228, 97},   // ä -> a
+        {233, 101},  // é -> e
+        {232, 101},  // è -> e
+        {234, 101},  // ê -> e
+        {235, 101},  // ë -> e
+        {237, 105},  // í -> i
+        {236, 105},  // ì -> i
+        {238, 105},  // î -> i
+        {239, 105},  // ï -> i
+        {243, 111},  // ó -> o
+        {242, 111},  // ò -> o
+        {244, 111},  // ô -> o
+        {245, 111},  // õ -> o
+        {246, 111},  // ö -> o
+        {250, 117},  // ú -> u
+        {249, 117},  // ù -> u
+        {251, 117},  // û -> u
+        {252, 117},  // ü -> u
+        {231, 99},   // ç -> c
+        {241, 110},  // ñ -> n
+        
+        // Maiúsculas acentuadas -> maiúsculas simples
+        {193, 65},   // Á -> A
+        {192, 65},   // À -> A
+        {194, 65},   // Â -> A
+        {195, 65},   // Ã -> A
+        {196, 65},   // Ä -> A
+        {201, 69},   // É -> E
+        {200, 69},   // È -> E
+        {202, 69},   // Ê -> E
+        {203, 69},   // Ë -> E
+        {205, 73},   // Í -> I
+        {204, 73},   // Ì -> I
+        {206, 73},   // Î -> I
+        {207, 73},   // Ï -> I
+        {211, 79},   // Ó -> O
+        {210, 79},   // Ò -> O
+        {212, 79},   // Ô -> O
+        {213, 79},   // Õ -> O
+        {214, 79},   // Ö -> O
+        {218, 85},   // Ú -> U
+        {217, 85},   // Ù -> U
+        {219, 85},   // Û -> U
+        {220, 85},   // Ü -> U
+        {199, 67},   // Ç -> C
+        {209, 78},   // Ñ -> N
+    };
+    
+    auto it = fallbackMap.find(codepoint);
+    return (it != fallbackMap.end()) ? it->second : codepoint;
 }
 
 int Font::GetAtlasSize() const {
@@ -73,6 +145,8 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
         return false;
     }
 
+
+
     // Obter métricas da fonte
     int ascent = 0, descent = 0, lineGap = 0;
     stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
@@ -95,6 +169,8 @@ bool Font::LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::ID
     for (int i = 0; i < 224; ++i) {
         stbtt_bakedchar& bc = baked[i];
         GlyphInfo& g = m_GlyphsASCII[i];
+        
+        uint32_t codepoint = 32 + i;  // Calcular o codepoint atual
         
         g.uv0 = glm::vec2(bc.x0 / float(atlasSize), bc.y0 / float(atlasSize));
         g.uv1 = glm::vec2(bc.x1 / float(atlasSize), bc.y1 / float(atlasSize));

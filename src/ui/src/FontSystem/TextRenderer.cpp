@@ -120,9 +120,9 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
 float TextRenderer::RenderGlyph(uint32_t codepoint, const std::shared_ptr<Font>& font, float x, float baseline, const glm::vec4& color) {
     const GlyphInfo* g = font->GetGlyph(codepoint);
     if (!g) {
-        // Log apenas para caracteres que realmente deviam ter glifos
-        if (codepoint > 127 || (codepoint >= 33 && codepoint <= 126)) {
-            Drift::Core::LogError("[TextRenderer] Glyph não encontrado para codepoint: " + std::to_string(codepoint));
+        // Log apenas para debug quando necessário
+        if (codepoint >= 33 && codepoint <= 126) {  // ASCII imprimível
+            Drift::Core::LogWarning("[TextRenderer] Glyph não encontrado para codepoint ASCII: " + std::to_string(codepoint));
         }
         return 0.0f;  // Retorna 0 se glyph não encontrado
     }
@@ -134,6 +134,7 @@ float TextRenderer::RenderGlyph(uint32_t codepoint, const std::shared_ptr<Font>&
     
     // Para outros caracteres invisíveis, apenas avançar a posição
     if (g->size.x <= 0.0f || g->size.y <= 0.0f) {
+        Drift::Core::LogWarning("[TextRenderer] Glyph com tamanho inválido para codepoint: " + std::to_string(codepoint));
         return g->advance;
     }
 
