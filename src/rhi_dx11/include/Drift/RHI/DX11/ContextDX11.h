@@ -3,6 +3,8 @@
 #include "Drift/RHI/Context.h"     // IContext, ISwapChain
 #include "Drift/RHI/Types.h"       // Format, PrimitiveTopology
 #include "Drift/RHI/DepthStencilState.h"
+#include "Drift/RHI/PipelineState.h" // IPipelineState
+#include "Drift/RHI/Texture.h"     // ISampler
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <dxgi.h>
@@ -67,6 +69,34 @@ namespace Drift::RHI::DX11 {
         // Garante que _rtv aponta para o back-buffer atual e faz OMSetRenderTargets()
         void BindBackBufferRTV();
 
+        // === Novos métodos para suporte AAA ===
+        
+        // Pipeline State Management
+        void SetPipelineState(IPipelineState* pipeline);
+        void SetPipelineState(std::shared_ptr<IPipelineState> pipeline);
+        
+        // Sampler Management
+        void SetSampler(UINT slot, ISampler* sampler);
+        void SetSampler(UINT slot, std::shared_ptr<ISampler> sampler);
+        
+        // Texture Array Support
+        void PSSetTextureArray(UINT startSlot, UINT count, ITexture** textures);
+        void PSSetSamplerArray(UINT startSlot, UINT count, ISampler** samplers);
+        
+        // Advanced Rendering
+        void SetScissorRect(int x, int y, int width, int height);
+        void SetBlendFactor(float r, float g, float b, float a);
+        void SetStencilRef(UINT ref);
+        
+        // Multi-threading Support
+        void ExecuteCommandList(ID3D11CommandList* commandList);
+        void FinishCommandList(ID3D11CommandList** commandList);
+        
+        // Performance Monitoring
+        void BeginQuery(ID3D11Query* query);
+        void EndQuery(ID3D11Query* query);
+        void GetData(ID3D11Query* query, void* data, UINT dataSize, UINT flags);
+
         // Exposição para debug
         ID3D11RenderTargetView* GetCurrentRTV() const { return _rtv.Get(); }
 
@@ -89,6 +119,14 @@ namespace Drift::RHI::DX11 {
         ID3D11BlendState*      _currentBlendState = nullptr;
         ID3D11RasterizerState* _currentRasterizerState = nullptr;
         std::shared_ptr<Drift::RHI::DepthStencilState> _currentDepthStencilState;
+        
+        // === Cache para otimizações AAA ===
+        IPipelineState* _currentPipeline = nullptr;
+        std::vector<ITexture*> _boundTextures;
+        std::vector<ISampler*> _boundSamplers;
+        D3D11_RECT _currentScissorRect = {0, 0, 0, 0};
+        float _blendFactor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        UINT _stencilRef = 0;
 
         void CreateRTVandDSV();
 

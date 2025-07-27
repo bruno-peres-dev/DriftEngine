@@ -1,4 +1,6 @@
-// UIBatch.hlsl - shader para UI 2D com suporte a texturas
+// UIBatch.hlsl - shader otimizado para UI 2D de nível AAA
+// Suporte a 16 texturas e otimizações de performance
+
 struct VSIn {
     float2 pos      : POSITION;
     float2 uv       : TEXCOORD0;
@@ -13,39 +15,81 @@ struct PSIn {
     uint textureId  : TEXCOORD1;
 };
 
-// Array de texturas para UI (suporte a múltiplas texturas)
-Texture2D g_Textures[8] : register(t0);
-SamplerState g_Samplers[8] : register(s0);
+// Array de texturas para UI (suporte a 16 texturas)
+Texture2D g_Textures[16] : register(t0);
+SamplerState g_Samplers[16] : register(s0);
 
+// Constantes para otimizações
+cbuffer UIConstants : register(b0) {
+    float2 screenSize;
+    float2 atlasSize;
+    float2 padding;
+    float time;
+    float4 debugColor;
+};
+
+// Função otimizada para amostragem de textura
+float4 SampleTexture(uint textureId, float2 uv) {
+    // Usar switch otimizado para evitar sampler array index errors
+    // Compilador pode otimizar melhor este switch
+    switch (textureId) {
+        case 0:  return g_Textures[0].Sample(g_Samplers[0], uv);
+        case 1:  return g_Textures[1].Sample(g_Samplers[1], uv);
+        case 2:  return g_Textures[2].Sample(g_Samplers[2], uv);
+        case 3:  return g_Textures[3].Sample(g_Samplers[3], uv);
+        case 4:  return g_Textures[4].Sample(g_Samplers[4], uv);
+        case 5:  return g_Textures[5].Sample(g_Samplers[5], uv);
+        case 6:  return g_Textures[6].Sample(g_Samplers[6], uv);
+        case 7:  return g_Textures[7].Sample(g_Samplers[7], uv);
+        case 8:  return g_Textures[8].Sample(g_Samplers[8], uv);
+        case 9:  return g_Textures[9].Sample(g_Samplers[9], uv);
+        case 10: return g_Textures[10].Sample(g_Samplers[10], uv);
+        case 11: return g_Textures[11].Sample(g_Samplers[11], uv);
+        case 12: return g_Textures[12].Sample(g_Samplers[12], uv);
+        case 13: return g_Textures[13].Sample(g_Samplers[13], uv);
+        case 14: return g_Textures[14].Sample(g_Samplers[14], uv);
+        case 15: return g_Textures[15].Sample(g_Samplers[15], uv);
+        default: return float4(1, 1, 1, 1);
+    }
+}
+
+// Vertex shader otimizado
 PSIn VSMain(VSIn v) {
     PSIn o;
+    
+    // Converter coordenadas de tela para clip space (NDC)
+    // Coordenadas de tela: (0,0) no canto superior esquerdo, (screenSize.x, screenSize.y) no canto inferior direito
+    // Clip space: (-1,-1) no canto inferior esquerdo, (1,1) no canto superior direito
+    float2 clipPos;
+    clipPos.x = (v.pos.x / screenSize.x) * 2.0f - 1.0f;
+    clipPos.y = 1.0f - (v.pos.y / screenSize.y) * 2.0f; // Inverter Y
+    
     // Usar Z = 0 para garantir que a UI fique na frente de tudo
-    o.pos = float4(v.pos, 0.0, 1.0);
+    o.pos = float4(clipPos, 0.0, 1.0);
     o.uv = v.uv;
     o.col = v.col;
     o.textureId = v.textureId;
+    
     return o;
 }
 
+// Pixel shader otimizado com early-out e melhor qualidade
 float4 PSMain(PSIn i) : SV_TARGET { 
+    // Early-out para transparência total
+    if (i.col.a <= 0.0) {
+        discard;
+    }
+    
     // Cor já está em formato RGBA, usar diretamente
     float4 rgbaColor = i.col;
     
-    // Se tem textura (textureId < 8), usar a textura com a cor (0-7 = slots de textura, 8+ = sem textura)
-    if (i.textureId < 8) {
-        float4 texColor;
+    // Se tem textura (textureId < 16), usar a textura com a cor
+    if (i.textureId < 16) {
+        float4 texColor = SampleTexture(i.textureId, i.uv);
         
-        // Usar switch para evitar erro de sampler array index
-        switch (i.textureId) {
-            case 0: texColor = g_Textures[0].Sample(g_Samplers[0], i.uv); break;
-            case 1: texColor = g_Textures[1].Sample(g_Samplers[1], i.uv); break;
-            case 2: texColor = g_Textures[2].Sample(g_Samplers[2], i.uv); break;
-            case 3: texColor = g_Textures[3].Sample(g_Samplers[3], i.uv); break;
-            case 4: texColor = g_Textures[4].Sample(g_Samplers[4], i.uv); break;
-            case 5: texColor = g_Textures[5].Sample(g_Samplers[5], i.uv); break;
-            case 6: texColor = g_Textures[6].Sample(g_Samplers[6], i.uv); break;
-            case 7: texColor = g_Textures[7].Sample(g_Samplers[7], i.uv); break;
-            default: texColor = float4(1, 1, 1, 1); break;
+        // Otimização: early-out para texturas completamente transparentes
+        if (texColor.a <= 0.0) {
+            discard;
         }
         
         // Para texto, usar apenas o alpha da textura para blending
@@ -64,9 +108,24 @@ float4 PSMain(PSIn i) : SV_TARGET {
         // Para texto, multiplicar o alpha da textura pelo alpha da cor
         finalColor.a *= textureAlpha;
         
+        // Early-out para resultado final transparente
+        if (finalColor.a <= 0.0) {
+            discard;
+        }
+        
         return finalColor;
     }
     
     // Senão, retornar apenas a cor (já convertida para RGBA)
     return rgbaColor;
+}
+
+// Pixel shader alternativo para debug/desenvolvimento
+float4 PSMainDebug(PSIn i) : SV_TARGET {
+    // Modo debug: mostrar informações de textura
+    if (i.textureId < 16) {
+        return debugColor;
+    }
+    
+    return i.col;
 } 

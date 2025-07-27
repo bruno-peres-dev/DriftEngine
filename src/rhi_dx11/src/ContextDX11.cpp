@@ -407,3 +407,220 @@ void ContextDX11::BindBackBufferRTV() {
 
     _context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _dsv.Get());
 }
+
+// === Novos métodos para suporte AAA ===
+
+void ContextDX11::SetPipelineState(IPipelineState* pipeline) {
+    if (!pipeline) {
+        Drift::Core::LogRHIError("SetPipelineState: pipeline é nullptr");
+        return;
+    }
+    
+    if (_currentPipeline == pipeline) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    _currentPipeline = pipeline;
+    
+    // Aplicar pipeline state (implementação específica do DX11)
+    // Em uma implementação real, seria necessário fazer bind do pipeline
+    Drift::Core::LogRHIDebug("Pipeline state alterado");
+}
+
+void ContextDX11::SetPipelineState(std::shared_ptr<IPipelineState> pipeline) {
+    SetPipelineState(pipeline.get());
+}
+
+void ContextDX11::SetSampler(UINT slot, ISampler* sampler) {
+    if (!sampler) {
+        Drift::Core::LogRHIError("SetSampler: sampler é nullptr");
+        return;
+    }
+    
+    // Verificar se o sampler já está bound neste slot
+    if (slot < _boundSamplers.size() && _boundSamplers[slot] == sampler) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    // Garantir que o vector tem tamanho suficiente
+    if (slot >= _boundSamplers.size()) {
+        _boundSamplers.resize(slot + 1, nullptr);
+    }
+    
+    _boundSamplers[slot] = sampler;
+    
+    // Aplicar sampler (implementação específica do DX11)
+    PSSetSampler(slot, sampler);
+}
+
+void ContextDX11::SetSampler(UINT slot, std::shared_ptr<ISampler> sampler) {
+    SetSampler(slot, sampler.get());
+}
+
+void ContextDX11::PSSetTextureArray(UINT startSlot, UINT count, ITexture** textures) {
+    if (!textures) {
+        Drift::Core::LogRHIError("PSSetTextureArray: textures é nullptr");
+        return;
+    }
+    
+    // Verificar se as texturas já estão bound
+    bool needsUpdate = false;
+    for (UINT i = 0; i < count; ++i) {
+        UINT slot = startSlot + i;
+        if (slot >= _boundTextures.size() || _boundTextures[slot] != textures[i]) {
+            needsUpdate = true;
+            break;
+        }
+    }
+    
+    if (!needsUpdate) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    // Garantir que o vector tem tamanho suficiente
+    if (startSlot + count > _boundTextures.size()) {
+        _boundTextures.resize(startSlot + count, nullptr);
+    }
+    
+    // Atualizar cache e aplicar texturas
+    for (UINT i = 0; i < count; ++i) {
+        UINT slot = startSlot + i;
+        _boundTextures[slot] = textures[i];
+        PSSetTexture(slot, textures[i]);
+    }
+}
+
+void ContextDX11::PSSetSamplerArray(UINT startSlot, UINT count, ISampler** samplers) {
+    if (!samplers) {
+        Drift::Core::LogRHIError("PSSetSamplerArray: samplers é nullptr");
+        return;
+    }
+    
+    // Verificar se os samplers já estão bound
+    bool needsUpdate = false;
+    for (UINT i = 0; i < count; ++i) {
+        UINT slot = startSlot + i;
+        if (slot >= _boundSamplers.size() || _boundSamplers[slot] != samplers[i]) {
+            needsUpdate = true;
+            break;
+        }
+    }
+    
+    if (!needsUpdate) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    // Garantir que o vector tem tamanho suficiente
+    if (startSlot + count > _boundSamplers.size()) {
+        _boundSamplers.resize(startSlot + count, nullptr);
+    }
+    
+    // Atualizar cache e aplicar samplers
+    for (UINT i = 0; i < count; ++i) {
+        UINT slot = startSlot + i;
+        _boundSamplers[slot] = samplers[i];
+        PSSetSampler(slot, samplers[i]);
+    }
+}
+
+void ContextDX11::SetScissorRect(int x, int y, int width, int height) {
+    D3D11_RECT rect = { x, y, x + width, y + height };
+    
+    // Verificar se o scissor rect mudou
+    if (_currentScissorRect.left == rect.left &&
+        _currentScissorRect.top == rect.top &&
+        _currentScissorRect.right == rect.right &&
+        _currentScissorRect.bottom == rect.bottom) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    _currentScissorRect = rect;
+    _context->RSSetScissorRects(1, &rect);
+    
+    Drift::Core::LogRHIDebug("Scissor rect definido: " + std::to_string(width) + "x" + std::to_string(height));
+}
+
+void ContextDX11::SetBlendFactor(float r, float g, float b, float a) {
+    _blendFactor[0] = r;
+    _blendFactor[1] = g;
+    _blendFactor[2] = b;
+    _blendFactor[3] = a;
+    
+    // Aplicar blend factor
+    _context->OMSetBlendState(_currentBlendState, _blendFactor, 0xFFFFFFFF);
+}
+
+void ContextDX11::SetStencilRef(UINT ref) {
+    if (_stencilRef == ref) {
+        return; // Evitar state changes desnecessários
+    }
+    
+    _stencilRef = ref;
+    
+    // Aplicar stencil reference
+    if (_currentDepthStencilState) {
+        // Em uma implementação real, seria necessário aplicar o stencil ref
+        Drift::Core::LogRHIDebug("Stencil ref alterado: " + std::to_string(ref));
+    }
+}
+
+void ContextDX11::ExecuteCommandList(ID3D11CommandList* commandList) {
+    if (!commandList) {
+        Drift::Core::LogRHIError("ExecuteCommandList: commandList é nullptr");
+        return;
+    }
+    
+    _context->ExecuteCommandList(commandList, FALSE);
+    Drift::Core::LogRHIDebug("Command list executado");
+}
+
+void ContextDX11::FinishCommandList(ID3D11CommandList** commandList) {
+    if (!commandList) {
+        Drift::Core::LogRHIError("FinishCommandList: commandList é nullptr");
+        return;
+    }
+    
+    HRESULT hr = _context->FinishCommandList(FALSE, commandList);
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("FinishCommandList", hr);
+        throw RHIException("Falha ao finalizar command list");
+    }
+    
+    Drift::Core::LogRHIDebug("Command list finalizado");
+}
+
+void ContextDX11::BeginQuery(ID3D11Query* query) {
+    if (!query) {
+        Drift::Core::LogRHIError("BeginQuery: query é nullptr");
+        return;
+    }
+    
+    _context->Begin(query);
+}
+
+void ContextDX11::EndQuery(ID3D11Query* query) {
+    if (!query) {
+        Drift::Core::LogRHIError("EndQuery: query é nullptr");
+        return;
+    }
+    
+    _context->End(query);
+}
+
+void ContextDX11::GetData(ID3D11Query* query, void* data, UINT dataSize, UINT flags) {
+    if (!query) {
+        Drift::Core::LogRHIError("GetData: query é nullptr");
+        return;
+    }
+    
+    if (!data) {
+        Drift::Core::LogRHIError("GetData: data é nullptr");
+        return;
+    }
+    
+    HRESULT hr = _context->GetData(query, data, dataSize, flags);
+    if (FAILED(hr)) {
+        Drift::Core::LogHRESULT("GetData", hr);
+        throw RHIException("Falha ao obter dados da query");
+    }
+}

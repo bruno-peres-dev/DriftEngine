@@ -83,6 +83,7 @@ add_library(DriftRHI STATIC
   rhi/src/Format.cpp
   rhi/src/ResourceManager.cpp
   rhi/src/Scissor.cpp
+  rhi/src/UIBatcherBase.cpp
 )
 target_include_directories(DriftRHI PUBLIC
   rhi/include
