@@ -35,10 +35,10 @@ inline Drift::Color ConvertARGBtoRGBA(Drift::Color argb) {
     uint8_t g = (argb >> 8) & 0xFF;
     uint8_t b = argb & 0xFF;
     
-    // Converter ARGB para RGBA: A->A, R->R, G->G, B->B
+    // Converter ARGB para RGBA: reordenar bytes para R8G8B8A8_UNORM
     // ARGB: AAAA RRRR GGGG BBBB
-    // RGBA: AAAA RRRR GGGG BBBB (mesma ordem, mas para GPU)
-    return (a << 24) | (r << 16) | (g << 8) | b;
+    // RGBA: RRRR GGGG BBBB AAAA (reordenar para GPU)
+    return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
 // Construtor otimizado
@@ -335,7 +335,7 @@ void UIBatcherDX11::AddTexturedRect(float x, float y, float w, float h,
     m_CurrentBatch.hasTexture = true;
     if (m_AddingText) {
         m_CurrentBatch.isText = true;
-        Core::LogRHIDebug("[UIBatcherDX11] Batch marcado como texto (isText=true)");
+        Core::LogInfo("[UIBatcherDX11] Batch marcado como texto (isText=true)");
     }
 
     Drift::Color rgba = ConvertARGBtoRGBA(color);
@@ -641,15 +641,17 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
     // Configurar pipeline
     EnsureUIPipeline();
     if (batch.isText && m_TextPipeline) {
-        Core::LogRHIDebug("[UIBatcherDX11] Usando pipeline de texto bitmap");
+        Core::LogInfo("[UIBatcherDX11] Usando pipeline de texto bitmap");
         m_TextPipeline->Apply(*contextDX11);
         if (m_TextCB) {
             contextDX11->VSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
             contextDX11->PSSetConstantBuffer(0, m_TextCB->GetBackendHandle());
-            Core::LogRHIDebug("[UIBatcherDX11] Constantes de texto configuradas");
+            Core::LogInfo("[UIBatcherDX11] Constantes de texto configuradas");
+        } else {
+            Core::LogWarning("[UIBatcherDX11] Constantes de texto não disponíveis!");
         }
     } else if (m_Pipeline) {
-        Core::LogRHIDebug("[UIBatcherDX11] Usando pipeline UI padrão (isText=" + std::to_string(batch.isText) + ")");
+        Core::LogInfo("[UIBatcherDX11] Usando pipeline UI padrão (isText=" + std::to_string(batch.isText) + ")");
         m_Pipeline->Apply(*contextDX11);
     } else {
         Core::Log("[UIBatcherDX11] ERRO: Pipeline UI é nullptr!");
@@ -683,7 +685,7 @@ void UIBatcherDX11::RenderBatch(const UIBatch& batch) {
             contextDX11->PSSetTexture(static_cast<UINT>(i), m_Textures[i]);
             if (m_DefaultSampler) {
                 contextDX11->PSSetSampler(static_cast<UINT>(i), m_DefaultSampler.get());
-                Core::LogRHIDebug("[UIBatcherDX11] Textura " + std::to_string(i) + " e sampler configurados");
+                Core::LogInfo("[UIBatcherDX11] Textura " + std::to_string(i) + " e sampler configurados");
             } else {
                 Core::Log("[UIBatcherDX11] AVISO: Sampler é nullptr para textura " + std::to_string(i));
             }

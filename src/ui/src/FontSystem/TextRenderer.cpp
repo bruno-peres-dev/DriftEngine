@@ -14,7 +14,8 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         return;
     }
     
-    Drift::Core::LogRHIDebug("[TextRenderer] Renderizando texto: '" + text + "' em pos (" + 
+    // Log apenas em nível Trace para evitar spam
+    Drift::Core::LogTrace("[TextRenderer] Renderizando texto: '" + text + "' em pos (" + 
                             std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")");
 
     auto& fm = FontManager::GetInstance();
@@ -24,7 +25,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         Drift::Core::LogWarning("[TextRenderer] Fonte não encontrada: " + fontName + " (tamanho: " + std::to_string(fontSize) + ")");
         
         // Tentar carregar a fonte se não encontrada
-        Drift::Core::LogRHIDebug("[TextRenderer] Tentando lazy loading da fonte...");
+        Drift::Core::LogDebug("[TextRenderer] Tentando lazy loading da fonte...");
         font = fm.GetOrLoadFont(fontName, "fonts/Arial-Regular.ttf", fontSize);
         if (!font) {
             Drift::Core::LogError("[TextRenderer] Falha no lazy loading da fonte");
@@ -56,8 +57,8 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
         float w = g->size.x;
         float h = g->size.y;
 
-        // Debug: verificar valores
-        Drift::Core::LogRHIDebug("[TextRenderer] Glyph '" + std::string(1, c) + 
+        // Debug: verificar valores (apenas em nível Trace para evitar spam)
+        Drift::Core::LogTrace("[TextRenderer] Glyph '" + std::string(1, c) + 
                                 "' pos: (" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")" +
                                 " size: (" + std::to_string(w) + ", " + std::to_string(h) + ")" +
                                 " uv: (" + std::to_string(uv0.x) + ", " + std::to_string(uv0.y) + ") -> (" + 

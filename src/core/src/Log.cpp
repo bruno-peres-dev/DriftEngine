@@ -7,7 +7,7 @@
 namespace Drift::Core {
 
 // Variável global para controlar o nível mínimo de log
-LogLevel g_LogLevel = LogLevel::Info; // Por padrão, só mostra Warning e Error
+LogLevel g_LogLevel = LogLevel::Info; // Por padrão, só mostra Info, Warning e Error
 
 // Função para configurar o nível de log
 void SetLogLevel(LogLevel level) {
@@ -26,6 +26,9 @@ void Log(LogLevel level, const std::string& msg) {
     }
     
     switch (level) {
+        case LogLevel::Trace:
+            std::cout << "[TRACE] " << msg << std::endl;
+            break;
         case LogLevel::Debug:
             std::cout << "[DEBUG] " << msg << std::endl;
             break;
@@ -39,6 +42,10 @@ void Log(LogLevel level, const std::string& msg) {
             std::cout << "[ERROR] " << msg << std::endl;
             break;
     }
+}
+
+void LogTrace(const std::string& msg) {
+    Log(LogLevel::Trace, msg);
 }
 
 void LogDebug(const std::string& msg) {

@@ -19,6 +19,11 @@ float4 main(VertexOutput input) : SV_Target {
     // Para texturas R8_UNORM, o valor está no canal R
     float alpha = texColor.r;
     
+    // Debug: se alpha for muito baixo, retornar vermelho para debug
+    if (alpha < 0.1f) {
+        return float4(1.0f, 0.0f, 0.0f, 1.0f); // Vermelho para debug
+    }
+    
     // Aplicar suavização básica para melhor qualidade
     alpha = smoothstep(0.0f, 1.0f, alpha);
     

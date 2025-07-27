@@ -8,10 +8,11 @@ typedef long HRESULT;
 namespace Drift::Core {
 
 enum class LogLevel {
-    Debug = 0,
-    Info = 1,
-    Warning = 2,
-    Error = 3
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warning = 3,
+    Error = 4
 };
 
 // Variável global para controlar o nível mínimo de log
@@ -22,6 +23,7 @@ void SetLogLevel(LogLevel level);
 
 // Funções de logging com níveis
 void Log(LogLevel level, const std::string& msg);
+void LogTrace(const std::string& msg);
 void LogDebug(const std::string& msg);
 void LogInfo(const std::string& msg);
 void LogWarning(const std::string& msg);
@@ -44,6 +46,7 @@ void LogHRESULT(const std::string& context, HRESULT hr);
 } // namespace Drift::Core
 
 // Macros de logging simples que respeitam o nível configurado
+#define LOG_TRACE(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Trace) Drift::Core::LogTrace(msg)
 #define LOG_DEBUG(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Debug) Drift::Core::LogDebug(msg)
 #define LOG_INFO(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Info) Drift::Core::LogInfo(msg)
 #define LOG_WARNING(msg) if (Drift::Core::g_LogLevel <= Drift::Core::LogLevel::Warning) Drift::Core::LogWarning(msg)
