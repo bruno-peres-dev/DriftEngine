@@ -419,12 +419,15 @@ void ContextDX11::SetPipelineState(IPipelineState* pipeline) {
     if (_currentPipeline == pipeline) {
         return; // Evitar state changes desnecessários
     }
-    
+
     _currentPipeline = pipeline;
-    
-    // Aplicar pipeline state (implementação específica do DX11)
-    // Em uma implementação real, seria necessário fazer bind do pipeline
-    Drift::Core::LogRHIDebug("Pipeline state alterado");
+
+    // Aplicar imediatamente o pipeline no contexto DX11
+    // garantindo que todos os estágios estejam configurados
+    if (_currentPipeline) {
+        _currentPipeline->Apply(*this);
+        Drift::Core::LogRHIDebug("Pipeline state alterado");
+    }
 }
 
 void ContextDX11::SetPipelineState(std::shared_ptr<IPipelineState> pipeline) {
