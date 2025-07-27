@@ -410,13 +410,18 @@ void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color c
         return;
     }
     
+    Core::Log("[UIBatcherDX11] OnAddText chamado: '" + std::string(text) + "' em (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+    
     // Configurar textura de fonte
     if (m_Textures.find(0) != m_Textures.end()) {
+        Core::Log("[UIBatcherDX11] Textura 0 encontrada, configurando...");
         SetTexture(0, m_Textures[0]);
+    } else {
+        Core::Log("[UIBatcherDX11] AVISO: Textura 0 não encontrada!");
     }
     
     // Renderizar texto usando o text renderer
-    m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "Arial", 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), "default", 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void UIBatcherDX11::OnBeginText() {

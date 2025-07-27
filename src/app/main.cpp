@@ -136,6 +136,17 @@ int main() {
         Core::Log("[App] Chamando SetDevice...");
         uiContext->SetDevice(device.get());
         Core::Log("[App] SetDevice concluído");
+        // Carregar tamanhos prioritários da fonte 'default' para evitar glitches de glifos
+        {
+            auto& fontManager = UI::FontManager::GetInstance();
+            std::vector<float> tamanhos = {16.0f, 20.0f, 24.0f, 32.0f};
+            for (float size : tamanhos) {
+                auto font = fontManager.LoadFont("default", "fonts/Arial-Regular.ttf", size, UI::FontQuality::High);
+                if (!font) {
+                    Core::Log("[App] ERRO: Fonte 'default' tamanho " + std::to_string(size) + " não carregada!");
+                }
+            }
+        }
         
         // Conecta o sistema de input
         uiContext->SetInputManager(inputManager.get());
@@ -147,7 +158,7 @@ int main() {
         {
             auto& fontManager = UI::FontManager::GetInstance();
             // Garante que a fonte 'default' tamanho 24 está carregada antes de criar o Label
-            auto defaultFont24 = fontManager.LoadFont("default", "fonts/Arial-Regular.ttf", 24.0f, UI::FontQuality::High);
+            auto defaultFont24 = fontManager.GetOrLoadFont("default", "fonts/Arial-Regular.ttf", 24.0f, UI::FontQuality::High);
             if (!defaultFont24) {
                 Core::Log("[App] ERRO: Fonte 'default' tamanho 24 não carregada!");
             }
