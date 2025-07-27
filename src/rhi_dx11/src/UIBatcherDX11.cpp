@@ -543,7 +543,7 @@ void UIBatcherDX11::CreateTextPipeline() {
     }
 
     PipelineDesc textDesc;
-    // Usar shaders específicos para fontes bitmap simples (não MSDF)
+    // Usar shaders específicos para fontes bitmap simples 
     textDesc.vsFile = "shaders/BitmapFontVS.hlsl";
     textDesc.vsEntry = "main";
     textDesc.psFile = "shaders/BitmapFontPS.hlsl";
