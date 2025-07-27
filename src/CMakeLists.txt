@@ -208,29 +208,23 @@ target_link_libraries(DriftEngineApp PUBLIC
   d3d11 dxgi D3DCompiler
 )
 
-# Garantir que os shaders estão disponíveis
-file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*.hlsl")
-foreach(SHADER ${SHADERS})
-  get_filename_component(SHADER_NAME ${SHADER} NAME)
-  configure_file(${SHADER} ${CMAKE_BINARY_DIR}/shaders/${SHADER_NAME} COPYONLY)
-endforeach()
 
-# Garantir que os shaders estão disponíveis para o executável principal
-add_custom_command(TARGET DriftEngineApp POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/shaders
-  ${CMAKE_BINARY_DIR}/shaders
-)
 
 # ------------------------------------------------
 # 6) Copiar recursos necessários para o executável
 # ------------------------------------------------
 
+# Obter o diretório de saída do executável
+get_target_property(EXECUTABLE_OUTPUT_PATH DriftEngineApp RUNTIME_OUTPUT_DIRECTORY)
+if(NOT EXECUTABLE_OUTPUT_PATH)
+    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/src/$<CONFIG>)
+endif()
+
 # Copiar pasta Fonts
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/fonts
-  ${CMAKE_BINARY_DIR}/fonts
+  ${EXECUTABLE_OUTPUT_PATH}/fonts
   COMMENT "Copiando pasta Fonts..."
 )
 
@@ -238,15 +232,15 @@ add_custom_command(TARGET DriftEngineApp POST_BUILD
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/textures
-  ${CMAKE_BINARY_DIR}/textures
+  ${EXECUTABLE_OUTPUT_PATH}/textures
   COMMENT "Copiando pasta Textures..."
 )
 
-# Copiar pasta Shaders (já existe, mas vou manter para garantir)
+# Copiar pasta Shaders
 add_custom_command(TARGET DriftEngineApp POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${CMAKE_SOURCE_DIR}/shaders
-  ${CMAKE_BINARY_DIR}/shaders
+  ${EXECUTABLE_OUTPUT_PATH}/shaders
   COMMENT "Copiando pasta Shaders..."
 )
 
