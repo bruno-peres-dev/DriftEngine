@@ -37,7 +37,7 @@ void TextRenderer::AddText(const std::string& text, const glm::vec2& pos,
     }
     if (!font) {
         // Tentar carregar a fonte se não encontrada
-        font = fm.GetOrLoadFont(fontName, "fonts/Arial-Regular.ttf", fontSize, UI::FontQuality::High);
+        font = fm.GetOrLoadFont(fontName, fm.GetDefaultFontPath(), fontSize, UI::FontQuality::High);
         if (!font) {
             Drift::Core::LogError("[TextRenderer] Falha no carregamento da fonte");
             return;
