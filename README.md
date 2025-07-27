@@ -17,13 +17,6 @@ Um motor de jogos moderno em C++ com foco em renderização de alta qualidade e 
 - **Padding e margens** funcionando corretamente
 - **Bordas proporcionais** opcionais
 
-### 🔤 **Sistema de Fontes Profissional**
-- **MSDF (Multi-channel Signed Distance Field)** para anti-aliasing AAA
-- **Subpixel rendering** para nitidez máxima
-- **Font Atlas** para performance otimizada
-- **Cache de glyphs** inteligente
-- **Múltiplas qualidades** (Low, Medium, High, Ultra)
-
 ### ⚡ **Performance**
 - **Batching** otimizado para UI
 - **Ring buffer** para gerenciamento de memória
