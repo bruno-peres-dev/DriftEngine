@@ -4,6 +4,11 @@
 #include "Drift/RHI/Texture.h"
 #include "Drift/RHI/Buffer.h"
 
+// Forward declarations
+namespace Drift::RHI { 
+    class IPipelineState; 
+}
+
 namespace Drift::RHI {
 
     // Interface para listas de comandos (futuro: suporte a command buffers)
@@ -54,6 +59,14 @@ namespace Drift::RHI {
 
         // Garantir RTV atual para swap-chain com múltiplos buffers
         virtual void BindBackBufferRTV() = 0;
+        
+        // === NOVOS MÉTODOS PARA CORRIGIR FALHAS DE ARQUITETURA ===
+        
+        // Pipeline state management
+        virtual void SetPipelineState(IPipelineState* pipeline) = 0;
+        
+        // Sampler management
+        virtual void SetSampler(UINT slot, ISampler* sampler) = 0;
     };
 
     // Interface para swapchain (controle de buffers de apresentação)

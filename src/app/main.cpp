@@ -353,19 +353,26 @@ int main() {
                 // Configurar viewport para UI (tela inteira)
                 appData.context->SetViewport(0, 0, 1280, 720);
 
+                Core::Log("[App] Iniciando renderização de UI...");
                 appData.uiBatcher->Begin();
                 
                 // Teste: Adicionar retângulos coloridos
+                Core::Log("[App] Adicionando retângulos de teste...");
                 appData.uiBatcher->AddRect(50.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFFFF0000)); // Vermelho sólido
                 appData.uiBatcher->AddRect(300.0f, 50.0f, 200.0f, 100.0f, Drift::Color(0xFF0000FF)); // Azul sólido
                 appData.uiBatcher->AddRect(540.0f, 310.0f, 200.0f, 100.0f, Drift::Color(0xFF00FF00)); // Verde sólido
                 
                 // Teste: Adicionar texto diretamente
+                Core::Log("[App] Adicionando texto de teste...");
                 appData.uiBatcher->AddText(100.0f, 200.0f, "Teste de Texto", Drift::Color(0xFFFFFFFF));
                 
                 // Renderizar UI
+                Core::Log("[App] Renderizando UI context...");
                 appData.uiContext->Render(*appData.uiBatcher);
+                
+                Core::Log("[App] Finalizando renderização de UI...");
                 appData.uiBatcher->End();
+                Core::Log("[App] Renderização de UI concluída");
             }
             
             // ---- PRESENT ----

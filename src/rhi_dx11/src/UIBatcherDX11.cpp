@@ -93,19 +93,16 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     // Criar sampler padrão com configurações AAA
     CreateDefaultSampler();
     
+    // Criar constant buffer UI
+    CreateUIConstantsBuffer();
+    
     // Criar pipeline de instancing
     CreateInstancedPipeline();
     
     // Inicializar text renderer
     m_TextRenderer = std::make_unique<Drift::UI::TextRenderer>();
     
-    // Alocar buffers de renderização
-    AllocateBuffers();
-    
-    // Criar constant buffer para UI
-    CreateUIConstantsBuffer();
-    
-    Core::Log("[UIBatcherDX11] Inicializado com configurações AAA");
+    Core::Log("[UIBatcherDX11] UIBatcherDX11 inicializado com sucesso");
 }
 
 UIBatcherDX11::~UIBatcherDX11() = default;
@@ -183,14 +180,19 @@ void UIBatcherDX11::OnBegin() {
         m_CullingSystem->SetViewport(0, 0, m_ScreenW, m_ScreenH);
     }
     
-    // Configurar pipeline
+    // Configurar pipeline - CRÍTICO para renderização
     EnsurePipeline();
+    
+    if (!m_Pipeline) {
+        Core::Log("[UIBatcherDX11] ERRO CRÍTICO: Pipeline não foi criado!");
+        return;
+    }
     
     // Configurar sampler padrão
     if (m_DefaultSampler) {
         auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
         if (contextDX11) {
-            contextDX11->SetSampler(0, m_DefaultSampler);
+            contextDX11->SetSampler(0, m_DefaultSampler.get());
         }
     }
     
@@ -202,6 +204,8 @@ void UIBatcherDX11::OnBegin() {
     
     // Atualizar constant buffer com tamanho da tela
     UpdateUIConstantsBuffer();
+    
+    Core::Log("[UIBatcherDX11] OnBegin concluído - Pipeline configurado");
 }
 
 void UIBatcherDX11::OnEnd() {
@@ -264,16 +268,18 @@ void UIBatcherDX11::OnAddQuad(float x0, float y0, float x1, float y1,
         return;
     }
     
-    vertices[0] = UIVertex(x0, y0, 0.0f, 0.0f, rgbaColor, 8);
-    vertices[1] = UIVertex(x1, y1, 1.0f, 0.0f, rgbaColor, 8);
-    vertices[2] = UIVertex(x2, y2, 1.0f, 1.0f, rgbaColor, 8);
-    vertices[3] = UIVertex(x3, y3, 0.0f, 1.0f, rgbaColor, 8);
+    // Converter coordenadas de tela para clip space
+    vertices[0] = UIVertex(ToClipX(x0), ToClipY(y0), 0.0f, 0.0f, rgbaColor, 8);
+    vertices[1] = UIVertex(ToClipX(x1), ToClipY(y1), 1.0f, 0.0f, rgbaColor, 8);
+    vertices[2] = UIVertex(ToClipX(x2), ToClipY(y2), 1.0f, 1.0f, rgbaColor, 8);
+    vertices[3] = UIVertex(ToClipX(x3), ToClipY(y3), 0.0f, 1.0f, rgbaColor, 8);
     
     // Renderizar vértices
     RenderVertices(vertices, 4, nullptr, 0, false);
     
     Core::Log("[UIBatcherDX11] Quad renderizado: (" + std::to_string(x0) + "," + std::to_string(y0) + 
-              ") -> (" + std::to_string(x2) + "," + std::to_string(y2) + ")");
+              ") -> (" + std::to_string(x2) + "," + std::to_string(y2) + ") - Cor: 0x" + 
+              std::to_string(color));
 }
 
 void UIBatcherDX11::OnAddTexturedRect(float x, float y, float w, float h,
@@ -536,6 +542,15 @@ void UIBatcherDX11::EnsurePipeline() {
                 Core::Log("[UIBatcherDX11] Pipeline UI criado com sucesso");
             } else {
                 Core::Log("[UIBatcherDX11] ERRO: Falha ao criar pipeline UI!");
+                // Tentar criar um pipeline mais simples como fallback
+                Core::Log("[UIBatcherDX11] Tentando criar pipeline fallback...");
+                uiDesc.inputLayout.clear(); // Remover input layout complexo
+                m_Pipeline = CreatePipelineDX11(device, uiDesc);
+                if (m_Pipeline) {
+                    Core::Log("[UIBatcherDX11] Pipeline fallback criado com sucesso");
+                } else {
+                    Core::Log("[UIBatcherDX11] ERRO CRÍTICO: Falha ao criar pipeline fallback!");
+                }
             }
         } else {
             Core::Log("[UIBatcherDX11] ERRO: Device DX11 é nullptr!");
@@ -647,11 +662,13 @@ void UIBatcherDX11::SortCommandsByTexture() {
 void UIBatcherDX11::RenderVertices(const UIVertex* vertices, size_t vertexCount, 
                                   const uint32_t* indices, size_t indexCount, bool hasTexture) {
     if (!m_Context || !m_Pipeline) {
+        Core::Log("[UIBatcherDX11] ERRO: Context ou Pipeline é nullptr!");
         return;
     }
     
     auto* contextDX11 = static_cast<ContextDX11*>(m_Context);
     if (!contextDX11) {
+        Core::Log("[UIBatcherDX11] ERRO: Context DX11 é nullptr!");
         return;
     }
     
@@ -677,7 +694,7 @@ void UIBatcherDX11::RenderVertices(const UIVertex* vertices, size_t vertexCount,
             // Copiar vértices para o ring buffer
             memcpy(vertexData, vertices, vertexCount * sizeof(UIVertex));
             
-            // Fazer bind do vertex buffer
+            // Fazer bind do vertex buffer usando a interface correta
             IBuffer* ringBuffer = m_RingBuffer->GetBuffer();
             if (ringBuffer) {
                 contextDX11->IASetVertexBuffer(ringBuffer->GetBackendHandle(), sizeof(UIVertex), vertexOffset);
@@ -699,7 +716,11 @@ void UIBatcherDX11::RenderVertices(const UIVertex* vertices, size_t vertexCount,
             }
             
             Core::Log("[UIBatcherDX11] Renderizando " + std::to_string(vertexCount) + " vértices via ring buffer");
+        } else {
+            Core::Log("[UIBatcherDX11] ERRO: Falha ao alocar vértices no ring buffer!");
         }
+    } else {
+        Core::Log("[UIBatcherDX11] ERRO: Ring buffer é nullptr!");
     }
     
     // Atualizar estatísticas
@@ -741,6 +762,7 @@ void UIBatcherDX11::CreateUIConstantsBuffer() {
 
 void UIBatcherDX11::UpdateUIConstantsBuffer() {
     if (!m_UIConstantsBuffer) {
+        Core::Log("[UIBatcherDX11] AVISO: Constant buffer UI não criado!");
         return;
     }
     
@@ -763,6 +785,11 @@ void UIBatcherDX11::UpdateUIConstantsBuffer() {
         contextDX11->UpdateConstantBuffer(m_UIConstantsBuffer.get(), &m_UIConstants, sizeof(UIConstants));
         contextDX11->VSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
         contextDX11->PSSetConstantBuffer(0, m_UIConstantsBuffer->GetBackendHandle());
+        Core::Log("[UIBatcherDX11] Constant buffer atualizado: screenSize=(" + 
+                  std::to_string(m_UIConstants.screenSize[0]) + "," + 
+                  std::to_string(m_UIConstants.screenSize[1]) + ")");
+    } else {
+        Core::Log("[UIBatcherDX11] ERRO: Context DX11 é nullptr ao atualizar constant buffer!");
     }
 }
 
