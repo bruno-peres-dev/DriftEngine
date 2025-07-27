@@ -39,6 +39,7 @@ public:
     void SetDefaultSize(float size) { m_DefaultSize = size; }
     void SetDefaultQuality(FontQuality q) { m_DefaultQuality = q; }
     void SetCacheConfig(const FontCacheConfig& config) { m_CacheConfig = config; }
+    const std::string& GetDefaultFontName() const { return m_DefaultFontName; }
 
     // Carregamento e obtenção de fontes
     std::shared_ptr<Font> LoadFont(const std::string& name, const std::string& path, float size, FontQuality quality);
