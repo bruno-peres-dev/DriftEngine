@@ -68,10 +68,15 @@ target_link_libraries(DriftEngine PUBLIC
   glfw
 )
 
-# 3.2) DriftCore (logging)
+# 3.2) DriftCore (logging + assets)
 add_library(DriftCore STATIC
   core/src/Log.cpp
   core/src/Profiler.cpp
+  core/src/AssetsManager.cpp
+  core/src/Assets/TextureAsset.cpp
+  core/src/Assets/FontAsset.cpp
+  core/src/Assets/AssetsManagerExample.cpp
+  core/src/Assets/Integration.cpp
 )
 target_include_directories(DriftCore PUBLIC
   core/include
