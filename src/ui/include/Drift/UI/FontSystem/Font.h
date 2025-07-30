@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Drift/Core/Assets/AssetsSystem.h"
+#include "FontAtlas.h"
+#include "FontMetrics.h"
 #include <string>
 #include <unordered_map>
 #include <memory>
 #include <vector>
 #include <glm/vec2.hpp>
-#include "Drift/RHI/Texture.h"
-#include "Drift/RHI/Device.h"
+#include <glm/vec4.hpp>
 
 // Forward declaration para evitar incluir stb_truetype.h no header
 struct stbtt_fontinfo;
@@ -24,6 +26,56 @@ enum class FontQuality {
 };
 
 /**
+ * @brief Formato de fonte suportado
+ */
+enum class FontFormat {
+    TTF,    // TrueType
+    OTF,    // OpenType
+    WOFF,   // Web Open Font Format
+    WOFF2,  // Web Open Font Format 2.0
+    BMF     // Bitmap Font (futuro)
+};
+
+/**
+ * @brief Configuração de carregamento de fonte
+ */
+struct FontLoadConfig {
+    float size = 16.0f;                    // Tamanho da fonte em pixels
+    FontQuality quality = FontQuality::High; // Qualidade de renderização
+    FontFormat format = FontFormat::TTF;   // Formato da fonte
+    float dpi = 96.0f;                     // DPI para renderização
+    bool enableHinting = true;             // Habilita hinting
+    bool enableKerning = true;             // Habilita kerning
+    bool enableLigatures = true;           // Habilita ligaduras
+    std::vector<uint32_t> preloadChars;    // Caracteres para pré-carregar
+    bool enableFallback = true;            // Habilita fallback de fontes
+};
+
+/**
+ * @brief Métricas completas de uma fonte
+ */
+struct FontMetrics {
+    // Métricas básicas
+    float ascent = 0.0f;                   // Altura ascendente
+    float descent = 0.0f;                  // Altura descendente
+    float lineGap = 0.0f;                  // Espaçamento entre linhas
+    float lineHeight = 0.0f;               // Altura total da linha
+    float xHeight = 0.0f;                  // Altura do 'x'
+    float capHeight = 0.0f;                // Altura das maiúsculas
+    
+    // Métricas de largura
+    float avgCharWidth = 0.0f;             // Largura média dos caracteres
+    float maxCharWidth = 0.0f;             // Largura máxima
+    float minCharWidth = 0.0f;             // Largura mínima
+    
+    // Métricas de peso
+    float underlinePosition = 0.0f;        // Posição do sublinhado
+    float underlineThickness = 0.0f;       // Espessura do sublinhado
+    float strikethroughPosition = 0.0f;    // Posição do tachado
+    float strikethroughThickness = 0.0f;   // Espessura do tachado
+};
+
+/**
  * @brief Informações de um glyph individual
  */
 struct GlyphInfo {
@@ -35,89 +87,161 @@ struct GlyphInfo {
 };
 
 /**
- * @brief Representa uma fonte TTF carregada com seus glyphs
+ * @brief Fonte Profissional Integrada ao Sistema de Assets
  * 
- * Esta classe gerencia o carregamento e cache de uma fonte TTF,
- * incluindo a geração do atlas de textura e informações de glyphs.
+ * Esta classe representa uma fonte carregada com suporte completo a:
+ * - Integração com AssetsSystem
+ * - Múltiplos formatos de fonte
+ * - Cache inteligente de glyphs
+ * - Sistema de fallback
+ * - Métricas tipográficas completas
+ * - Renderização de alta qualidade
  */
-class Font {
+class Font : public Drift::Core::Assets::IAsset {
 public:
     /**
-     * @brief Construtor da fonte
+     * @brief Construtor
      * @param name Nome da fonte
-     * @param size Tamanho da fonte em pixels
-     * @param quality Qualidade de renderização
+     * @param config Configuração de carregamento
      */
-    Font(std::string name, float size, FontQuality quality);
+    Font(const std::string& name, const FontLoadConfig& config = {});
     
     /**
-     * @brief Carrega a fonte a partir de um arquivo TTF
-     * @param path Caminho para o arquivo TTF
-     * @param device Dispositivo RHI para criar texturas
-     * @return true se o carregamento foi bem-sucedido
+     * @brief Destrutor
      */
-    bool LoadFromFile(const std::string& path, Drift::RHI::IDevice* device);
-    
-    /**
-     * @brief Carrega a fonte a partir de dados em memória
-     * @param data Dados TTF em memória
-     * @param size Tamanho dos dados
-     * @param device Dispositivo RHI para criar texturas
-     * @return true se o carregamento foi bem-sucedido
-     */
-    bool LoadFromMemory(const unsigned char* data, size_t size, Drift::RHI::IDevice* device);
+    ~Font();
 
-    /**
-     * @brief Obtém informações de um glyph específico
-     * @param codepoint Código Unicode do caractere
-     * @return Ponteiro para GlyphInfo ou nullptr se não encontrado
-     */
+    // Implementação de IAsset
+    const std::string& GetPath() const override { return m_Path; }
+    const std::string& GetName() const override { return m_Name; }
+    size_t GetMemoryUsage() const override;
+    Drift::Core::Assets::AssetStatus GetStatus() const override { return m_Status; }
+    bool Load() override;
+    void Unload() override;
+    bool IsLoaded() const override { return m_Status == Drift::Core::Assets::AssetStatus::Loaded; }
+    std::chrono::steady_clock::time_point GetLoadTime() const override { return m_LoadTime; }
+    size_t GetAccessCount() const override { return m_AccessCount; }
+    void UpdateAccess() override { m_AccessCount++; }
+
+    // Carregamento de fontes
+    bool LoadFromFile(const std::string& path);
+    bool LoadFromMemory(const unsigned char* data, size_t size);
+    bool LoadFromAsset(const std::string& assetPath);
+
+    // Acesso a glyphs
     const GlyphInfo* GetGlyph(uint32_t codepoint) const;
+    bool HasGlyph(uint32_t codepoint) const;
+    bool LoadGlyph(uint32_t codepoint);
     
-    /**
-     * @brief Obtém a textura do atlas de glyphs
-     * @return Textura compartilhada do atlas
-     */
-    std::shared_ptr<Drift::RHI::ITexture> GetAtlasTexture() const { return m_Texture; }
-
-    // Getters para propriedades da fonte
-    float GetSize() const { return m_Size; }
-    const std::string& GetName() const { return m_Name; }
-    float GetAscent() const { return m_Ascent; }
-    float GetDescent() const { return m_Descent; }
-    FontQuality GetQuality() const { return m_Quality; }
+    // Kerning
+    float GetKerning(uint32_t left, uint32_t right) const;
+    
+    // Métricas
+    const FontMetrics& GetMetrics() const { return m_Metrics; }
+    float GetSize() const { return m_Config.size; }
+    FontQuality GetQuality() const { return m_Config.quality; }
+    FontFormat GetFormat() const { return m_Config.format; }
+    
+    // Atlas
+    std::shared_ptr<FontAtlas> GetAtlas() const { return m_Atlas; }
+    std::shared_ptr<Drift::RHI::ITexture> GetAtlasTexture() const;
+    
+    // Fallback
+    void SetFallbackFont(std::shared_ptr<Font> fallback) { m_FallbackFont = fallback; }
+    std::shared_ptr<Font> GetFallbackFont() const { return m_FallbackFont; }
+    
+    // Utilitários
+    bool IsValid() const { return m_IsValid; }
+    std::string GetFamilyName() const { return m_FamilyName; }
+    std::string GetStyleName() const { return m_StyleName; }
+    bool IsBold() const { return m_IsBold; }
+    bool IsItalic() const { return m_IsItalic; }
+    bool IsMonospace() const { return m_IsMonospace; }
 
 private:
+    // Dados da fonte
     std::string m_Name;
-    float m_Size;
-    FontQuality m_Quality;
+    std::string m_Path;
+    FontLoadConfig m_Config;
+    Drift::Core::Assets::AssetStatus m_Status{Drift::Core::Assets::AssetStatus::NotLoaded};
+    std::chrono::steady_clock::time_point m_LoadTime;
+    size_t m_AccessCount{0};
     
-    // Otimização: usar vector para glyphs Latin-1 (32-255)
-    std::vector<GlyphInfo> m_GlyphsASCII;  // Para caracteres Latin-1 comuns
-    std::unordered_map<uint32_t, GlyphInfo> m_GlyphsExtended;  // Para caracteres Unicode
+    // Dados TTF/OTF
+    std::vector<unsigned char> m_FontData;
+    std::unique_ptr<stbtt_fontinfo> m_FontInfo;
+    bool m_IsValid{false};
     
-    std::shared_ptr<Drift::RHI::ITexture> m_Texture;
+    // Informações da fonte
+    std::string m_FamilyName;
+    std::string m_StyleName;
+    bool m_IsBold{false};
+    bool m_IsItalic{false};
+    bool m_IsMonospace{false};
     
-    // Métricas da fonte
-    float m_Ascent{0.0f};
-    float m_Descent{0.0f};
+    // Métricas
+    FontMetrics m_Metrics;
     
-    /**
-     * @brief Obtém tamanho do atlas baseado na qualidade
-     */
-    int GetAtlasSize() const;
+    // Atlas e glyphs
+    std::shared_ptr<FontAtlas> m_Atlas;
+    std::unordered_map<uint32_t, GlyphInfo> m_Glyphs;
     
-    /**
-     * @brief Carrega glyphs Unicode adicionais
-     */
-    void LoadUnicodeGlyphs(const unsigned char* data, int atlasSize, std::vector<unsigned char>& bitmap);
+    // Fallback
+    std::shared_ptr<Font> m_FallbackFont;
     
-    /**
-     * @brief Obtém um codepoint de fallback para caracteres acentuados
-     * @param codepoint Codepoint original
-     * @return Codepoint de fallback (sem acento) ou o original se não houver fallback
-     */
+    // Cache de kerning
+    mutable std::unordered_map<uint64_t, float> m_KerningCache;
+    
+    // Métodos auxiliares
+    bool InitializeFontInfo();
+    bool LoadFontMetrics();
+    bool LoadFontInfo();
+    bool CreateAtlas();
+    bool LoadGlyphInternal(uint32_t codepoint);
     uint32_t GetFallbackCodepoint(uint32_t codepoint) const;
+    
+    // Utilitários
+    int GetAtlasSize() const;
+    float GetScale() const;
+    uint64_t MakeKerningKey(uint32_t left, uint32_t right) const;
+    
+    // Constantes
+    static constexpr size_t MAX_GLYPHS = 65536;
+    static constexpr size_t KERNING_CACHE_SIZE = 10000;
+};
+
+/**
+ * @brief Loader de fontes para o sistema de assets
+ */
+class FontLoader : public Drift::Core::Assets::IAssetLoader<Font> {
+public:
+    /**
+     * @brief Construtor
+     * @param device Dispositivo RHI
+     */
+    FontLoader(Drift::RHI::IDevice* device);
+    
+    /**
+     * @brief Destrutor
+     */
+    ~FontLoader();
+
+    // Implementação de IAssetLoader
+    std::shared_ptr<Font> Load(const std::string& path, const std::any& params = {}) override;
+    bool CanLoad(const std::string& path) const override;
+    std::vector<std::string> GetSupportedExtensions() const override;
+    std::string GetLoaderName() const override { return "FontLoader"; }
+    size_t EstimateMemoryUsage(const std::string& path) const override;
+
+private:
+    Drift::RHI::IDevice* m_Device{nullptr};
+    
+    // Extensões suportadas
+    static const std::vector<std::string> s_SupportedExtensions;
+    
+    // Utilitários
+    FontLoadConfig ParseLoadParams(const std::any& params) const;
+    bool IsValidFontFile(const std::string& path) const;
 };
 
 } // namespace Drift::UI
