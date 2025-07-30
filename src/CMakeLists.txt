@@ -72,11 +72,8 @@ target_link_libraries(DriftEngine PUBLIC
 add_library(DriftCore STATIC
   core/src/Log.cpp
   core/src/Profiler.cpp
-  core/src/AssetsManager.cpp
-  core/src/Assets/TextureAsset.cpp
-  core/src/Assets/FontAsset.cpp
-  core/src/Assets/AssetsManagerExample.cpp
-  core/src/Assets/Integration.cpp
+  core/src/Assets/AssetsSystem.cpp
+  core/src/Assets/AssetsExample.cpp
   core/src/Threading/ThreadingSystem.cpp
   core/src/Threading/ThreadingExample.cpp
 )

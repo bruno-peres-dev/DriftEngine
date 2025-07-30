@@ -4,6 +4,8 @@
 #include "Drift/Core/Log.h"
 #include "Drift/Core/Threading/ThreadingSystem.h"
 #include "Drift/Core/Threading/ThreadingExample.h"
+#include "Drift/Core/Assets/AssetsSystem.h"
+#include "Drift/Core/Assets/AssetsExample.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/ResourceManager.h"
 #include "Drift/RHI/RHIException.h"
@@ -114,6 +116,29 @@ int main() {
         // Executa exemplo básico do sistema de threading
         Core::Log("[App] Executando exemplo do sistema de threading...");
         Drift::Core::Threading::ThreadingExample::RunBasicExample();
+        
+        // ================================
+        // 0.5. SISTEMA DE ASSETS
+        // ================================
+        
+        Core::Log("[App] Inicializando sistema de assets...");
+        auto& assetsSystem = Drift::Core::Assets::AssetsSystem::GetInstance();
+        
+        // Configuração otimizada para jogos
+        Drift::Core::Assets::AssetsConfig assetsConfig;
+        assetsConfig.maxAssets = 1000;
+        assetsConfig.maxMemoryUsage = 512 * 1024 * 1024; // 512MB
+        assetsConfig.enableAsyncLoading = true;
+        assetsConfig.enablePreloading = true;
+        assetsConfig.enableLazyUnloading = true;
+        assetsConfig.maxConcurrentLoads = 8;
+        
+        assetsSystem.Initialize(assetsConfig);
+        Core::Log("[App] Sistema de assets inicializado");
+        
+        // Executa exemplo básico do sistema de assets
+        Core::Log("[App] Executando exemplo do sistema de assets...");
+        Drift::Core::Assets::AssetsExample::RunBasicExample();
         
         // ================================
         // 1. INICIALIZAÇÃO BÁSICA
@@ -251,7 +276,7 @@ int main() {
             // Label de instruções
             auto instructionLabel = std::make_shared<UI::Label>(uiContext.get());
             instructionLabel->SetName("InstructionLabel");
-            instructionLabel->SetText("Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes, T = Teste Threading");
+            instructionLabel->SetText("Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes, T = Teste Threading, A = Teste Assets");
             instructionLabel->SetPosition({50.0f, 680.0f});
             instructionLabel->SetFontFamily("default");
             instructionLabel->SetFontSize(16.0f);
@@ -507,6 +532,43 @@ int main() {
                 threadingSystem.LogStats();
             }
             
+            // Teste do sistema de assets com A
+            if (input.IsKeyPressed(Engine::Input::Key::A)) {
+                Core::Log("[App] Executando teste de assets...");
+                
+                auto& assetsSystem = Drift::Core::Assets::AssetsSystem::GetInstance();
+                
+                // Teste de carregamento assíncrono
+                std::vector<std::future<std::shared_ptr<Drift::Core::Assets::SimpleAsset>>> futures;
+                
+                for (int i = 0; i < 20; ++i) {
+                    std::string path = "test_asset_" + std::to_string(i) + ".asset";
+                    auto future = DRIFT_LOAD_ASSET_ASYNC(Drift::Core::Assets::SimpleAsset, path);
+                    futures.push_back(std::move(future));
+                }
+                
+                Core::Log("[App] Assets submetidos para carregamento assíncrono...");
+                
+                // Aguarda alguns assets
+                int loadedCount = 0;
+                for (size_t i = 0; i < futures.size(); ++i) {
+                    try {
+                        auto asset = futures[i].get();
+                        if (asset) {
+                            loadedCount++;
+                            Core::Log("[App] Asset " + std::to_string(i) + " carregado: " + asset->GetName());
+                        }
+                    } catch (const std::exception& e) {
+                        Core::LogError("[App] Falha ao carregar asset " + std::to_string(i) + ": " + e.what());
+                    }
+                }
+                
+                Core::Log("[App] Carregamento concluído: " + std::to_string(loadedCount) + "/" + std::to_string(futures.size()) + " assets");
+                
+                // Mostra estatísticas do sistema
+                assetsSystem.LogStats();
+            }
+            
             // ---- RENDER MANAGER UPDATE ----
             appData.renderManager->Update(deltaTime, input);
 
@@ -614,6 +676,10 @@ int main() {
         // Shutdown do sistema de threading
         Core::Log("[App] Finalizando sistema de threading...");
         threadingSystem.Shutdown();
+        
+        // Shutdown do sistema de assets
+        Core::Log("[App] Finalizando sistema de assets...");
+        Drift::Core::Assets::AssetsSystem::GetInstance().Shutdown();
 
         // Cleanup automático via RAII
         glfwDestroyWindow(window);
