@@ -58,7 +58,8 @@ void FontAsset::SetLoadParams(const FontLoadParams& params) {
     if (!params.name.empty()) {
         m_FontName = params.name;
     }
-    m_EstimatedMemoryUsage = EstimateFontMemoryUsage(m_Size, m_Quality);
+    // Estimativa simples de memória
+    m_EstimatedMemoryUsage = static_cast<size_t>(m_Size * m_Size * 4);
 }
 
 // =============================================================================

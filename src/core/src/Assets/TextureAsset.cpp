@@ -1,5 +1,6 @@
 #include "Drift/Core/Assets/TextureAsset.h"
 #include "Drift/Core/Log.h"
+#include "Drift/RHI/Format.h"
 #include <filesystem>
 #include <algorithm>
 
@@ -115,22 +116,20 @@ size_t TextureLoader::EstimateTextureMemoryUsage(unsigned width, unsigned height
     size_t bytesPerPixel = 4; // Default para RGBA8
     
     switch (format) {
-        case RHI::Format::R8_UNorm:
+        case RHI::Format::R8_UNORM:
             bytesPerPixel = 1;
             break;
-        case RHI::Format::R8G8_UNorm:
+        case RHI::Format::R8G8_UNORM:
             bytesPerPixel = 2;
             break;
-        case RHI::Format::R8G8B8A8_UNorm:
-        case RHI::Format::R8G8B8A8_UNorm_sRGB:
-        case RHI::Format::B8G8R8A8_UNorm:
-        case RHI::Format::B8G8R8A8_UNorm_sRGB:
+        case RHI::Format::R8G8B8A8_UNORM:
+        case RHI::Format::R8G8B8A8_SNORM:
             bytesPerPixel = 4;
             break;
-        case RHI::Format::R16G16B16A16_Float:
+        case RHI::Format::R16G16B16A16_UNORM:
             bytesPerPixel = 8;
             break;
-        case RHI::Format::R32G32B32A32_Float:
+        case RHI::Format::R32G32B32A32_FLOAT:
             bytesPerPixel = 16;
             break;
         default:
@@ -155,13 +154,13 @@ RHI::Format TextureLoader::DetermineFormat(const std::string& path, RHI::Format 
     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
     
     if (extension == ".hdr" || extension == ".exr") {
-        return RHI::Format::R16G16B16A16_Float;
+        return RHI::Format::R16G16B16A16_UNORM;
     } else if (extension == ".dds") {
         // Para DDS, seria necessário analisar o header do arquivo
-        return RHI::Format::R8G8B8A8_UNorm;
+        return RHI::Format::R8G8B8A8_UNORM;
     } else {
         // Para formatos comuns (PNG, JPG, etc.)
-        return RHI::Format::R8G8B8A8_UNorm_sRGB;
+        return RHI::Format::R8G8B8A8_UNORM;
     }
 }
 

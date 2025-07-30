@@ -203,7 +203,7 @@ private:
     IAssetLoader<T>* GetLoader() const;
     
     bool EvictLeastUsedAsset();
-    void UpdateAccessStats(AssetCacheEntry& entry) const;
+    void UpdateAccessStats(AssetCacheEntry& entry);
     size_t CalculateCurrentMemoryUsage() const;
     void TriggerAssetLoadedCallback(const std::string& path, std::type_index type);
     void TriggerAssetUnloadedCallback(const std::string& path, std::type_index type);
@@ -214,7 +214,7 @@ private:
 template<typename T>
 void AssetsManager::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
     std::lock_guard<std::mutex> lock(m_Mutex);
-    m_Loaders[std::type_index(typeid(T))] = std::move(loader);
+    m_Loaders[std::type_index(typeid(T))] = std::any{std::shared_ptr<void>(std::move(loader))};
 }
 
 template<typename T>
@@ -227,7 +227,8 @@ template<typename T>
 IAssetLoader<T>* AssetsManager::GetLoader() const {
     auto it = m_Loaders.find(std::type_index(typeid(T)));
     if (it != m_Loaders.end()) {
-        return std::any_cast<std::unique_ptr<IAssetLoader<T>>>(it->second).get();
+        auto shared_ptr = std::any_cast<std::shared_ptr<void>>(it->second);
+        return static_cast<IAssetLoader<T>*>(shared_ptr.get());
     }
     return nullptr;
 }

@@ -263,7 +263,7 @@ bool AssetsManager::EvictLeastUsedAsset() {
     return false;
 }
 
-void AssetsManager::UpdateAccessStats(AssetCacheEntry& entry) const {
+void AssetsManager::UpdateAccessStats(AssetCacheEntry& entry) {
     entry.lastAccess = ++m_AccessCounter;
     entry.accessCount++;
 }

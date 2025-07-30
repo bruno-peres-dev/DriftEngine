@@ -2,6 +2,8 @@
 // Demo da nova arquitetura AAA do DriftEngine
 
 #include "Drift/Core/Log.h"
+#include "Drift/Core/Threading/ThreadingSystem.h"
+#include "Drift/Core/Threading/ThreadingExample.h"
 #include "Drift/RHI/DX11/DeviceDX11.h"
 #include "Drift/RHI/ResourceManager.h"
 #include "Drift/RHI/RHIException.h"
@@ -89,6 +91,29 @@ int main() {
         
         // Configurar nível de log para Debug (para ver logs de debug do binding)
         Core::SetLogLevel(Core::LogLevel::Debug);
+        
+        // ================================
+        // 0. SISTEMA DE THREADING
+        // ================================
+        
+        Core::Log("[App] Inicializando sistema de threading...");
+        auto& threadingSystem = Drift::Core::Threading::ThreadingSystem::GetInstance();
+        
+        // Configuração otimizada para jogos
+        Drift::Core::Threading::ThreadingConfig threadingConfig;
+        threadingConfig.threadCount = std::thread::hardware_concurrency() - 1; // Deixa um core livre
+        threadingConfig.enableWorkStealing = true;
+        threadingConfig.enableAffinity = true;
+        threadingConfig.enableProfiling = true; // Habilita profiling para debug
+        threadingConfig.threadNamePrefix = "DriftEngine";
+        
+        threadingSystem.Initialize(threadingConfig);
+        Core::Log("[App] Sistema de threading inicializado com " + 
+                  std::to_string(threadingSystem.GetThreadCount()) + " threads");
+        
+        // Executa exemplo básico do sistema de threading
+        Core::Log("[App] Executando exemplo do sistema de threading...");
+        Drift::Core::Threading::ThreadingExample::RunBasicExample();
         
         // ================================
         // 1. INICIALIZAÇÃO BÁSICA
@@ -226,7 +251,7 @@ int main() {
             // Label de instruções
             auto instructionLabel = std::make_shared<UI::Label>(uiContext.get());
             instructionLabel->SetName("InstructionLabel");
-            instructionLabel->SetText("Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes");
+            instructionLabel->SetText("Controles: F1 = Wireframe, ESC = Sair, R = Recarregar fontes, T = Teste Threading");
             instructionLabel->SetPosition({50.0f, 680.0f});
             instructionLabel->SetFontFamily("default");
             instructionLabel->SetFontSize(16.0f);
@@ -428,6 +453,60 @@ int main() {
                 }
             }
             
+            // Teste do sistema de threading com T
+            if (input.IsKeyPressed(Engine::Input::Key::T)) {
+                Core::Log("[App] Executando teste de threading...");
+                
+                // Exemplo de processamento paralelo
+                std::vector<int> data(1000000);
+                for (int i = 0; i < data.size(); ++i) {
+                    data[i] = i;
+                }
+                
+                std::vector<int> result(data.size());
+                const size_t chunkSize = data.size() / 8;
+                std::vector<Drift::Core::Threading::TaskFuture<void>> futures;
+                
+                auto startTime = std::chrono::steady_clock::now();
+                
+                // Processa chunks em paralelo
+                for (size_t i = 0; i < 8; ++i) {
+                    size_t start = i * chunkSize;
+                    size_t end = (i == 7) ? data.size() : (i + 1) * chunkSize;
+                    
+                    // Cria info da tarefa
+                    auto info = Drift::Core::Threading::TaskInfo{};
+                    info.name = "ProcessChunk_" + std::to_string(i);
+                    
+                    // Submete a tarefa
+                    auto future = threadingSystem.SubmitWithInfo(info, [&data, &result, start, end]() {
+                        for (size_t j = start; j < end; ++j) {
+                            result[j] = data[j] * data[j] + data[j];
+                        }
+                    });
+                    
+                    futures.push_back(std::move(future));
+                }
+                
+                // Aguarda todos terminarem
+                DRIFT_WAIT_FOR_ALL();
+                
+                auto endTime = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+                
+                Core::Log("[App] Processamento paralelo concluído em " + std::to_string(duration.count()) + "ms");
+                
+                // Verifica resultado
+                int sum = 0;
+                for (int value : result) {
+                    sum += value;
+                }
+                Core::Log("[App] Soma total: " + std::to_string(sum));
+                
+                // Mostra estatísticas do sistema
+                threadingSystem.LogStats();
+            }
+            
             // ---- RENDER MANAGER UPDATE ----
             appData.renderManager->Update(deltaTime, input);
 
@@ -531,6 +610,10 @@ int main() {
         Core::Log("[ResourceManager] - Texturas: max " + std::to_string(textureCache.GetStats().maxMemoryUsage / (1024 * 1024)) + " MB");
         
         appData.uiContext->Shutdown();
+        
+        // Shutdown do sistema de threading
+        Core::Log("[App] Finalizando sistema de threading...");
+        threadingSystem.Shutdown();
 
         // Cleanup automático via RAII
         glfwDestroyWindow(window);

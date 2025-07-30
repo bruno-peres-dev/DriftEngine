@@ -44,7 +44,7 @@ void AssetsManagerExample::TextureLoadingExample() {
     
     // Carregamento com parâmetros
     TextureLoadParams params;
-    params.format = RHI::Format::R8G8B8A8_UNorm_sRGB;
+    params.format = RHI::Format::R8G8B8A8_UNORM;
     params.generateMips = true;
     params.sRGB = true;
     
@@ -117,7 +117,7 @@ void AssetsManagerExample::PreloadingExample() {
     
     // Pré-carregamento individual
     TextureLoadParams texParams;
-    texParams.format = RHI::Format::R8G8B8A8_UNorm_sRGB;
+    texParams.format = RHI::Format::R8G8B8A8_UNORM;
     
     assetsManager.PreloadAsset<TextureAsset>("textures/ui/button.png", "", texParams);
     assetsManager.PreloadAsset<TextureAsset>("textures/ui/panel.png", "", texParams);

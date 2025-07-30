@@ -68,7 +68,7 @@ target_link_libraries(DriftEngine PUBLIC
   glfw
 )
 
-# 3.2) DriftCore (logging + assets)
+# 3.2) DriftCore (logging + assets + threading)
 add_library(DriftCore STATIC
   core/src/Log.cpp
   core/src/Profiler.cpp
@@ -77,9 +77,17 @@ add_library(DriftCore STATIC
   core/src/Assets/FontAsset.cpp
   core/src/Assets/AssetsManagerExample.cpp
   core/src/Assets/Integration.cpp
+  core/src/Threading/ThreadingSystem.cpp
+  core/src/Threading/ThreadingExample.cpp
 )
 target_include_directories(DriftCore PUBLIC
   core/include
+  rhi/include
+  ui/include
+  ${glm_SOURCE_DIR}
+)
+target_link_libraries(DriftCore PUBLIC
+  glm
 )
 
 # 3.3) DriftRHI (interfaces)
