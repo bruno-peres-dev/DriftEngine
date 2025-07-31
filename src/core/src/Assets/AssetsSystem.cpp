@@ -12,24 +12,24 @@ AssetsSystem& AssetsSystem::GetInstance() {
 
 void AssetsSystem::Initialize(const AssetsConfig& config) {
     if (m_Initialized) {
-        Core::LogWarning("[AssetsSystem] Sistema já inicializado");
+        LOG_WARNING("[AssetsSystem] Sistema já inicializado");
         return;
     }
     
     m_Config = config;
     m_Initialized = true;
     
-    Core::Log("[AssetsSystem] Sistema inicializado");
-    Core::Log("[AssetsSystem] - Max Assets: " + std::to_string(m_Config.maxAssets));
-    Core::Log("[AssetsSystem] - Max Memory: " + std::to_string(m_Config.maxMemoryUsage / (1024 * 1024)) + " MB");
-    Core::Log("[AssetsSystem] - Async Loading: " + std::string(m_Config.enableAsyncLoading ? "Enabled" : "Disabled"));
-    Core::Log("[AssetsSystem] - Preloading: " + std::string(m_Config.enablePreloading ? "Enabled" : "Disabled"));
+    LOG_INFO("[AssetsSystem] Sistema inicializado");
+    DRIFT_LOG_INFO("[AssetsSystem] - Max Assets: ", m_Config.maxAssets);
+    DRIFT_LOG_INFO("[AssetsSystem] - Max Memory: ", m_Config.maxMemoryUsage / (1024 * 1024), " MB");
+    DRIFT_LOG_INFO("[AssetsSystem] - Async Loading: ", m_Config.enableAsyncLoading ? "Enabled" : "Disabled");
+    DRIFT_LOG_INFO("[AssetsSystem] - Preloading: ", m_Config.enablePreloading ? "Enabled" : "Disabled");
 }
 
 void AssetsSystem::Shutdown() {
     if (!m_Initialized) return;
     
-    Core::Log("[AssetsSystem] Finalizando sistema...");
+    LOG_INFO("[AssetsSystem] Finalizando sistema...");
     
     // Aguarda todos os carregamentos terminarem
     WaitForAllLoads();
@@ -41,7 +41,7 @@ void AssetsSystem::Shutdown() {
     m_Loaders.clear();
     
     m_Initialized = false;
-    Core::Log("[AssetsSystem] Sistema finalizado");
+    LOG_INFO("[AssetsSystem] Sistema finalizado");
 }
 
 void AssetsSystem::SetConfig(const AssetsConfig& config) {
@@ -65,7 +65,7 @@ void AssetsSystem::SetConfig(const AssetsConfig& config) {
         }
     }
     
-    Core::Log("[AssetsSystem] Configuração atualizada");
+    LOG_INFO("[AssetsSystem] Configuração atualizada");
 }
 
 void AssetsSystem::PreloadAssets(const std::vector<std::string>& paths) {
@@ -73,7 +73,7 @@ void AssetsSystem::PreloadAssets(const std::vector<std::string>& paths) {
         return;
     }
     
-    Core::Log("[AssetsSystem] Pré-carregando " + std::to_string(paths.size()) + " assets...");
+    DRIFT_LOG_INFO("[AssetsSystem] Pré-carregando ", paths.size(), " assets...");
     
     for (const auto& path : paths) {
         // Tenta determinar o tipo do asset pela extensão
@@ -82,7 +82,7 @@ void AssetsSystem::PreloadAssets(const std::vector<std::string>& paths) {
         std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
         
         // Por enquanto, logamos que o asset seria pré-carregado
-        Core::Log("[AssetsSystem] Asset para pré-carregamento: " + path + " (extensão: " + extension + ")");
+        DRIFT_LOG_INFO("[AssetsSystem] Asset para pré-carregamento: ", path, " (extensão: ", extension, ")");
     }
 }
 
@@ -104,7 +104,7 @@ void AssetsSystem::UnloadAsset(const std::string& path, std::type_index type, co
         m_UnloadCount++;
         
         TriggerAssetUnloadedCallback(path, type);
-        Core::Log("[AssetsSystem] Asset descarregado: " + path);
+        DRIFT_LOG_INFO("[AssetsSystem] Asset descarregado: ", path);
     }
 }
 
@@ -132,7 +132,7 @@ void AssetsSystem::UnloadAssets(std::type_index type) {
         }
     }
     
-    Core::Log("[AssetsSystem] " + std::to_string(unloadedCount) + " assets do tipo descarregados");
+    DRIFT_LOG_INFO("[AssetsSystem] ", unloadedCount, " assets do tipo descarregados");
 }
 
 void AssetsSystem::UnloadUnusedAssets() {
@@ -160,7 +160,7 @@ void AssetsSystem::UnloadUnusedAssets() {
         }
     }
     
-    Core::Log("[AssetsSystem] " + std::to_string(unloadedCount) + " assets não utilizados descarregados");
+    DRIFT_LOG_INFO("[AssetsSystem] ", unloadedCount, " assets não utilizados descarregados");
 }
 
 void AssetsSystem::ClearCache() {
@@ -182,7 +182,7 @@ void AssetsSystem::ClearCache() {
     m_Assets.clear();
     m_UnloadCount += totalAssets;
     
-    Core::Log("[AssetsSystem] Cache limpo - " + std::to_string(totalAssets) + " assets descarregados");
+    DRIFT_LOG_INFO("[AssetsSystem] Cache limpo - ", totalAssets, " assets descarregados");
 }
 
 void AssetsSystem::TrimCache() {
@@ -206,7 +206,7 @@ void AssetsSystem::TrimCache() {
     }
     
     size_t removedCount = initialCount - m_Assets.size();
-    Core::Log("[AssetsSystem] Cache trimmed - " + std::to_string(removedCount) + " assets removidos");
+    DRIFT_LOG_INFO("[AssetsSystem] Cache trimmed - ", removedCount, " assets removidos");
 }
 
 AssetsStats AssetsSystem::GetStats() const {
@@ -250,33 +250,29 @@ AssetsStats AssetsSystem::GetStats() const {
 void AssetsSystem::LogStats() const {
     auto stats = GetStats();
     
-    Core::Log("[AssetsSystem] === Estatísticas do Sistema ===");
-    Core::Log("[AssetsSystem] Total de Assets: " + std::to_string(stats.totalAssets));
-    Core::Log("[AssetsSystem] Assets Carregados: " + std::to_string(stats.loadedAssets));
-    Core::Log("[AssetsSystem] Assets Carregando: " + std::to_string(stats.loadingAssets));
-    Core::Log("[AssetsSystem] Assets Falharam: " + std::to_string(stats.failedAssets));
-    Core::Log("[AssetsSystem] Uso de Memória: " + std::to_string(stats.memoryUsage / (1024 * 1024)) + " MB / " + 
-        std::to_string(stats.maxMemoryUsage / (1024 * 1024)) + " MB");
-    Core::Log("[AssetsSystem] Cache Hits: " + std::to_string(stats.cacheHits));
-    Core::Log("[AssetsSystem] Cache Misses: " + std::to_string(stats.cacheMisses));
-    Core::Log("[AssetsSystem] Carregamentos: " + std::to_string(stats.loadCount));
-    Core::Log("[AssetsSystem] Carregamentos Assíncronos: " + std::to_string(stats.asyncLoadCount));
-    Core::Log("[AssetsSystem] Descarregamentos: " + std::to_string(stats.unloadCount));
-    Core::Log("[AssetsSystem] Tempo Médio de Carregamento: " + std::to_string(stats.averageLoadTime * 1000.0) + " ms");
+    LOG_INFO("[AssetsSystem] === Estatísticas do Sistema ===");
+    DRIFT_LOG_INFO("[AssetsSystem] Total de Assets: ", stats.totalAssets);
+    DRIFT_LOG_INFO("[AssetsSystem] Assets Carregados: ", stats.loadedAssets);
+    DRIFT_LOG_INFO("[AssetsSystem] Assets Carregando: ", stats.loadingAssets);
+    DRIFT_LOG_INFO("[AssetsSystem] Assets Falharam: ", stats.failedAssets);
+    DRIFT_LOG_INFO("[AssetsSystem] Uso de Memória: ", stats.memoryUsage / (1024 * 1024), " MB / ", stats.maxMemoryUsage / (1024 * 1024), " MB");
+    DRIFT_LOG_INFO("[AssetsSystem] Cache Hits: ", stats.cacheHits);
+    DRIFT_LOG_INFO("[AssetsSystem] Cache Misses: ", stats.cacheMisses);
+    DRIFT_LOG_INFO("[AssetsSystem] Carregamentos: ", stats.loadCount);
+    DRIFT_LOG_INFO("[AssetsSystem] Carregamentos Assíncronos: ", stats.asyncLoadCount);
+    DRIFT_LOG_INFO("[AssetsSystem] Descarregamentos: ", stats.unloadCount);
+    DRIFT_LOG_INFO("[AssetsSystem] Tempo Médio de Carregamento: ", std::fixed, std::setprecision(2), stats.averageLoadTime * 1000.0, " ms");
     
     if (!stats.assetsByType.empty()) {
-        Core::Log("[AssetsSystem] === Assets por Tipo ===");
+        LOG_INFO("[AssetsSystem] === Assets por Tipo ===");
         for (const auto& [type, count] : stats.assetsByType) {
             size_t memory = stats.memoryByType.at(type);
             size_t loads = stats.loadCountByType.at(type);
-            Core::Log("[AssetsSystem] " + std::string(type.name()) + ": " + 
-                std::to_string(count) + " assets, " + 
-                std::to_string(memory / (1024 * 1024)) + " MB, " +
-                std::to_string(loads) + " carregamentos");
+            DRIFT_LOG_INFO("[AssetsSystem] ", std::string(type.name()), ": ", count, " assets, ", memory / (1024 * 1024), " MB, ", loads, " carregamentos");
         }
     }
     
-    Core::Log("[AssetsSystem] ================================");
+    DRIFT_LOG_INFO("[AssetsSystem] ================================");
 }
 
 void AssetsSystem::ResetStats() {
@@ -287,7 +283,7 @@ void AssetsSystem::ResetStats() {
     m_UnloadCount = 0;
     m_AsyncLoadCount = 0;
     m_TotalLoadTime = 0.0;
-    Core::Log("[AssetsSystem] Estatísticas resetadas");
+    LOG_INFO("[AssetsSystem] Estatísticas resetadas");
 }
 
 bool AssetsSystem::IsAssetLoaded(const std::string& path, std::type_index type, const std::string& variant) const {
@@ -358,7 +354,7 @@ void AssetsSystem::WaitForAllLoads() {
         }
     }
     
-    Core::Log("[AssetsSystem] Aguardou todos os carregamentos");
+    DRIFT_LOG_INFO("[AssetsSystem] Aguardou todos os carregamentos");
 }
 
 void AssetsSystem::CancelAllLoads() {
@@ -373,7 +369,7 @@ void AssetsSystem::CancelAllLoads() {
         }
     }
     
-    Core::Log("[AssetsSystem] Cancelou " + std::to_string(cancelledCount) + " carregamentos");
+    DRIFT_LOG_INFO("[AssetsSystem] Cancelou ", cancelledCount, " carregamentos");
 }
 
 size_t AssetsSystem::GetLoadingCount() const {

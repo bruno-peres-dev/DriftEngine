@@ -18,6 +18,9 @@
 
 namespace Drift::Core::Threading {
 
+// Usar namespace std explicitamente para evitar conflitos
+using namespace std;
+
 ThreadingSystem& ThreadingSystem::GetInstance() {
     static ThreadingSystem instance;
     return instance;
@@ -25,7 +28,7 @@ ThreadingSystem& ThreadingSystem::GetInstance() {
 
 void ThreadingSystem::Initialize(const ThreadingConfig& config) {
     if (m_Initialized.load()) {
-        Core::LogWarning("[ThreadingSystem] Sistema já inicializado");
+        DRIFT_LOG_WARNING("[ThreadingSystem] Sistema já inicializado");
         return;
     }
     
@@ -37,7 +40,7 @@ void ThreadingSystem::Initialize(const ThreadingConfig& config) {
         m_Config.threadCount = (hw_concurrency > 1) ? (hw_concurrency - 1) : 1;
     }
     
-    Core::Log("[ThreadingSystem] Inicializando com " + std::to_string(m_Config.threadCount) + " threads");
+    DRIFT_LOG_INFO("[ThreadingSystem] Inicializando com ", m_Config.threadCount, " threads");
     
     m_Initialized = true;
     Start();
@@ -46,14 +49,14 @@ void ThreadingSystem::Initialize(const ThreadingConfig& config) {
 void ThreadingSystem::Shutdown() {
     if (!m_Initialized.load()) return;
     
-    Core::Log("[ThreadingSystem] Finalizando sistema...");
+    DRIFT_LOG_INFO("[ThreadingSystem] Finalizando sistema...");
     Stop();
     m_Initialized = false;
 }
 
 void ThreadingSystem::SetConfig(const ThreadingConfig& config) {
     if (m_Running.load()) {
-        Core::LogWarning("[ThreadingSystem] Tentativa de alterar configuração com sistema em execução");
+        DRIFT_LOG_WARNING("[ThreadingSystem] Tentativa de alterar configuração com sistema em execução");
         return;
     }
     
@@ -66,7 +69,7 @@ void ThreadingSystem::SetConfig(const ThreadingConfig& config) {
 
 void ThreadingSystem::Start() {
     if (m_Running.load()) {
-        Core::LogWarning("[ThreadingSystem] Sistema já está em execução");
+        DRIFT_LOG_WARNING("[ThreadingSystem] Sistema já está em execução");
         return;
     }
     
@@ -99,13 +102,13 @@ void ThreadingSystem::Start() {
         m_Threads.push_back(std::move(threadData));
     }
     
-    Core::Log("[ThreadingSystem] Sistema iniciado com " + std::to_string(m_Config.threadCount) + " threads");
+    DRIFT_LOG_INFO("[ThreadingSystem] Sistema iniciado com ", m_Config.threadCount, " threads");
 }
 
 void ThreadingSystem::Stop() {
     if (!m_Running.load()) return;
     
-    Core::Log("[ThreadingSystem] Parando sistema...");
+    DRIFT_LOG_INFO("[ThreadingSystem] Parando sistema...");
     
     m_ShouldStop = true;
     m_Running = false;
@@ -124,12 +127,12 @@ void ThreadingSystem::Stop() {
     }
     
     m_Threads.clear();
-    Core::Log("[ThreadingSystem] Sistema parado");
+    DRIFT_LOG_INFO("[ThreadingSystem] Sistema parado");
 }
 
 void ThreadingSystem::Pause() {
     m_Paused = true;
-    Core::Log("[ThreadingSystem] Sistema pausado");
+    DRIFT_LOG_INFO("[ThreadingSystem] Sistema pausado");
 }
 
 void ThreadingSystem::Resume() {
@@ -138,7 +141,7 @@ void ThreadingSystem::Resume() {
     for (auto& threadData : m_Threads) {
         threadData->condition.notify_all();
     }
-    Core::Log("[ThreadingSystem] Sistema resumido");
+    DRIFT_LOG_INFO("[ThreadingSystem] Sistema resumido");
 }
 
 size_t ThreadingSystem::GetQueueSize() const {
@@ -183,32 +186,24 @@ void ThreadingSystem::ResetStats() {
 void ThreadingSystem::LogStats() const {
     auto stats = GetStats();
     
-    Core::Log("=== ThreadingSystem Stats ===");
-    Core::Log("Threads: " + std::to_string(m_Threads.size()) + 
-              " | Ativas: " + std::to_string(m_ActiveThreadCount.load()) +
-              " | Fila: " + std::to_string(m_CurrentQueueSize.load()) +
-              " | CPU: " + std::to_string(static_cast<int>(stats.cpuUtilization)) + "%");
+    DRIFT_LOG_INFO("=== ThreadingSystem Stats ===");
+        DRIFT_LOG_INFO("Threads: ", m_Threads.size(), " | Ativas: ", m_ActiveThreadCount.load(), " | Fila: ", m_CurrentQueueSize.load(), " | CPU: ", static_cast<int>(stats.cpuUtilization), "%");
     
-    Core::Log("Tarefas: " + std::to_string(stats.totalTasksSubmitted) + 
-              " | Completadas: " + std::to_string(stats.totalTasksCompleted) +
-              " | Canceladas: " + std::to_string(stats.totalTasksCancelled));
+        DRIFT_LOG_INFO("Tarefas: ", stats.totalTasksSubmitted, " | Completadas: ", stats.totalTasksCompleted, " | Canceladas: ", stats.totalTasksCancelled);
     
     if (stats.totalTasksCompleted > 0) {
-        Core::Log("Tempo médio: " + std::to_string(stats.averageTaskTime) + "ms");
+        DRIFT_LOG_INFO("Tempo médio: ", stats.averageTaskTime, "ms");
     }
     
-    Core::Log("Pico da fila: " + std::to_string(stats.peakQueueSize));
+    DRIFT_LOG_INFO("Pico da fila: ", stats.peakQueueSize);
     
     // Estatísticas por thread
     for (size_t i = 0; i < stats.threadStats.size(); ++i) {
         const auto& threadStat = stats.threadStats[i];
-        Core::Log("Thread " + std::to_string(i) + " (" + threadStat.threadName + "): " + 
-                  std::to_string(threadStat.tasksExecuted) + " tarefas, " +
-                  std::to_string(threadStat.workSteals) + " steals, " +
-                  std::to_string(threadStat.workStealsReceived) + " stolen");
+                DRIFT_LOG_INFO("Thread ", i, " (", threadStat.threadName, "): ", threadStat.tasksExecuted, " tarefas, ", threadStat.workSteals, " steals, ", threadStat.workStealsReceived, " stolen");
     }
     
-    Core::Log("=============================");
+    DRIFT_LOG_INFO("=============================");
 }
 
 void ThreadingSystem::WaitForAll() {
@@ -228,7 +223,7 @@ void ThreadingSystem::CancelAll() {
 
 void ThreadingSystem::EnableProfiling(bool enable) {
     m_Config.enableProfiling = enable;
-    Core::Log("[ThreadingSystem] Profiling " + std::string(enable ? "habilitado" : "desabilitado"));
+    DRIFT_LOG_INFO("[ThreadingSystem] Profiling ", enable ? "habilitado" : "desabilitado");
 }
 
 bool ThreadingSystem::TryStealWork(size_t threadId) {
@@ -263,7 +258,7 @@ bool ThreadingSystem::TryStealWork(size_t threadId) {
 void ThreadingSystem::WorkerThread(size_t threadId) {
     auto& threadData = *m_Threads[threadId];
     
-    Core::Log("[ThreadingSystem] Thread " + std::to_string(threadId) + " iniciada");
+    DRIFT_LOG_INFO("[ThreadingSystem] Thread ", threadId, " iniciada");
     
     while (!threadData.shouldStop) {
         Task task;
@@ -313,7 +308,7 @@ void ThreadingSystem::WorkerThread(size_t threadId) {
         }
     }
     
-    Core::Log("[ThreadingSystem] Thread " + std::to_string(threadId) + " finalizada");
+    DRIFT_LOG_INFO("[ThreadingSystem] Thread ", threadId, " finalizada");
 }
 
 void ThreadingSystem::ProcessTask(Task& task, ThreadData& threadData) {
@@ -343,12 +338,11 @@ void ThreadingSystem::ProcessTask(Task& task, ThreadData& threadData) {
         
         // Log de profiling se habilitado
         if (m_Config.enableProfiling && !task.info.name.empty()) {
-            Core::Log("[ThreadProfiler] " + task.info.name + ": " + std::to_string(duration.count()) + "μs");
+            DRIFT_LOG_INFO("[ThreadProfiler] ", task.info.name, ": ", duration.count(), "μs");
         }
         
     } catch (const std::exception& e) {
-        Core::LogError("[ThreadingSystem] Exceção na thread " + std::to_string(threadData.threadId) + 
-                      ": " + e.what());
+        DRIFT_LOG_ERROR("[ThreadingSystem] Exceção na thread {}: {}", threadData.threadId, e.what());
     }
 }
 

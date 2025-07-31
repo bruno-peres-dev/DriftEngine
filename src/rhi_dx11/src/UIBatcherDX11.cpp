@@ -5,7 +5,7 @@
 #include "Drift/RHI/DX11/PipelineStateDX11.h"
 #include "Drift/RHI/DX11/SamplerDX11.h"
 #include "Drift/RHI/DX11/BufferDX11.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontRendering.h"
 #include "Drift/UI/FontSystem/FontManager.h"
 #include "Drift/Core/Log.h"
 #include <d3d11.h>
@@ -95,7 +95,7 @@ UIBatcherDX11::UIBatcherDX11(std::shared_ptr<IRingBuffer> ringBuffer, IContext* 
     CreateTextPipeline();
     
     // Inicializar text renderer
-    m_TextRenderer = std::make_unique<Drift::UI::TextRenderer>();
+    m_TextRenderer = std::make_unique<Drift::UI::FontRendering>(nullptr);
     
     Core::Log("[UIBatcherDX11] Inicializado com sucesso");
 }
@@ -411,12 +411,13 @@ void UIBatcherDX11::OnAddText(float x, float y, const char* text, Drift::Color c
         return;
     }
     
-    // Obter fonte padrão do FontManager
-    auto& fontManager = Drift::UI::FontManager::GetInstance();
-    const std::string& defaultFont = fontManager.GetDefaultFontName();
-
     // Renderizar texto usando o text renderer
-    m_TextRenderer->AddText(std::string(text), glm::vec2(x, y), defaultFont, 16.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    // Converter Drift::Color (uint32_t) para glm::vec4
+    float r = ((color >> 16) & 0xFF) / 255.0f;
+    float g = ((color >> 8) & 0xFF) / 255.0f;
+    float b = (color & 0xFF) / 255.0f;
+    float a = ((color >> 24) & 0xFF) / 255.0f;
+    m_TextRenderer->RenderText(std::string(text), glm::vec2(x, y), "fonts/Arial-Regular.ttf", 16.0f, glm::vec4(r, g, b, a));
 }
 
 void UIBatcherDX11::OnBeginText() {

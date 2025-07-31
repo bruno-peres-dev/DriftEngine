@@ -6,8 +6,11 @@
 
 namespace Drift::Core::Threading {
 
+// Usar namespace std explicitamente para evitar conflitos
+using namespace std;
+
 void ThreadingExample::RunBasicExample() {
-    Core::Log("[ThreadingExample] Iniciando exemplo básico...");
+    DRIFT_LOG_INFO("[ThreadingExample] Iniciando exemplo básico...");
     
     // Inicializa o sistema
     auto& threadingSystem = ThreadingSystem::GetInstance();
@@ -28,7 +31,7 @@ void ThreadingExample::RunBasicExample() {
     // Aguarda resultados
     for (size_t i = 0; i < futures.size(); ++i) {
         int result = futures[i].Get();
-        Core::Log("[ThreadingExample] Tarefa " + std::to_string(i) + " = " + std::to_string(result));
+        DRIFT_LOG_INFO("[ThreadingExample] Tarefa ", i, " = ", result);
     }
     
     // Exemplo 2: Tarefas com prioridade
@@ -45,17 +48,17 @@ void ThreadingExample::RunBasicExample() {
     // Aguarda todas as tarefas
     DRIFT_WAIT_FOR_ALL();
     
-    Core::Log("[ThreadingExample] Resultado alta prioridade: " + highPriorityFuture.Get());
-    Core::Log("[ThreadingExample] Resultado baixa prioridade: " + lowPriorityFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] Resultado alta prioridade: ", highPriorityFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] Resultado baixa prioridade: ", lowPriorityFuture.Get());
     
     // Estatísticas
     threadingSystem.LogStats();
     
-    Core::Log("[ThreadingExample] Exemplo básico concluído!");
+    DRIFT_LOG_INFO("[ThreadingExample] Exemplo básico concluído!");
 }
 
 void ThreadingExample::RunParallelProcessingExample() {
-    Core::Log("[ThreadingExample] Iniciando exemplo de processamento paralelo...");
+    DRIFT_LOG_INFO("[ThreadingExample] Iniciando exemplo de processamento paralelo...");
     
     auto& threadingSystem = ThreadingSystem::GetInstance();
     threadingSystem.Initialize();
@@ -95,22 +98,21 @@ void ThreadingExample::RunParallelProcessingExample() {
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     
-    Core::Log("[ThreadingExample] Processamento paralelo concluído em " + 
-              std::to_string(duration.count()) + "ms");
+    DRIFT_LOG_INFO("[ThreadingExample] Processamento paralelo concluído em ", duration.count(), "ms");
     
     // Verifica resultado
     int sum = 0;
     for (int value : result) {
         sum += value;
     }
-    Core::Log("[ThreadingExample] Soma total: " + std::to_string(sum));
+    DRIFT_LOG_INFO("[ThreadingExample] Soma total: ", sum);
     
     threadingSystem.LogStats();
-    Core::Log("[ThreadingExample] Exemplo de processamento paralelo concluído!");
+    DRIFT_LOG_INFO("[ThreadingExample] Exemplo de processamento paralelo concluído!");
 }
 
 void ThreadingExample::RunPriorityExample() {
-    Core::Log("[ThreadingExample] Iniciando exemplo de prioridades...");
+    DRIFT_LOG_INFO("[ThreadingExample] Iniciando exemplo de prioridades...");
     
     auto& threadingSystem = ThreadingSystem::GetInstance();
     threadingSystem.Initialize();
@@ -139,18 +141,18 @@ void ThreadingExample::RunPriorityExample() {
     // Aguarda todas
     DRIFT_WAIT_FOR_ALL();
     
-    Core::Log("[ThreadingExample] Resultados por prioridade:");
-    Core::Log("[ThreadingExample] - Crítica: " + criticalFuture.Get());
-    Core::Log("[ThreadingExample] - Alta: " + highFuture.Get());
-    Core::Log("[ThreadingExample] - Normal: " + normalFuture.Get());
-    Core::Log("[ThreadingExample] - Baixa: " + lowFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] Resultados por prioridade:");
+    DRIFT_LOG_INFO("[ThreadingExample] - Crítica: ", criticalFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] - Alta: ", highFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] - Normal: ", normalFuture.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] - Baixa: ", lowFuture.Get());
     
     threadingSystem.LogStats();
-    Core::Log("[ThreadingExample] Exemplo de prioridades concluído!");
+    DRIFT_LOG_INFO("[ThreadingExample] Exemplo de prioridades concluído!");
 }
 
 void ThreadingExample::RunProfilingExample() {
-    Core::Log("[ThreadingExample] Iniciando exemplo de profiling...");
+    DRIFT_LOG_INFO("[ThreadingExample] Iniciando exemplo de profiling...");
     
     auto& threadingSystem = ThreadingSystem::GetInstance();
     threadingSystem.Initialize();
@@ -181,17 +183,17 @@ void ThreadingExample::RunProfilingExample() {
     // Aguarda todas
     DRIFT_WAIT_FOR_ALL();
     
-    Core::Log("[ThreadingExample] Resultados:");
-    Core::Log("[ThreadingExample] - Fib(30): " + std::to_string(future1.Get()));
-    Core::Log("[ThreadingExample] - Fib(35): " + std::to_string(future2.Get()));
-    Core::Log("[ThreadingExample] - Fib(40): " + std::to_string(future3.Get()));
+    DRIFT_LOG_INFO("[ThreadingExample] Resultados:");
+    DRIFT_LOG_INFO("[ThreadingExample] - Fib(30): ", future1.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] - Fib(35): ", future2.Get());
+    DRIFT_LOG_INFO("[ThreadingExample] - Fib(40): ", future3.Get());
     
     threadingSystem.LogStats();
-    Core::Log("[ThreadingExample] Exemplo de profiling concluído!");
+    DRIFT_LOG_INFO("[ThreadingExample] Exemplo de profiling concluído!");
 }
 
 void ThreadingExample::RunPerformanceTest() {
-    Core::Log("[ThreadingExample] Iniciando teste de performance...");
+    DRIFT_LOG_INFO("[ThreadingExample] Iniciando teste de performance...");
     
     auto& threadingSystem = ThreadingSystem::GetInstance();
     threadingSystem.Initialize();
@@ -223,13 +225,11 @@ void ThreadingExample::RunPerformanceTest() {
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     
-    Core::Log("[ThreadingExample] Performance: " + std::to_string(numTasks) + 
-              " tarefas em " + std::to_string(duration.count()) + "ms");
-    Core::Log("[ThreadingExample] Taxa: " + std::to_string(numTasks * 1000 / duration.count()) + 
-              " tarefas/segundo");
+    DRIFT_LOG_INFO("[ThreadingExample] Performance: ", numTasks, " tarefas em ", duration.count(), "ms");
+    DRIFT_LOG_INFO("[ThreadingExample] Taxa: ", numTasks * 1000 / duration.count(), " tarefas/segundo");
     
     threadingSystem.LogStats();
-    Core::Log("[ThreadingExample] Teste de performance concluído!");
+    DRIFT_LOG_INFO("[ThreadingExample] Teste de performance concluído!");
 }
 
 void ThreadingExample::SimulateWork(int milliseconds) {

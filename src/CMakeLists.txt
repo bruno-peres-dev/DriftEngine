@@ -153,9 +153,13 @@ add_library(DriftUI STATIC
   ui/src/UIElement.cpp
   ui/src/LayoutEngine.cpp
   ui/src/UIInputHandler.cpp
+  ui/src/FontSystem/FontSystem.cpp
   ui/src/FontSystem/Font.cpp
   ui/src/FontSystem/FontManager.cpp
-  ui/src/FontSystem/TextRenderer.cpp
+  ui/src/FontSystem/FontAtlas.cpp
+  ui/src/FontSystem/FontMetrics.cpp
+  #ui/src/FontSystem/FontRendering.cpp
+  ui/src/FontSystem/FontSystemExample.cpp
   ui/src/DataDriven/UIComponentRegistry.cpp
   ui/src/Widgets/Button.cpp
   ui/src/Widgets/Label.cpp

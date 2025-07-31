@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
+#include <memory>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
@@ -67,6 +69,26 @@ struct TextLayoutConfig {
     glm::vec4 outlineColor{0.0f};     // Cor do outline
     glm::vec2 shadowOffset{0.0f};     // Offset da sombra
     glm::vec4 shadowColor{0.0f, 0.0f, 0.0f, 0.5f}; // Cor da sombra
+    
+    bool operator==(const TextLayoutConfig& other) const {
+        return direction == other.direction &&
+               horizontalAlign == other.horizontalAlign &&
+               verticalAlign == other.verticalAlign &&
+               lineSpacing == other.lineSpacing &&
+               wordSpacing == other.wordSpacing &&
+               letterSpacing == other.letterSpacing &&
+               paragraphSpacing == other.paragraphSpacing &&
+               maxWidth == other.maxWidth &&
+               enableWordWrap == other.enableWordWrap &&
+               enableHyphenation == other.enableHyphenation &&
+               enableKerning == other.enableKerning &&
+               enableLigatures == other.enableLigatures &&
+               enableSubpixelRendering == other.enableSubpixelRendering &&
+               outlineWidth == other.outlineWidth &&
+               outlineColor == other.outlineColor &&
+               shadowOffset == other.shadowOffset &&
+               shadowColor == other.shadowColor;
+    }
 };
 
 /**
@@ -113,116 +135,27 @@ struct TextLayoutResult {
 };
 
 /**
- * @brief Sistema de Métricas de Fontes Profissional
- * 
- * Fornece cálculos precisos de layout de texto, incluindo:
- * - Quebra de linha inteligente
- * - Kerning e ligaduras
- * - Suporte a múltiplas direções de texto
- * - Alinhamento e justificação
- * - Cálculos de métricas tipográficas
+ * @brief Métricas básicas de uma fonte
  */
-class FontMetrics {
-public:
-    /**
-     * @brief Construtor
-     */
-    FontMetrics();
+struct FontMetrics {
+    // Métricas verticais
+    float ascent = 0.0f;              // Altura acima da baseline
+    float descent = 0.0f;             // Profundidade abaixo da baseline
+    float lineGap = 0.0f;             // Espaçamento entre linhas
+    float lineHeight = 0.0f;          // Altura total da linha (ascent - descent + lineGap)
     
-    /**
-     * @brief Destrutor
-     */
-    ~FontMetrics();
-
-    // Layout de texto
-    TextLayoutResult CalculateLayout(const std::string& text, 
-                                    const std::shared_ptr<class Font>& font,
-                                    const TextLayoutConfig& config = {});
+    // Métricas de altura específicas
+    float xHeight = 0.0f;             // Altura da letra 'x' minúscula
+    float capHeight = 0.0f;           // Altura das letras maiúsculas
     
-    TextLayoutResult CalculateLayout(const std::wstring& text,
-                                    const std::shared_ptr<class Font>& font,
-                                    const TextLayoutConfig& config = {});
+    // Métricas de largura
+    float avgCharWidth = 0.0f;        // Largura média dos caracteres
+    float maxCharWidth = 0.0f;        // Largura máxima dos caracteres
+    float minCharWidth = 0.0f;        // Largura mínima dos caracteres
     
-    // Medidas de texto
-    glm::vec2 MeasureText(const std::string& text, 
-                          const std::shared_ptr<class Font>& font,
-                          const TextLayoutConfig& config = {});
-    
-    float GetTextWidth(const std::string& text,
-                       const std::shared_ptr<class Font>& font);
-    
-    float GetTextHeight(const std::string& text,
-                        const std::shared_ptr<class Font>& font,
-                        const TextLayoutConfig& config = {});
-    
-    // Quebra de linha
-    std::vector<std::string> BreakTextIntoLines(const std::string& text,
-                                                const std::shared_ptr<class Font>& font,
-                                                float maxWidth,
-                                                const TextLayoutConfig& config = {});
-    
-    // Kerning e ligaduras
-    float GetKerning(uint32_t left, uint32_t right, 
-                     const std::shared_ptr<class Font>& font);
-    
-    std::vector<uint32_t> ApplyLigatures(const std::vector<uint32_t>& codepoints,
-                                         const std::shared_ptr<class Font>& font);
-    
-    // Utilitários
-    bool IsWhitespace(uint32_t codepoint) const;
-    bool IsLineBreak(uint32_t codepoint) const;
-    bool IsWordBreak(uint32_t codepoint) const;
-    std::vector<uint32_t> DecodeUTF8(const std::string& text) const;
-    std::string EncodeUTF8(const std::vector<uint32_t>& codepoints) const;
-
-private:
-    // Cache de layouts para otimização
-    struct LayoutCacheEntry {
-        TextLayoutResult result;
-        std::chrono::steady_clock::time_point lastUsed;
-        size_t accessCount;
-    };
-    
-    struct LayoutCacheKey {
-        std::string text;
-        std::string fontName;
-        float fontSize;
-        TextLayoutConfig config;
-        
-        bool operator==(const LayoutCacheKey& other) const;
-    };
-    
-    struct LayoutCacheKeyHash {
-        size_t operator()(const LayoutCacheKey& key) const;
-    };
-    
-    std::unordered_map<LayoutCacheKey, LayoutCacheEntry, LayoutCacheKeyHash> m_LayoutCache;
-    
-    // Métodos auxiliares
-    TextLayoutResult CalculateLayoutInternal(const std::vector<uint32_t>& codepoints,
-                                            const std::shared_ptr<class Font>& font,
-                                            const TextLayoutConfig& config);
-    
-    void ApplyKerning(std::vector<TextCharInfo>& chars,
-                      const std::shared_ptr<class Font>& font);
-    
-    void ApplyLigatures(std::vector<TextCharInfo>& chars,
-                        const std::shared_ptr<class Font>& font);
-    
-    void AlignText(std::vector<TextLineInfo>& lines,
-                   const TextLayoutConfig& config);
-    
-    void JustifyText(std::vector<TextLineInfo>& lines,
-                     const TextLayoutConfig& config);
-    
-    float CalculateLineWidth(const std::vector<TextCharInfo>& chars);
-    
-    void TrimLayoutCache();
-    
-    // Tabelas de caracteres especiais
-    static const std::unordered_set<uint32_t> s_WhitespaceChars;
-    static const std::unordered_set<uint32_t> s_LineBreakChars;
-    static const std::unordered_set<uint32_t> s_WordBreakChars;
+    // Métricas de sublinhado
+    float underlinePosition = 0.0f;   // Posição do sublinhado
+    float underlineThickness = 0.0f;  // Espessura do sublinhado
 };
 
 /**

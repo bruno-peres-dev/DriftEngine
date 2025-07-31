@@ -2,14 +2,43 @@
 
 #include "FontMetrics.h"
 #include "FontAtlas.h"
+#include "FontManager.h"
 #include "Drift/RHI/UIBatcher.h"
 #include "Drift/RHI/Shader.h"
 #include "Drift/RHI/PipelineState.h"
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <chrono>
 
 namespace Drift::UI {
+
+/**
+ * @brief Configuração do sistema de renderização de fontes
+ */
+struct FontRenderingConfig {
+    // Configurações de qualidade
+    bool enableSubpixelRendering = true;      // Renderização subpixel
+    bool enableAntiAliasing = true;           // Anti-aliasing
+    bool enableGammaCorrection = true;        // Correção gamma
+    float gamma = 2.2f;                       // Valor gamma
+    
+    // Configurações de cache
+    bool enableTextCache = true;              // Cache de medidas de texto
+    size_t maxCachedStrings = 1000;           // Máximo de strings em cache
+    size_t maxCacheMemory = 10 * 1024 * 1024; // Máximo de memória para cache (10MB)
+    
+    // Configurações de performance
+    bool enableBatching = true;               // Batching de draw calls
+    bool enableInstancing = true;             // Instancing para performance
+    size_t maxBatchSize = 1000;               // Tamanho máximo do batch
+    
+    // Configurações de efeitos
+    bool enableEffects = true;                // Habilita efeitos de texto
+    bool enableShadows = true;                // Habilita sombras
+    bool enableOutlines = true;               // Habilita outlines
+    bool enableGradients = true;              // Habilita gradientes
+};
 
 /**
  * @brief Tipos de efeitos de texto
@@ -103,6 +132,8 @@ struct TextVertex {
  * - Batching otimizado
  * - Suporte a múltiplas fontes
  * - Renderização em tempo real
+ * - Cache de medidas de texto
+ * - Integração com FontManager e FontMetrics
  */
 class FontRendering {
 public:
@@ -118,17 +149,23 @@ public:
     ~FontRendering();
 
     // Inicialização e configuração
-    bool Initialize();
+    bool Initialize(const FontRenderingConfig& config = {});
     void Shutdown();
     
     // Configuração
     void SetDevice(Drift::RHI::IDevice* device) { m_Device = device; }
     void SetBatcher(Drift::RHI::IUIBatcher* batcher) { m_Batcher = batcher; }
     void SetScreenSize(int width, int height);
+    void SetConfig(const FontRenderingConfig& config);
+    const FontRenderingConfig& GetConfig() const { return m_Config; }
     
     // Renderização de texto
     void BeginTextRendering();
     void EndTextRendering();
+    
+    // Renderização básica
+    void RenderText(const std::string& text, const glm::vec2& position,
+                    const std::string& fontName, float fontSize, const glm::vec4& color);
     
     void RenderText(const std::string& text,
                     const std::shared_ptr<Font>& font,
@@ -142,6 +179,19 @@ public:
     void RenderTextWithEffects(const std::string& text,
                                const std::shared_ptr<Font>& font,
                                const TextRenderConfig& config);
+    
+    void RenderTextWithShadow(const std::string& text, const glm::vec2& position,
+                              const std::shared_ptr<Font>& font, const glm::vec4& color,
+                              const glm::vec2& shadowOffset, const glm::vec4& shadowColor);
+    
+    void RenderTextWithOutline(const std::string& text, const glm::vec2& position,
+                               const std::shared_ptr<Font>& font, const glm::vec4& color,
+                               float outlineWidth, const glm::vec4& outlineColor);
+    
+    void RenderTextWithGradient(const std::string& text, const glm::vec2& position,
+                                const std::shared_ptr<Font>& font,
+                                const glm::vec4& startColor, const glm::vec4& endColor,
+                                const glm::vec2& gradientDirection);
     
     void RenderOutline(const std::string& text,
                        const std::shared_ptr<Font>& font,
@@ -158,21 +208,57 @@ public:
                     const TextEffectConfig& effect,
                     const TextRenderConfig& config);
     
+    // Medidas de texto
+    glm::vec2 MeasureText(const std::string& text, const std::string& fontName, float fontSize);
+    glm::vec2 MeasureText(const std::string& text, const std::shared_ptr<Font>& font);
+    glm::vec2 MeasureText(const std::string& text, const std::shared_ptr<Font>& font,
+                          const TextLayoutConfig& layoutConfig);
+    
+    // Carregamento de fontes
+    std::shared_ptr<Font> GetOrLoadFont(const std::string& fontName, float fontSize);
+    
+    float GetTextWidth(const std::string& text, const std::shared_ptr<Font>& font);
+    float GetTextHeight(const std::string& text, const std::shared_ptr<Font>& font,
+                        const TextLayoutConfig& layoutConfig = {});
+    
+    // Layout de texto
+    TextLayoutResult CalculateLayout(const std::string& text, const std::shared_ptr<Font>& font,
+                                    const TextLayoutConfig& layoutConfig = {});
+    
+    std::vector<std::string> BreakTextIntoLines(const std::string& text,
+                                                const std::shared_ptr<Font>& font,
+                                                float maxWidth,
+                                                const TextLayoutConfig& layoutConfig = {});
+    
     // Batching e otimizações
     void FlushBatch();
     void ClearBatch();
     size_t GetBatchSize() const { return m_CurrentBatchSize; }
     
+    // Cache e otimizações
+    void ClearTextCache();
+    size_t GetTextCacheSize() const;
+    size_t GetCacheMemoryUsage() const;
+    
     // Estatísticas
     struct RenderStats {
+        size_t textRenderCalls = 0;
         size_t drawCalls = 0;
         size_t verticesRendered = 0;
         size_t charactersRendered = 0;
         size_t batchesFlushed = 0;
+        size_t cacheHits = 0;
+        size_t cacheMisses = 0;
         double renderTime = 0.0;
+        double layoutTime = 0.0;
+        
+        // Estatísticas de fontes
+        size_t fontsUsed = 0;
+        size_t fallbackUsage = 0;
     };
     
     RenderStats GetStats() const { return m_Stats; }
+    void LogStats() const;
     void ResetStats();
 
 private:
@@ -192,7 +278,33 @@ private:
         std::shared_ptr<Drift::RHI::IShader> pixelShader;
         std::shared_ptr<Drift::RHI::IPipelineState> pipelineState;
     };
+    
+    // Cache de medidas de texto
+    struct TextMeasureCache {
+        glm::vec2 size;
+        size_t lastUsed = 0;
+        size_t accessCount = 0;
+        size_t memoryUsage = 0;
+    };
+    
+    struct TextCacheKey {
+        std::string text;
+        std::string fontName;
+        float fontSize;
+        TextLayoutConfig layoutConfig;
+        
+        bool operator==(const TextCacheKey& other) const;
+    };
+    
+    struct TextCacheKeyHash {
+        size_t operator()(const TextCacheKey& key) const;
+    };
 
+    // Componentes do sistema
+    std::unique_ptr<FontMetrics> m_FontMetrics;
+    
+    // Configuração
+    FontRenderingConfig m_Config;
     Drift::RHI::IDevice* m_Device{nullptr};
     Drift::RHI::IUIBatcher* m_Batcher{nullptr};
     int m_ScreenWidth{0};
@@ -212,6 +324,9 @@ private:
     std::shared_ptr<Drift::RHI::IBuffer> m_VertexBuffer;
     std::shared_ptr<Drift::RHI::IBuffer> m_IndexBuffer;
     std::shared_ptr<Drift::RHI::IBuffer> m_ConstantBuffer;
+    
+    // Cache de medidas de texto
+    std::unordered_map<TextCacheKey, TextMeasureCache, TextCacheKeyHash> m_TextCache;
     
     // Estatísticas
     RenderStats m_Stats;
@@ -238,13 +353,33 @@ private:
     
     // Utilitários de shader
     std::string GetShaderSource(const std::string& name) const;
-    bool CompileShader(const std::string& name, Drift::RHI::ShaderType type);
+    bool CompileShader(const std::string& name, const std::string& shaderType);
+    
+    // Cache de medidas
+    glm::vec2 GetCachedTextMeasure(const std::string& text, const std::string& fontName, 
+                                   float fontSize, const TextLayoutConfig& layoutConfig = {});
+    
+    void CacheTextMeasure(const std::string& text, const std::string& fontName,
+                          float fontSize, const glm::vec2& size,
+                          const TextLayoutConfig& layoutConfig = {});
+    
+    void TrimTextCache();
+    size_t CalculateTextCacheMemoryUsage() const;
+    
+    // Utilitários
+    void UpdateStats(bool cacheHit);
+    std::vector<uint32_t> DecodeUTF8(const std::string& utf8_string);
+    
+    // Cálculo de medidas
+    glm::vec2 CalculateTextMeasure(const std::string& text, const std::shared_ptr<Font>& font);
     
     // Constantes
     static constexpr size_t MAX_VERTICES_PER_BATCH = 10000;
     static constexpr size_t MAX_INDICES_PER_BATCH = 15000;
     static constexpr size_t VERTEX_BUFFER_SIZE = MAX_VERTICES_PER_BATCH * sizeof(TextVertex);
     static constexpr size_t INDEX_BUFFER_SIZE = MAX_INDICES_PER_BATCH * sizeof(uint32_t);
+    static constexpr size_t MAX_CACHE_ENTRIES = 10000;
+    static constexpr size_t MAX_CACHE_MEMORY = 50 * 1024 * 1024; // 50MB
 };
 
 /**
@@ -270,6 +405,25 @@ public:
                            const glm::vec2& position,
                            const glm::vec4& color,
                            float scale = 1.0f);
+    
+    /**
+     * @brief Renderiza texto com fonte específica usando UIBatcher
+     */
+    void RenderTextUIBatch(const std::string& text,
+                           const glm::vec2& position,
+                           const std::string& fontName,
+                           float fontSize,
+                           const glm::vec4& color,
+                           float scale = 1.0f);
 };
+
+// Macros para facilitar o uso
+#define DRIFT_FONT_RENDERER() Drift::UI::FontRendering::GetInstance()
+
+#define DRIFT_RENDER_TEXT(text, pos, font, size, color) \
+    DRIFT_FONT_RENDERER().RenderText(text, pos, font, size, color)
+
+#define DRIFT_MEASURE_TEXT(text, font, size) \
+    DRIFT_FONT_RENDERER().MeasureText(text, font, size)
 
 } // namespace Drift::UI 

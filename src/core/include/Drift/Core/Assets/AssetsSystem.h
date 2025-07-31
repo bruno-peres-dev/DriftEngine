@@ -313,14 +313,14 @@ template<typename T>
 void AssetsSystem::RegisterLoader(std::unique_ptr<IAssetLoader<T>> loader) {
     std::lock_guard<std::mutex> lock(m_Mutex);
     m_Loaders[std::type_index(typeid(T))] = std::any{std::shared_ptr<void>(std::move(loader))};
-    Core::Log("[AssetsSystem] Loader registrado: " + std::string(typeid(T).name()));
+    DRIFT_LOG_INFO("[AssetsSystem] Loader registrado: ", std::string(typeid(T).name()));
 }
 
 template<typename T>
 void AssetsSystem::UnregisterLoader() {
     std::lock_guard<std::mutex> lock(m_Mutex);
     m_Loaders.erase(std::type_index(typeid(T)));
-    Core::Log("[AssetsSystem] Loader removido: " + std::string(typeid(T).name()));
+    DRIFT_LOG_INFO("[AssetsSystem] Loader removido: ", std::string(typeid(T).name()));
 }
 
 template<typename T>
@@ -382,7 +382,7 @@ std::shared_ptr<T> AssetsSystem::LoadAssetSync(const std::string& path, const st
     
     IAssetLoader<T>* loader = GetLoader<T>();
     if (!loader) {
-        Core::LogError("[AssetsSystem] Loader não encontrado para tipo: " + std::string(typeid(T).name()));
+        DRIFT_LOG_ERROR("[AssetsSystem] Loader não encontrado para tipo: ", std::string(typeid(T).name()));
         return nullptr;
     }
     
@@ -391,7 +391,7 @@ std::shared_ptr<T> AssetsSystem::LoadAssetSync(const std::string& path, const st
     auto endTime = std::chrono::steady_clock::now();
     
     if (!asset) {
-        Core::LogError("[AssetsSystem] Falha ao carregar asset: " + path);
+        DRIFT_LOG_ERROR("[AssetsSystem] Falha ao carregar asset: ", path);
         return nullptr;
     }
     
@@ -430,7 +430,7 @@ std::shared_ptr<T> AssetsSystem::LoadAssetSync(const std::string& path, const st
     
     TriggerAssetLoadedCallback(path, std::type_index(typeid(T)));
     
-    Core::Log("[AssetsSystem] Asset carregado: " + path + " (" + std::to_string(loadTime * 1000.0) + "ms)");
+            DRIFT_LOG_INFO("[AssetsSystem] Asset carregado: ", path, " (", std::fixed, std::setprecision(2), loadTime * 1000.0, "ms)");
     
     return asset;
 }
@@ -548,7 +548,7 @@ void AssetsSystem::LoadAssetAsyncInternal(const AssetKey& key, const std::any& p
                     m_AsyncLoadCount++;
                     TriggerAssetLoadedCallback(key.path, key.type);
                     
-                    Core::Log("[AssetsSystem] Asset carregado assincronamente: " + key.path);
+                    DRIFT_LOG_INFO("[AssetsSystem] Asset carregado assincronamente: ", key.path);
                 }
             }
             
@@ -564,7 +564,7 @@ void AssetsSystem::LoadAssetAsyncInternal(const AssetKey& key, const std::any& p
                     
                     TriggerAssetFailedCallback(key.path, key.type, e.what());
                     
-                    Core::LogError("[AssetsSystem] Falha ao carregar asset: " + key.path + " - " + e.what());
+                    DRIFT_LOG_ERROR("[AssetsSystem] Falha ao carregar asset: ", key.path, " - ", e.what());
                 }
             }
         }

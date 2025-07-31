@@ -14,7 +14,7 @@
 
 #include "Drift/RHI/UIBatcher.h"
 #include "Drift/UI/FontSystem/FontManager.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontRendering.h"
 
 // Forward declaration para evitar include circular
 namespace Drift::Engine::Input {
@@ -70,7 +70,7 @@ public:
     // Hit testing
     UIElement* HitTest(const glm::vec2& point);
 
-    Drift::UI::TextRenderer* GetTextRenderer() const { return m_TextRenderer.get(); }
+    Drift::UI::FontRendering* GetTextRenderer() const { return m_TextRenderer.get(); }
 
 private:
     UIElement* FindElementAtPosition(UIElement* element, const glm::vec2& point) const;
@@ -84,7 +84,7 @@ private:
     std::unique_ptr<LayoutEngine> m_LayoutEngine;
     std::unique_ptr<UIInputHandler> m_InputHandler;
     std::shared_ptr<UIElement> m_Root;
-    std::unique_ptr<Drift::UI::TextRenderer> m_TextRenderer;
+    std::unique_ptr<Drift::UI::FontRendering> m_TextRenderer;
 };
 
 } // namespace Drift::UI 

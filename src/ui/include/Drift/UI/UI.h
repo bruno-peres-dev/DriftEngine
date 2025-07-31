@@ -23,7 +23,7 @@
 
 // Font System
 #include "Drift/UI/FontSystem/FontManager.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontRendering.h"
 
 namespace Drift::UI {
     // Namespace principal para todos os componentes de UI
@@ -31,5 +31,5 @@ namespace Drift::UI {
     
     // Alias para facilitar acesso ao sistema de fontes
     using FontManager = Drift::UI::FontManager;
-    using TextRenderer = Drift::UI::TextRenderer;
+    using TextRenderer = Drift::UI::FontRendering;
 } 

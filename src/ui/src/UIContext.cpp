@@ -5,7 +5,7 @@
 #include "Drift/UI/UIInputHandler.h"
 #include "Drift/UI/DataDriven/UIComponentRegistry.h"
 #include "Drift/Engine/Input/InputManager.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontRendering.h"
 #include "Drift/UI/FontSystem/FontManager.h"
 #include <glm/mat4x4.hpp>
 #include <mutex>
@@ -33,7 +33,7 @@ UIContext::UIContext()
     : m_EventBus(std::make_shared<Drift::Engine::EventBus>())
     , m_LayoutEngine(std::make_unique<LayoutEngine>())
     , m_InputHandler(std::make_unique<UIInputHandler>(this))
-    , m_TextRenderer(std::make_unique<Drift::UI::TextRenderer>())
+    , m_TextRenderer(std::make_unique<Drift::UI::FontRendering>(nullptr))
 {
     // Cria elemento raiz que cobre a tela inteira por padrão
     m_Root = std::make_shared<UIElement>(this);
@@ -131,12 +131,6 @@ void UIContext::InitializeFontSystem()
 {
     auto& fontManager = UI::FontManager::GetInstance();
     
-    // Configurar fonte padrão
-    fontManager.SetDefaultFontName("default");
-    fontManager.SetDefaultFontPath(ResolveFontPath("fonts/Arial-Regular.ttf"));
-    fontManager.SetDefaultSize(16.0f);
-    fontManager.SetDefaultQuality(UI::FontQuality::High);
-    
     // Configurar device se disponível
     if (m_Device) {
         fontManager.SetDevice(m_Device);
@@ -176,12 +170,12 @@ void UIContext::LoadFonts()
     
     auto& fontManager = UI::FontManager::GetInstance();
     
-    // Obter caminho da fonte padrão
-    std::string fontPath = fontManager.GetDefaultFontPath();
+    // Resolver caminho da fonte padrão
+    std::string fontPath = ResolveFontPath("fonts/Arial-Regular.ttf");
     Drift::Core::LogRHI("[UIContext] Caminho da fonte resolvido: " + fontPath);
     
-    // Pré-carregar o arquivo TTF uma única vez
-    fontManager.PreloadFontFile(fontPath);
+    // Pré-carregar a fonte
+    fontManager.PreloadFont(fontPath);
     
     // Carregar apenas os tamanhos mais comuns inicialmente (lazy loading para os outros)
     std::vector<float> prioritySizes = {16.0f, 14.0f, 20.0f, 24.0f}; // Tamanhos mais usados primeiro
@@ -193,7 +187,7 @@ void UIContext::LoadFonts()
         Drift::Core::LogRHIDebug("[UIContext] Carregando fonte " + std::to_string(i+1) + "/" + std::to_string(prioritySizes.size()) + " (tamanho: " + std::to_string(size) + ")");
         
         try {
-            auto font = fontManager.LoadFont("default", fontPath, size, UI::FontQuality::High);
+            auto font = fontManager.LoadFont(fontPath, FontLoadConfig{size, FontQuality::High});
             if (font) {
                 Drift::Core::LogRHIDebug("[UIContext] Fonte carregada com sucesso (tamanho: " + std::to_string(size) + ")");
             } else {
@@ -206,7 +200,7 @@ void UIContext::LoadFonts()
     
     // Verificar se pelo menos a fonte padrão foi carregada
     Drift::Core::LogRHIDebug("[UIContext] Verificando fonte padrão...");
-    auto defaultFont = fontManager.GetFont("default", 16.0f, UI::FontQuality::High);
+    auto defaultFont = fontManager.GetFont(fontPath, 16.0f, FontQuality::High);
     if (!defaultFont) {
         Drift::Core::LogWarning("[UIContext] AVISO: Não foi possível carregar a fonte padrão");
     } else {

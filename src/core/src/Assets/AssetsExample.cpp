@@ -79,7 +79,7 @@ size_t SimpleAssetLoader::EstimateMemoryUsage(const std::string& path) const {
 
 // AssetsExample implementation
 void AssetsExample::RunBasicExample() {
-    Core::Log("[AssetsExample] Iniciando exemplo básico...");
+    LOG_INFO("[AssetsExample] Iniciando exemplo básico...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     assetsSystem.Initialize();
@@ -94,27 +94,27 @@ void AssetsExample::RunBasicExample() {
     auto asset3 = DRIFT_LOAD_ASSET(SimpleAsset, "sounds/ambient.asset");
     
     if (asset1) {
-        Core::Log("[AssetsExample] Asset 1 carregado: " + asset1->GetName());
+        DRIFT_LOG_INFO("[AssetsExample] Asset 1 carregado: ", asset1->GetName());
     }
     if (asset2) {
-        Core::Log("[AssetsExample] Asset 2 carregado: " + asset2->GetName());
+        DRIFT_LOG_INFO("[AssetsExample] Asset 2 carregado: ", asset2->GetName());
     }
     if (asset3) {
-        Core::Log("[AssetsExample] Asset 3 carregado: " + asset3->GetName());
+        DRIFT_LOG_INFO("[AssetsExample] Asset 3 carregado: ", asset3->GetName());
     }
     
     // Testa cache
     auto cachedAsset = DRIFT_GET_ASSET(SimpleAsset, "textures/grass.asset");
     if (cachedAsset) {
-        Core::Log("[AssetsExample] Asset encontrado no cache: " + cachedAsset->GetName());
+        DRIFT_LOG_INFO("[AssetsExample] Asset encontrado no cache: ", cachedAsset->GetName());
     }
     
     assetsSystem.LogStats();
-    Core::Log("[AssetsExample] Exemplo básico concluído!");
+    LOG_INFO("[AssetsExample] Exemplo básico concluído!");
 }
 
 void AssetsExample::RunAsyncLoadingExample() {
-    Core::Log("[AssetsExample] Iniciando exemplo de carregamento assíncrono...");
+    LOG_INFO("[AssetsExample] Iniciando exemplo de carregamento assíncrono...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     assetsSystem.Initialize();
@@ -136,26 +136,26 @@ void AssetsExample::RunAsyncLoadingExample() {
         futures.push_back(std::move(future));
     }
     
-    Core::Log("[AssetsExample] Assets submetidos para carregamento assíncrono...");
+    LOG_INFO("[AssetsExample] Assets submetidos para carregamento assíncrono...");
     
     // Aguarda alguns assets
     for (size_t i = 0; i < futures.size(); ++i) {
         try {
             auto asset = futures[i].get();
             if (asset) {
-                Core::Log("[AssetsExample] Asset " + std::to_string(i) + " carregado: " + asset->GetName());
+                DRIFT_LOG_INFO("[AssetsExample] Asset ", i, " carregado: ", asset->GetName());
             }
         } catch (const std::exception& e) {
-            Core::LogError("[AssetsExample] Falha ao carregar asset " + std::to_string(i) + ": " + e.what());
+            LOG_ERROR("[AssetsExample] Falha ao carregar asset {}: {}", i, e.what());
         }
     }
     
     assetsSystem.LogStats();
-    Core::Log("[AssetsExample] Exemplo de carregamento assíncrono concluído!");
+    LOG_INFO("[AssetsExample] Exemplo de carregamento assíncrono concluído!");
 }
 
 void AssetsExample::RunPreloadingExample() {
-    Core::Log("[AssetsExample] Iniciando exemplo de pré-carregamento...");
+    LOG_INFO("[AssetsExample] Iniciando exemplo de pré-carregamento...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     assetsSystem.Initialize();
@@ -175,7 +175,7 @@ void AssetsExample::RunPreloadingExample() {
         "sounds/footstep.asset"
     };
     
-    Core::Log("[AssetsExample] Iniciando pré-carregamento de " + std::to_string(preloadPaths.size()) + " assets...");
+            DRIFT_LOG_INFO("[AssetsExample] Iniciando pré-carregamento de ", preloadPaths.size(), " assets...");
     
     // Pré-carrega assets
     for (const auto& path : preloadPaths) {
@@ -189,16 +189,16 @@ void AssetsExample::RunPreloadingExample() {
     for (const auto& path : preloadPaths) {
         auto asset = DRIFT_GET_ASSET(SimpleAsset, path);
         if (asset && asset->IsLoaded()) {
-            Core::Log("[AssetsExample] Asset pré-carregado: " + asset->GetName());
+            DRIFT_LOG_INFO("[AssetsExample] Asset pré-carregado: ", asset->GetName());
         }
     }
     
     assetsSystem.LogStats();
-    Core::Log("[AssetsExample] Exemplo de pré-carregamento concluído!");
+    LOG_INFO("[AssetsExample] Exemplo de pré-carregamento concluído!");
 }
 
 void AssetsExample::RunCacheManagementExample() {
-    Core::Log("[AssetsExample] Iniciando exemplo de gerenciamento de cache...");
+    LOG_INFO("[AssetsExample] Iniciando exemplo de gerenciamento de cache...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     
@@ -222,34 +222,34 @@ void AssetsExample::RunCacheManagementExample() {
         auto asset = DRIFT_LOAD_ASSET(SimpleAsset, path);
         if (asset) {
             assets.push_back(asset);
-            Core::Log("[AssetsExample] Asset carregado: " + asset->GetName());
+            DRIFT_LOG_INFO("[AssetsExample] Asset carregado: ", asset->GetName());
         }
     }
     
-    Core::Log("[AssetsExample] Cache após carregamento:");
+    LOG_INFO("[AssetsExample] Cache após carregamento:");
     assetsSystem.LogStats();
     
     // Força limpeza de cache
-    Core::Log("[AssetsExample] Forçando limpeza de cache...");
+    LOG_INFO("[AssetsExample] Forçando limpeza de cache...");
     assetsSystem.TrimCache();
     
-    Core::Log("[AssetsExample] Cache após limpeza:");
+    LOG_INFO("[AssetsExample] Cache após limpeza:");
     assetsSystem.LogStats();
     
     // Descarta referências para testar descarregamento automático
     assets.clear();
     
-    Core::Log("[AssetsExample] Descarregando assets não utilizados...");
+    LOG_INFO("[AssetsExample] Descarregando assets não utilizados...");
     assetsSystem.UnloadUnusedAssets();
     
-    Core::Log("[AssetsExample] Cache final:");
+    LOG_INFO("[AssetsExample] Cache final:");
     assetsSystem.LogStats();
     
-    Core::Log("[AssetsExample] Exemplo de gerenciamento de cache concluído!");
+    LOG_INFO("[AssetsExample] Exemplo de gerenciamento de cache concluído!");
 }
 
 void AssetsExample::RunPerformanceTest() {
-    Core::Log("[AssetsExample] Iniciando teste de performance...");
+    LOG_INFO("[AssetsExample] Iniciando teste de performance...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     assetsSystem.Initialize();
@@ -279,17 +279,15 @@ void AssetsExample::RunPerformanceTest() {
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     
-    Core::Log("[AssetsExample] Performance: " + std::to_string(assetPaths.size()) + 
-              " assets em " + std::to_string(duration.count()) + "ms");
-    Core::Log("[AssetsExample] Taxa: " + std::to_string(assetPaths.size() * 1000 / duration.count()) + 
-              " assets/segundo");
+    DRIFT_LOG_INFO("[AssetsExample] Performance: ", assetPaths.size(), " assets em ", duration.count(), "ms");
+    DRIFT_LOG_INFO("[AssetsExample] Taxa: ", assetPaths.size() * 1000 / duration.count(), " assets/segundo");
     
     assetsSystem.LogStats();
-    Core::Log("[AssetsExample] Teste de performance concluído!");
+    LOG_INFO("[AssetsExample] Teste de performance concluído!");
 }
 
 void AssetsExample::RunCompleteExample() {
-    Core::Log("[AssetsExample] Iniciando exemplo completo...");
+    LOG_INFO("[AssetsExample] Iniciando exemplo completo...");
     
     auto& assetsSystem = AssetsSystem::GetInstance();
     
@@ -314,7 +312,7 @@ void AssetsExample::RunCompleteExample() {
     assetsSystem.RegisterLoader<SimpleAsset>(std::move(loader));
     
     // Fase 1: Pré-carregamento
-    Core::Log("[AssetsExample] Fase 1: Pré-carregamento");
+    LOG_INFO("[AssetsExample] Fase 1: Pré-carregamento");
     std::vector<std::string> preloadPaths = {
         "textures/grass.asset", "textures/stone.asset", "textures/wood.asset",
         "models/tree.asset", "models/rock.asset", "models/house.asset"
@@ -325,7 +323,7 @@ void AssetsExample::RunCompleteExample() {
     }
     
     // Fase 2: Carregamento sob demanda
-    Core::Log("[AssetsExample] Fase 2: Carregamento sob demanda");
+    LOG_INFO("[AssetsExample] Fase 2: Carregamento sob demanda");
     std::vector<std::shared_ptr<SimpleAsset>> onDemandAssets;
     
     for (int i = 0; i < 20; ++i) {
@@ -337,7 +335,7 @@ void AssetsExample::RunCompleteExample() {
     }
     
     // Fase 3: Carregamento assíncrono
-    Core::Log("[AssetsExample] Fase 3: Carregamento assíncrono");
+    LOG_INFO("[AssetsExample] Fase 3: Carregamento assíncrono");
     std::vector<std::future<std::shared_ptr<SimpleAsset>>> asyncAssets;
     
     for (int i = 0; i < 15; ++i) {
@@ -352,16 +350,16 @@ void AssetsExample::RunCompleteExample() {
     }
     
     // Fase 4: Gerenciamento de cache
-    Core::Log("[AssetsExample] Fase 4: Gerenciamento de cache");
+    LOG_INFO("[AssetsExample] Fase 4: Gerenciamento de cache");
     assetsSystem.LogStats();
     
     // Força limpeza
     assetsSystem.TrimCache();
     
-    Core::Log("[AssetsExample] Cache após limpeza:");
+    LOG_INFO("[AssetsExample] Cache após limpeza:");
     assetsSystem.LogStats();
     
-    Core::Log("[AssetsExample] Exemplo completo concluído!");
+    LOG_INFO("[AssetsExample] Exemplo completo concluído!");
 }
 
 std::vector<std::string> AssetsExample::GenerateAssetPaths(size_t count) {
@@ -387,15 +385,15 @@ std::vector<std::string> AssetsExample::GenerateAssetPaths(size_t count) {
 }
 
 void AssetsExample::OnAssetLoaded(const std::string& path, std::type_index type) {
-    Core::Log("[AssetsExample] Asset carregado: " + path + " (" + std::string(type.name()) + ")");
+            DRIFT_LOG_INFO("[AssetsExample] Asset carregado: ", path, " (", std::string(type.name()), ")");
 }
 
 void AssetsExample::OnAssetUnloaded(const std::string& path, std::type_index type) {
-    Core::Log("[AssetsExample] Asset descarregado: " + path + " (" + std::string(type.name()) + ")");
+            DRIFT_LOG_INFO("[AssetsExample] Asset descarregado: ", path, " (", std::string(type.name()), ")");
 }
 
 void AssetsExample::OnAssetFailed(const std::string& path, std::type_index type, const std::string& error) {
-    Core::LogError("[AssetsExample] Falha ao carregar asset: " + path + " - " + error);
+    LOG_ERROR("[AssetsExample] Falha ao carregar asset: {} - {}", path, error);
 }
 
 } // namespace Drift::Core::Assets 

@@ -9,8 +9,7 @@
 #include <vector>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-
-// Forward declaration para evitar incluir stb_truetype.h no header
+// Forward declaration para evitar múltiplas inclusões
 struct stbtt_fontinfo;
 
 namespace Drift::UI {
@@ -49,41 +48,6 @@ struct FontLoadConfig {
     bool enableLigatures = true;           // Habilita ligaduras
     std::vector<uint32_t> preloadChars;    // Caracteres para pré-carregar
     bool enableFallback = true;            // Habilita fallback de fontes
-};
-
-/**
- * @brief Métricas completas de uma fonte
- */
-struct FontMetrics {
-    // Métricas básicas
-    float ascent = 0.0f;                   // Altura ascendente
-    float descent = 0.0f;                  // Altura descendente
-    float lineGap = 0.0f;                  // Espaçamento entre linhas
-    float lineHeight = 0.0f;               // Altura total da linha
-    float xHeight = 0.0f;                  // Altura do 'x'
-    float capHeight = 0.0f;                // Altura das maiúsculas
-    
-    // Métricas de largura
-    float avgCharWidth = 0.0f;             // Largura média dos caracteres
-    float maxCharWidth = 0.0f;             // Largura máxima
-    float minCharWidth = 0.0f;             // Largura mínima
-    
-    // Métricas de peso
-    float underlinePosition = 0.0f;        // Posição do sublinhado
-    float underlineThickness = 0.0f;       // Espessura do sublinhado
-    float strikethroughPosition = 0.0f;    // Posição do tachado
-    float strikethroughThickness = 0.0f;   // Espessura do tachado
-};
-
-/**
- * @brief Informações de um glyph individual
- */
-struct GlyphInfo {
-    glm::vec2 uv0{0.0f};      ///< Coordenadas UV do canto superior esquerdo
-    glm::vec2 uv1{0.0f};      ///< Coordenadas UV do canto inferior direito
-    glm::vec2 size{0.0f};     ///< Tamanho do glyph em pixels
-    glm::vec2 bearing{0.0f};  ///< Offset do glyph em relação à baseline
-    float advance{0.0f};      ///< Avanço horizontal para o próximo caractere
 };
 
 /**

@@ -2,7 +2,7 @@
 
 #include "Font.h"
 #include "FontManager.h"
-#include "TextRenderer.h"
+#include "FontRendering.h"
 #include "FontAtlas.h"
 #include "FontMetrics.h"
 #include "FontRendering.h"
@@ -32,7 +32,7 @@ namespace Drift::UI {
  * - FontAtlas: Sistema de atlas de glyphs otimizado
  * - FontMetrics: Cálculos de métricas e layout de texto
  * - FontRendering: Renderização de alta qualidade
- * - TextRenderer: Interface de alto nível para renderização
+ * - FontRendering: Interface de alto nível para renderização
  */
 
 /**

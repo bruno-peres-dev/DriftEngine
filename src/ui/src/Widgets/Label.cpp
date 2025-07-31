@@ -1,7 +1,7 @@
 #include "Drift/UI/Widgets/Label.h"
 #include "Drift/UI/UIContext.h"
 #include "Drift/UI/FontSystem/FontManager.h"
-#include "Drift/UI/FontSystem/TextRenderer.h"
+#include "Drift/UI/FontSystem/FontRendering.h"
 #include "Drift/Core/Log.h"
 
 using namespace Drift::UI;
@@ -70,7 +70,7 @@ void Label::Render(Drift::RHI::IUIBatcher& batch)
         // Renderiza o texto real usando o novo sistema de fontes
         auto* textRenderer = m_Context ? m_Context->GetTextRenderer() : nullptr;
         if (textRenderer) {
-            textRenderer->AddText(m_Text, textPos, m_FontFamily, m_FontSize, TextColorToVec4(m_TextColor));
+            textRenderer->RenderText(m_Text, textPos, m_FontFamily, m_FontSize, TextColorToVec4(m_TextColor));
         } else {
             batch.AddText(textPos.x, textPos.y, m_Text.c_str(), m_TextColor); // fallback
         }

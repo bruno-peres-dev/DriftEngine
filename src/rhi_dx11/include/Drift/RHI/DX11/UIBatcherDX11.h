@@ -10,7 +10,7 @@
 // Forward declarations
 
 namespace Drift::RHI { class IPipelineState; }
-namespace Drift::UI { class TextRenderer; }
+namespace Drift::UI { class FontRendering; }
 
 namespace Drift::RHI::DX11 {
 
@@ -210,7 +210,7 @@ private:
     IContext* m_Context;
     
     // === Sistema de renderização de texto ===
-    std::unique_ptr<Drift::UI::TextRenderer> m_TextRenderer;
+    std::unique_ptr<Drift::UI::FontRendering> m_TextRenderer;
     std::shared_ptr<ISampler> m_DefaultSampler;
     std::shared_ptr<IBuffer> m_TextCB;
     bool m_AddingText{false};

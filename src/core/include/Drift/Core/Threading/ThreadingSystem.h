@@ -298,7 +298,7 @@ auto ThreadingSystem::SubmitWithInfo(const TaskInfo& info, F&& f, Args&&... args
         endTime = std::chrono::steady_clock::now(); \
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime); \
         if (Drift::Core::Threading::ThreadingSystem::GetInstance().IsProfilingEnabled()) { \
-            Drift::Core::Log("[ThreadProfiler] " + std::string(name) + ": " + std::to_string(duration.count()) + "μs"); \
+            LOG_INFO("[ThreadProfiler] {}: {}μs", std::string(name), duration.count()); \
         } \
     }; \
     std::unique_ptr<void, decltype(profiler)> profilerGuard(nullptr, profiler)

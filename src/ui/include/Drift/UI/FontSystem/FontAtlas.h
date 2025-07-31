@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include "Drift/RHI/Texture.h"
 #include "Drift/RHI/Device.h"
