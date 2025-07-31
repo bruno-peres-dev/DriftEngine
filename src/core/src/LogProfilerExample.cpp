@@ -40,14 +40,14 @@ void DemonstrateLogging() {
     LOG_INFO_IF(!debugMode, "Debug mode está desativado");
     
     // Demonstração de logging de performance
-    LOG_PERF("Iniciando operação crítica");
+    DRIFT_LOG_DEBUG("[PERF] Iniciando operação crítica");
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    LOG_PERF("Operação crítica concluída");
+    DRIFT_LOG_DEBUG("[PERF] Operação crítica concluída");
     
     // Demonstração de logging de memória
-    LOG_MEM("Alocando 1024 bytes");
+    DRIFT_LOG_DEBUG("[MEM] Alocando 1024 bytes");
     std::vector<int> data(256);
-    LOG_MEM("Vetor alocado com {} elementos", data.size());
+    DRIFT_LOG_DEBUG("[MEM] Vetor alocado com {} elementos", data.size());
     
     // Demonstração de logging RHI
     LogRHI("Inicializando contexto DirectX 11");
@@ -62,8 +62,13 @@ void DemonstrateLogging() {
     }
     
     // Demonstração de logging de HRESULT
+#ifdef _WIN32
     LogHRESULT("Criação de dispositivo", S_OK);
     LogHRESULT("Criação de buffer", E_INVALIDARG);
+#else
+    LogHRESULT("Criação de dispositivo", 0);
+    LogHRESULT("Criação de buffer", -1);
+#endif
     
     DRIFT_LOG_INFO("=== Demonstração de Log Concluída ===");
 }
@@ -261,19 +266,19 @@ void DemonstrateAdvancedFeatures() {
             {
                 PROFILE_SCOPE_WITH_PARENT("RHI", "Inicialização");
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                LOG_PERF("RHI inicializado");
+                DRIFT_LOG_DEBUG("[PERF] RHI inicializado");
             }
             
             {
                 PROFILE_SCOPE_WITH_PARENT("Audio", "Inicialização");
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                LOG_PERF("Audio inicializado");
+                DRIFT_LOG_DEBUG("[PERF] Audio inicializado");
             }
             
             {
                 PROFILE_SCOPE_WITH_PARENT("Input", "Inicialização");
                 std::this_thread::sleep_for(std::chrono::milliseconds(30));
-                LOG_PERF("Input inicializado");
+                DRIFT_LOG_DEBUG("[PERF] Input inicializado");
             }
         }
         

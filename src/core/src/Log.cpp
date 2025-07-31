@@ -2,15 +2,24 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#ifdef _WIN32
 #include <d3d11.h>
+#endif
 #include <filesystem>
 #include <thread>
 #include <algorithm>
 #include <chrono>
 #include <ctime>
 
+#ifndef _WIN32
+inline bool FAILED(long hr) { return hr < 0; }
+#endif
+
 namespace Drift {
 namespace Core {
+
+// Forward declaration of helper
+std::string GetTimestamp();
 // Implementação do ConsoleLogOutput
 void ConsoleLogOutput::Write(LogLevel level, const std::string& message) {
     std::cout << message << std::endl;
@@ -180,10 +189,11 @@ void LogSystem::LogException(const std::string& context, const std::exception& e
 }
 
 void LogSystem::LogHRESULT(const std::string& context, HRESULT hr) {
+#ifdef _WIN32
     if (FAILED(hr)) {
         std::stringstream ss;
         ss << "[HRESULT][" << context << "] 0x" << std::hex << std::setw(8) << std::setfill('0') << hr;
-        
+
         // Adicionar descrição comum do HRESULT
         switch (hr) {
             case E_INVALIDARG:
@@ -223,11 +233,16 @@ void LogSystem::LogHRESULT(const std::string& context, HRESULT hr) {
                 ss << " (HRESULT desconhecido)";
                 break;
         }
-        
+
         LogRHIError(ss.str());
     } else {
         LogRHIDebug("[HRESULT][" + context + "] Sucesso (0x" + std::to_string(hr) + ")");
     }
+#else
+    std::stringstream ss;
+    ss << "[HRESULT][" << context << "] 0x" << std::hex << std::setw(8) << std::setfill('0') << hr;
+    LogRHIError(ss.str());
+#endif
 }
 
 void LogSystem::Log(const std::string& message) {

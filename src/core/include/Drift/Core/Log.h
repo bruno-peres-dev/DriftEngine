@@ -109,8 +109,6 @@ private:
     
     std::string FormatLogMessage(LogLevel level, const char* file, int line, const char* function, const std::string& message);
     std::string GetLevelString(LogLevel level);
-    // Função utilitária global para timestamp
-    std::string GetTimestamp();
     std::string GetThreadInfo();
     std::string GetFileInfo(const char* file, int line, const char* function);
     
@@ -136,6 +134,9 @@ inline void LogRHIError(const std::string& msg) { g_LogSystem.LogRHIError(msg); 
 inline void LogRHIDebug(const std::string& msg) { g_LogSystem.LogRHIDebug(msg); }
 inline void LogException(const std::string& context, const std::exception& e) { g_LogSystem.LogException(context, e); }
 inline void LogHRESULT(const std::string& context, HRESULT hr) { g_LogSystem.LogHRESULT(context, hr); }
+
+// Função utilitária global para timestamp
+std::string GetTimestamp();
 
 } // namespace Drift::Core
 
@@ -200,3 +201,5 @@ inline void LogHRESULT(const std::string& context, HRESULT hr) { g_LogSystem.Log
 // Macros para logging de memória
 #define LOG_MEM(msg) LOG_DEBUG("[MEM] " << msg)
 #define LOG_MEM_IF(condition, msg) LOG_DEBUG_IF(condition, "[MEM] " << msg)
+
+} // namespace Drift

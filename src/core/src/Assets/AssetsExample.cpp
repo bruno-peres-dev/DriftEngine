@@ -146,7 +146,7 @@ void AssetsExample::RunAsyncLoadingExample() {
                 DRIFT_LOG_INFO("[AssetsExample] Asset ", i, " carregado: ", asset->GetName());
             }
         } catch (const std::exception& e) {
-            LOG_ERROR("[AssetsExample] Falha ao carregar asset {}: {}", i, e.what());
+            DRIFT_LOG_ERROR("[AssetsExample] Falha ao carregar asset {}: {}", i, e.what());
         }
     }
     
@@ -393,7 +393,7 @@ void AssetsExample::OnAssetUnloaded(const std::string& path, std::type_index typ
 }
 
 void AssetsExample::OnAssetFailed(const std::string& path, std::type_index type, const std::string& error) {
-    LOG_ERROR("[AssetsExample] Falha ao carregar asset: {} - {}", path, error);
+    DRIFT_LOG_ERROR("[AssetsExample] Falha ao carregar asset: {} - {}", path, error);
 }
 
 } // namespace Drift::Core::Assets 

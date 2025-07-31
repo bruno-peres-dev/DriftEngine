@@ -237,4 +237,6 @@ private:
 #define PROFILE_UPDATE(name) PROFILE_SCOPE("[UPDATE]" name)
 #define PROFILE_LOAD(name) PROFILE_SCOPE("[LOAD]" name)
 
-} // namespace Drift::Core 
+} // namespace Drift::Core
+
+

@@ -306,4 +306,4 @@ auto ThreadingSystem::SubmitWithInfo(const TaskInfo& info, F&& f, Args&&... args
 // Macros para sincronização
 #define DRIFT_WAIT_FOR_ALL() Drift::Core::Threading::ThreadingSystem::GetInstance().WaitForAll()
 
-} // namespace Drift::Core::Threading 
+} // namespace Drift::Core::Threading
