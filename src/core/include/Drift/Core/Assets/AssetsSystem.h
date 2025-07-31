@@ -10,6 +10,7 @@
 #include <typeindex>
 #include <vector>
 #include <chrono>
+#include <iomanip>
 #include <any>
 #include <future>
 #include <queue>
@@ -597,4 +598,5 @@ void AssetsSystem::LoadAssetAsyncInternal(const AssetKey& key, const std::any& p
 #define DRIFT_PRELOAD_ASSET(type, path) \
     DRIFT_ASSETS().PreloadAsset<type>(path)
 
-} // namespace Drift::Core::Assets 
+} // namespace Drift::Core::Assets
+
